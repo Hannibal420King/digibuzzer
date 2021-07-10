@@ -46,7 +46,11 @@ const sessionOptions = {
 	name: 'digibuzzer',
 	resave: false,
 	rolling: true,
-	saveUninitialized: false
+	saveUninitialized: false,
+	cookie: {
+		sameSite: true,
+		secure: 'auto'
+	}
 }
 const expressSession = session(sessionOptions)
 const sharedsession = require('express-socket.io-session')
