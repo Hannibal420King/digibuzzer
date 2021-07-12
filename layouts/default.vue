@@ -47,7 +47,7 @@ export default {
 				this.$store.dispatch('modifierNotification', '')
 				setTimeout(function () {
 					element.parentNode.removeChild(element)
-				}, 2000)
+				}, 2500)
 			}
 		}
 	},
