@@ -373,7 +373,6 @@ export default {
 			this.$store.dispatch('modifierMessage', this.$t('salleInexistante'))
 		}
 	},
-	watchQuery: ['page'],
 	async asyncData (context) {
 		const salle = context.route.params.salle
 		const { data } = await axios.post(context.store.state.hote + '/api/recuperer-donnees-salle', {
@@ -408,6 +407,11 @@ export default {
 			modaleConfirmation: false,
 			codeqr: '',
 			domaine: ''
+		}
+	},
+	head () {
+		return {
+			title: this.titre + ' - Digibuzzer by La Digitale'
 		}
 	},
 	computed: {
@@ -499,6 +503,7 @@ export default {
 			return utilisateurs
 		}
 	},
+	watchQuery: ['page'],
 	created () {
 		this.$nuxt.$loading.start()
 		this.$i18n.setLocale(this.langue)
@@ -784,11 +789,6 @@ export default {
 			} else {
 				this.$store.dispatch('modifierMessage', this.$t('erreurExportResultat'))
 			}
-		}
-	},
-	head () {
-		return {
-			title: this.titre + ' - Digibuzzer by La Digitale'
 		}
 	}
 }
