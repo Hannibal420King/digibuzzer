@@ -7,7 +7,7 @@ const express = require('express')
 const app = express()
 const server = http.createServer(app)
 const cors = require('cors')
-const io = require('socket.io')(server)
+const io = require('socket.io')(server, { cookie: false })
 const redis = require('redis')
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
@@ -48,7 +48,7 @@ const sessionOptions = {
 	rolling: true,
 	saveUninitialized: false,
 	cookie: {
-		sameSite: true,
+		sameSite: 'None',
 		secure: 'auto'
 	}
 }
