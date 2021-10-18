@@ -47,28 +47,16 @@ export const mutations = {
 }
 
 export const actions = {
-	nuxtServerInit ({ commit }, { req }) {
-		if (req.session && req.session.identifiant && req.session.identifiant !== '' && req.session.identifiant !== undefined) {
-			commit('modifierIdentifiant', req.session.identifiant)
-		}
-		if (req.session && req.session.nom && req.session.nom !== '') {
-			commit('modifierNom', req.session.nom)
-		}
-		if (req.session && req.session.avatar && req.session.avatar !== '') {
-			commit('modifierAvatar', req.session.avatar)
-		}
-		if (req.session && req.session.langue && req.session.langue !== '') {
-			commit('modifierLangue', req.session.langue)
-		}
-		if (req.session && req.session.statut && req.session.statut !== '') {
-			commit('modifierStatut', req.session.statut)
-		}
-		if (req.session && req.session.salles && req.session.salles.length > 0) {
-			commit('modifierSalles', req.session.salles)
-		}
-	},
 	modifierUserAgent ({ commit }, userAgent) {
 		commit('modifierUserAgent', userAgent)
+	},
+	modifierUtilisateur ({ commit }, donnees) {
+		commit('modifierIdentifiant', donnees.identifiant)
+		commit('modifierNom', donnees.nom)
+		commit('modifierAvatar', donnees.avatar)
+		commit('modifierLangue', donnees.langue)
+		commit('modifierStatut', donnees.statut)
+		commit('modifierSalles', donnees.salles)
 	},
 	modifierMessage ({ commit }, message) {
 		commit('modifierMessage', message)
