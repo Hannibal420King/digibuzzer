@@ -8,7 +8,7 @@ export default {
 	contact: 'Contact',
 	mentionsLegales2: 'Digibuzzer est une application qui permet de créer des salles de jeu virtuelles interactives. Son utilisation est exclusivement réservée à un cadre éducatif et pédagogique.',
 	politiqueConfidentialite: 'Politique de confidentialité',
-	mentionsLegales3: 'La collecte de données personnelles se limite aux journaux générés automatiquement par le serveur. Le site digibuzzer.app s\'engage à ne pas transmettre ou revendre à des tierces parties les données de ses utilisateurs. Le site ne fait l\'objet d\'aucune surveillance de trafic à des fins statistiques.',
+	mentionsLegales3: 'La collecte de données personnelles se limite aux journaux générés automatiquement par le serveur. La Digitale s\'engage à ne pas transmettre ou revendre de données à des tierces parties. Ce site ne fait l\'objet d\'aucune surveillance de trafic à des fins statistiques.',
 	mentionsLegales4: 'Un cookie contenant l\'identifiant de l\'utilisateur et un cookie contenant l\'identifiant du socket de communication sont utilisés pour permettre la connexion à la session utilisateur pseudoanonymisée et la communication en temps réel entre les utilisateurs et le serveur. Pour assurer un niveau maximum de confidentialité, il est recommandé d\'utiliser un pseudo.',
 	hebergement: 'Hébergement',
 	mentionsLegales5: 'L\'hébergement du site est assuré par la société Infomaniak (www.infomaniak.com/fr), Genève, Suisse.',
