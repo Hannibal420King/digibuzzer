@@ -64,5 +64,6 @@ export default {
 	modifierScore: 'Edit score',
 	modifier: 'Edit',
 	scoreModifie: 'Score edited.',
-	bonus: 'Bonus'
+	bonus: 'Bonus',
+	telecharger: 'Download'
 }
