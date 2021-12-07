@@ -454,7 +454,7 @@ export default {
 			this.score = score
 		},
 		quitterPage () {
-			this.$socket.emit('deconnexion')
+			this.$socket.emit('deconnexion', this.salle)
 		}
 	}
 }

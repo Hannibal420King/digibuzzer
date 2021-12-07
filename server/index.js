@@ -247,7 +247,6 @@ io.on('connection', function (socket) {
 		const nom = donnees.nom
 		const avatar = donnees.avatar
 		socket.join(salle)
-		socket.room = salle
 		socket.identifiant = identifiant
 		socket.nom = nom
 		socket.avatar = avatar
@@ -257,19 +256,19 @@ io.on('connection', function (socket) {
 			client = io.sockets.connected[client]
 			utilisateurs.push({ identifiant: client.identifiant, nom: client.nom, avatar: client.avatar })
 		}
-		io.in(socket.room).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
+		io.in(salle).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
 	})
 
-	socket.on('deconnexion', function () {
-		socket.to(socket.room).emit('deconnexion', socket.identifiant)
+	socket.on('deconnexion', function (salle) {
+		socket.to(salle).emit('deconnexion', socket.identifiant)
 	})
 
 	socket.on('salleouverte', function (donnees) {
-		socket.to(socket.room).emit('salleouverte', donnees)
+		socket.to(donnees.salle).emit('salleouverte', donnees)
 	})
 
-	socket.on('sallefermee', function () {
-		socket.to(socket.room).emit('sallefermee')
+	socket.on('sallefermee', function (salle) {
+		socket.to(salle).emit('sallefermee')
 	})
 
 	socket.on('utilisateurs', function (donnees) {
@@ -310,7 +309,7 @@ io.on('connection', function (socket) {
 						if (err) { socket.emit('erreur'); return false }
 						socket.nom = donnees.nom
 						socket.avatar = donnees.avatar
-						socket.to(socket.room).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
+						socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
 						socket.handshake.session.nom = nom
 						socket.handshake.session.avatar = avatar
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
@@ -337,7 +336,7 @@ io.on('connection', function (socket) {
 					donnees.resultats.push([])
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						io.in(socket.room).emit('question', indexQuestion)
+						io.in(salle).emit('question', indexQuestion)
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
 						socket.handshake.session.save()
 					})
@@ -358,7 +357,7 @@ io.on('connection', function (socket) {
 					donnees.statutQuestion = 'reponses'
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						io.in(socket.room).emit('reponses')
+						io.in(salle).emit('reponses')
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
 						socket.handshake.session.save()
 					})
@@ -370,7 +369,7 @@ io.on('connection', function (socket) {
 	})
 
 	socket.on('reponse', function (reponse) {
-		io.in(socket.room).emit('reponse', reponse)
+		io.in(reponse.salle).emit('reponse', reponse)
 	})
 
 	socket.on('premierereponse', function ({ salle, identifiant, indexQuestion }) {
@@ -384,7 +383,7 @@ io.on('connection', function (socket) {
 					donnees.reponses[indexQuestion].push(identifiant)
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						io.in(socket.room).emit('premierereponse', identifiant)
+						io.in(salle).emit('premierereponse', identifiant)
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
 						socket.handshake.session.save()
 					})
@@ -405,7 +404,7 @@ io.on('connection', function (socket) {
 					donnees.premiereReponse = ''
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						io.in(socket.room).emit('reponseannulee', identifiant)
+						io.in(salle).emit('reponseannulee', identifiant)
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
 						socket.handshake.session.save()
 					})
@@ -427,7 +426,7 @@ io.on('connection', function (socket) {
 					donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						io.in(socket.room).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
+						io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
 						socket.handshake.session.save()
 					})
@@ -456,7 +455,7 @@ io.on('connection', function (socket) {
 					}
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						io.in(socket.room).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
+						io.in(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
 						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
 						socket.handshake.session.save()
 					})

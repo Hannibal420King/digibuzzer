@@ -744,7 +744,7 @@ export default {
 				} else if (donnees === 'statut_modifie') {
 					this.statut = 'ferme'
 					this.$store.dispatch('modifierNotification', this.$t('salleFermee'))
-					this.$socket.emit('sallefermee')
+					this.$socket.emit('sallefermee', this.salle)
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
