@@ -260,7 +260,7 @@ io.on('connection', function (socket) {
 	})
 
 	socket.on('deconnexion', function (salle) {
-		socket.to(salle).emit('deconnexion', socket.identifiant)
+		socket.to(salle).emit('deconnexion', socket.handshake.session.identifiant)
 	})
 
 	socket.on('salleouverte', function (donnees) {
@@ -307,8 +307,6 @@ io.on('connection', function (socket) {
 					})
 					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
-						socket.nom = donnees.nom
-						socket.avatar = donnees.avatar
 						socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
 						socket.handshake.session.nom = nom
 						socket.handshake.session.avatar = avatar
