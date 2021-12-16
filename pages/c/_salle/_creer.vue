@@ -998,6 +998,7 @@ export default {
 }
 
 #modale-utilisateur .bouton:first-child {
+	color: #fff;
 	background: #777;
 }
 
