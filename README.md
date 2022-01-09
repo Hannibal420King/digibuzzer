@@ -29,6 +29,7 @@ pm2 start
 
 ### Variables d'environnement pour la mise en production (fichier .env à créer à la racine du dossier)
 ```
+DOMAIN (protocole + domaine. ex : https://digibuzzer.app)
 HOST (IP publique du serveur de production)
 DB_HOST (IP publique du serveur de base de données Redis)
 DB_PWD (mot de passe de la base de données Redis)
