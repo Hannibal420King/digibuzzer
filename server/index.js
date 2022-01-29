@@ -22,7 +22,7 @@ const helmet = require('helmet')
 const multer = require('multer')
 const sharp = require('sharp')
 const moment = require('moment')
-// const cron = require('node-cron')
+const cron = require('node-cron')
 let storeOptions
 if (process.env.NODE_ENV === 'production') {
 	storeOptions = {
@@ -68,9 +68,37 @@ if (config.dev) {
 	nuxt.ready()
 }
 
-/* cron.schedule('59 23 * * Saturday', () => {
-	fs.emptyDirSync(path.join(__dirname, '..', '/static/temp'))
-}) */
+cron.schedule('59 23 * * Saturday', () => {
+	db.keys('salles:*', function (err, salles) {
+		const donneesSalles = []
+		for (const salle of salles) {
+			const donneesSalle = new Promise(function (resolve) {
+				db.exists(salle, function (err, reponse) {
+					if (err) { resolve(0) }
+					if (reponse === 1) {
+						db.hgetall(salle, function (err, resultat) {
+							if (err) { resolve(0) }
+							if (moment(resultat.date).isBefore(moment().subtract(21, 'days'))) {
+								db.del(salle, function (err) {
+									if (err) { resolve(0) }
+									resolve(1)
+								})
+							} else {
+								resolve(0)
+							}
+						})
+					} else {
+						resolve(0)
+					}
+				})
+			})
+			donneesSalles.push(donneesSalle)
+		}
+		Promise.all(donneesSalles).then(function (resultats) {
+			console.log(resultats)
+		})
+	})
+})
 
 app.set('trust proxy', true)
 app.use(helmet())
