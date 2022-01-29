@@ -177,7 +177,7 @@ export default {
 			if (identifiant === this.identifiant) {
 				this.modale = 'reponse'
 				this.icone = 'pending'
-				const audio = new Audio('/fx/reponse.mp3')
+				this.audio.src = '/fx/reponse.mp3'
 				audio.play()
 			}
 		},
@@ -185,7 +185,7 @@ export default {
 			this.premiereReponse = ''
 			if (identifiant === this.identifiant) {
 				this.icone = 'clear'
-				const audio = new Audio('/fx/incorrect.mp3')
+				this.audio.src = '/fx/incorrect.mp3'
 				audio.play()
 				setTimeout(function () {
 					this.modale = ''
@@ -196,7 +196,7 @@ export default {
 		reponsevalidee: function (donnees) {
 			if (donnees.identifiant === this.identifiant) {
 				this.icone = 'thumb_up_alt'
-				const audio = new Audio('/fx/correct.mp3')
+				this.audio.src = '/fx/correct.mp3'
 				audio.play()
 				setTimeout(function () {
 					this.modale = ''
@@ -264,7 +264,9 @@ export default {
 			premiereReponse: '',
 			reponses: [],
 			resultats: [],
-			icone: 'pending'
+			icone: 'pending',
+			audio: '',
+			audioInitialise: false
 		}
 	},
 	head () {
@@ -316,6 +318,15 @@ export default {
 		setTimeout(function () {
 			this.$nuxt.$loading.finish()
 		}.bind(this), 100)
+		this.audio = new Audio()
+		this.audio.autoplay = true
+		this.audio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+		document.body.addEventListener('touchstart', function () {
+			if (this.audioInitialise === false) {
+				this.audio.play()
+				this.audioInitialise = true
+			}
+		}.bind(this))
 		window.addEventListener('beforeunload', this.quitterPage, false)
 	},
 	beforeDestroy () {
