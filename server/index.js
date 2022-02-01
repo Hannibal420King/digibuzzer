@@ -23,7 +23,7 @@ const multer = require('multer')
 const sharp = require('sharp')
 const moment = require('moment')
 const cron = require('node-cron')
-let storeOptions
+let storeOptions, cookie
 if (process.env.NODE_ENV === 'production') {
 	storeOptions = {
 		host: process.env.DB_HOST,
@@ -32,12 +32,19 @@ if (process.env.NODE_ENV === 'production') {
 		client: db,
 		prefix: 'sessions:'
 	}
+	cookie = {
+		sameSite: 'None',
+		secure: true
+	}
 } else {
 	storeOptions = {
 		host: 'localhost',
 		port: 6379,
 		client: db,
 		prefix: 'sessions:'
+	}
+	cookie = {
+		secure: false
 	}
 }
 const sessionOptions = {
@@ -47,10 +54,7 @@ const sessionOptions = {
 	resave: false,
 	rolling: true,
 	saveUninitialized: false,
-	cookie: {
-		sameSite: 'None',
-		secure: true
-	}
+	cookie: cookie
 }
 const expressSession = session(sessionOptions)
 const sharedsession = require('express-socket.io-session')
