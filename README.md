@@ -41,3 +41,7 @@ SESSION_KEY (clé de session Express Session)
 
 ### Démo
 https://digibuzzer.app
+
+### Soutien
+https://opencollective.com/ladigitale
+
