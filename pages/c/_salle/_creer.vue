@@ -546,8 +546,8 @@ export default {
 			// eslint-disable-next-line
 			this.codeqr = new QRCode('qr', {
 				text: lien,
-				width: 500,
-				height: 500,
+				width: 360,
+				height: 360,
 				colorDark: '#000000',
 				colorLight: '#ffffff',
 				// eslint-disable-next-line
