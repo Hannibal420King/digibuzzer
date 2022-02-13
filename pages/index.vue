@@ -154,6 +154,7 @@ export default {
 					langue: langue
 				}).then(function () {
 					this.$i18n.setLocale(langue)
+					document.getElementsByTagName('html')[0].setAttribute('lang', langue)
 					this.$store.dispatch('modifierLangue', langue)
 					this.$store.dispatch('modifierNotification', this.$t('langueModifiee'))
 					this.chargement = false
