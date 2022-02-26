@@ -289,6 +289,9 @@ export default {
 		},
 		langue () {
 			return this.$store.state.langue
+		},
+		langues () {
+			return this.$store.state.langues
 		}
 	},
 	watchQuery: ['page'],
@@ -299,7 +302,13 @@ export default {
 		} else {
 			this.modale = 'informations'
 		}
-		this.$i18n.setLocale(this.langue)
+		const langue = this.$route.query.lang
+		if (this.langues.includes(langue) === true) {
+			this.$i18n.setLocale(langue)
+			this.$store.dispatch('modifierLangue', langue)
+		} else {
+			this.$i18n.setLocale(this.langue)
+		}
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
 		if (this.donnees.statutQuestion === 'question') {
 			this.modale = 'question'
@@ -317,6 +326,7 @@ export default {
 	mounted () {
 		setTimeout(function () {
 			this.$nuxt.$loading.finish()
+			document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 		}.bind(this), 100)
 		this.audio = new Audio()
 		this.audio.autoplay = true

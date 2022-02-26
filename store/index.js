@@ -12,6 +12,7 @@ export const state = () => ({
 	nom: '',
 	avatar: '',
 	langue: 'fr',
+	langues: ['fr', 'en'],
 	statut: '',
 	salles: []
 })

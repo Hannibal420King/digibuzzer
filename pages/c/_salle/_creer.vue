@@ -427,6 +427,9 @@ export default {
 		langue () {
 			return this.$store.state.langue
 		},
+		langues () {
+			return this.$store.state.langues
+		},
 		statutUtilisateur () {
 			return this.$store.state.statut
 		},
@@ -506,7 +509,13 @@ export default {
 	watchQuery: ['page'],
 	created () {
 		this.$nuxt.$loading.start()
-		this.$i18n.setLocale(this.langue)
+		const langue = this.$route.query.lang
+		if (this.langues.includes(langue) === true) {
+			this.$i18n.setLocale(langue)
+			this.$store.dispatch('modifierLangue', langue)
+		} else {
+			this.$i18n.setLocale(this.langue)
+		}
 		if (this.statutUtilisateur === 'animateur' && this.salles.includes(this.salle)) {
 			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: '' })
 		}
@@ -527,6 +536,7 @@ export default {
 			setTimeout(function () {
 				this.$nuxt.$loading.finish()
 				this.initialiser()
+				document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 			}.bind(this), 100)
 		} else {
 			this.$router.push('/')
