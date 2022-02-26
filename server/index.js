@@ -151,7 +151,9 @@ app.post('/api/creer-salle', function (req, res) {
 				if (err) { res.send('erreur'); return false }
 				req.session.nom = ''
 				req.session.avatar = ''
-				req.session.langue = 'fr'
+				if (req.session.langue === '' || req.session.langue === undefined) {
+					req.session.langue = 'fr'
+				}
 				req.session.statut = 'animateur'
 				req.session.salles.push(salle)
 				req.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
@@ -494,6 +496,11 @@ io.on('connection', function (socket) {
 				socket.emit('erreursalle'); return false
 			}
 		})
+	})
+
+	socket.on('modifierlangue', function (langue) {
+		socket.handshake.session.langue = langue
+		socket.handshake.session.save()
 	})
 })
 
