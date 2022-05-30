@@ -23,7 +23,7 @@ const multer = require('multer')
 const sharp = require('sharp')
 const moment = require('moment')
 const cron = require('node-cron')
-let storeOptions, cookie
+let storeOptions, cookie, dureeSession
 if (process.env.NODE_ENV === 'production') {
 	storeOptions = {
 		host: process.env.DB_HOST,
@@ -56,10 +56,14 @@ const sessionOptions = {
 	saveUninitialized: false,
 	cookie: cookie
 }
+if (process.env.SESSION_DURATION) {
+	dureeSession = parseInt(process.env.SESSION_DURATION)
+} else {
+	dureeSession = 864000000 //3600 * 24 * 10 * 1000
+}
 const expressSession = session(sessionOptions)
 const sharedsession = require('express-socket.io-session')
 const config = require('../nuxt.config.js')
-
 config.dev = !(process.env.NODE_ENV === 'production')
 const nuxt = new Nuxt(config)
 const { host, port } = nuxt.options.server
@@ -122,7 +126,7 @@ app.get('/p/:salle', function (req) {
 		req.session.langue = 'fr'
 		req.session.statut = 'joueur'
 		req.session.salles = []
-		req.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+		req.session.cookie.expires = new Date(Date.now() + dureeSession)
 	}
 	req.next()
 })
@@ -156,7 +160,7 @@ app.post('/api/creer-salle', function (req, res) {
 				}
 				req.session.statut = 'animateur'
 				req.session.salles.push(salle)
-				req.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+				req.session.cookie.expires = new Date(Date.now() + dureeSession)
 				res.json({ salle: salle })
 			})
 		} else {
@@ -173,7 +177,7 @@ app.post('/api/modifier-titre-salle', function (req, res) {
 			if (err) { res.send('erreur'); return false }
 			if (reponse === 1) {
 				const titre = req.body.titre
-				db.hmset('salles:' + salle, 'titre', titre, function (err) {
+				db.hset('salles:' + salle, 'titre', titre, function (err) {
 					if (err) { res.send('erreur'); return false }
 					res.send('titre_modifie')
 				})
@@ -194,7 +198,7 @@ app.post('/api/modifier-statut-salle', function (req, res) {
 			if (err) { res.send('erreur'); return false }
 			if (reponse === 1) {
 				const statut = req.body.statut
-				db.hmset('salles:' + salle, 'statut', statut, function (err) {
+				db.hset('salles:' + salle, 'statut', statut, function (err) {
 					if (err) { res.send('erreur'); return false }
 					res.send('statut_modifie')
 				})
@@ -314,7 +318,7 @@ io.on('connection', function (socket) {
 					if (err) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.utilisateurs = utilisateurs
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees))
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees))
 				})
 			} else {
 				socket.emit('erreursalle'); return false
@@ -339,12 +343,12 @@ io.on('connection', function (socket) {
 							donnees.utilisateurs[indexUtilisateur].avatar = avatar
 						}
 					})
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
 						socket.handshake.session.nom = nom
 						socket.handshake.session.avatar = avatar
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})
@@ -366,10 +370,10 @@ io.on('connection', function (socket) {
 					donnees.premiereReponse = ''
 					donnees.reponses.push([])
 					donnees.resultats.push([])
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('question', indexQuestion)
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})
@@ -387,10 +391,10 @@ io.on('connection', function (socket) {
 					if (err) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.statutQuestion = 'reponses'
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('reponses')
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})
@@ -413,10 +417,10 @@ io.on('connection', function (socket) {
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.premiereReponse = identifiant
 					donnees.reponses[indexQuestion].push(identifiant)
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('premierereponse', identifiant)
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})
@@ -434,10 +438,10 @@ io.on('connection', function (socket) {
 					if (err) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.premiereReponse = ''
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('reponseannulee', identifiant)
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})
@@ -456,10 +460,10 @@ io.on('connection', function (socket) {
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.statutQuestion = ''
 					donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})
@@ -485,10 +489,10 @@ io.on('connection', function (socket) {
 					} else {
 						donnees.bonus.push({ identifiant: identifiant, points: parseInt(bonus) })
 					}
-					db.hmset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
-						socket.handshake.session.cookie.expires = new Date(Date.now() + (3600 * 24 * 7 * 1000))
+						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
 						socket.handshake.session.save()
 					})
 				})

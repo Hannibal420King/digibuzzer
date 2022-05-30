@@ -34,6 +34,7 @@ HOST (IP publique du serveur de production)
 DB_HOST (IP publique du serveur de base de données Redis)
 DB_PWD (mot de passe de la base de données Redis)
 SESSION_KEY (clé de session Express Session)
+SESSION_DURATION (durée de la session de connexion des utilisateurs en millisecondes)
 ```
 
 ### Projet Nuxt.js avec serveur Node.js (Express) et base de données Redis
