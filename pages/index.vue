@@ -1,11 +1,10 @@
 <template>
 	<div id="page">
-		<div id="accueil" :style="{'background-image': 'url(./img/digibuzzer.jpg)'}">
+		<div id="accueil" :style="{'background-image': 'url(./img/fond.png)'}">
 			<div id="langues">
 				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
 				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
 			</div>
-			<div id="masque" />
 			<div id="conteneur">
 				<div id="contenu">
 					<h1>
@@ -231,17 +230,6 @@ export default {
     cursor: default;
 }
 
-#masque {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(255, 255, 255, 0.55);
-}
-
 #conteneur {
 	position: absolute;
     top: 0;
@@ -348,13 +336,14 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-	z-index: 100000;
+	z-index: -1;
 }
 
 #hub.ouvert {
 	visibility: visible;
 	opacity: 1;
     animation: fonduEntrant linear 0.1s;
+	z-index: 100000;
 }
 
 #hub iframe {
