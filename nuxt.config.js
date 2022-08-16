@@ -12,7 +12,14 @@ module.exports = {
 			{ name: 'apple-mobile-web-app-capable', content: 'yes' },
 			{ name: 'mobile-web-app-capable', content: 'yes' },
 			{ name: 'HandheldFriendly', content: 'true' },
-			{ hid: 'description', name: 'description', content: 'Une application en ligne pour créer des salles de jeu virtuelles proposée par La Digitale' }
+			{ name: 'description', content: 'Une application en ligne pour créer des salles de jeu virtuelles proposée par La Digitale' },
+			{ property: 'og:title', content: 'Digibuzzer by La Digitale' },
+			{ property: 'og:description', content: 'Une application en ligne pour créer des salles de jeu virtuelles proposée par La Digitale' },
+			{ property: 'og:type', content: 'website' },
+			{ property: 'og:url', content: 'https://digibuzzer.app/' },
+			{ property: 'og:image', content: 'https://digibuzzer.app/img/digibuzzer.img' },
+			{ property: 'og:locale', content: 'fr_FR' }
+			
 		],
 		noscript: [
 			{ innerHTML: 'Vous devez activer Javascript sur votre navigateur pour utiliser cette application...' }
