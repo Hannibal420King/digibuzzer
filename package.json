@@ -4,7 +4,7 @@
   "homepage": "https://digibuzzer.app",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/ladigitale/digibuzzer.git"
+    "url": "https://codeberg.org/ladigitale/digibuzzer.git"
   },
   "author": {
     "name": "Emmanuel ZIMMERT",
