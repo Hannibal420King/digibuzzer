@@ -21,7 +21,7 @@ module.exports = {
 			{ property: 'og:description', content: 'Une application en ligne pour créer des salles de jeu virtuelles proposée par La Digitale' },
 			{ property: 'og:type', content: 'website' },
 			{ property: 'og:url', content: 'https://digibuzzer.app/' },
-			{ property: 'og:image', content: 'https://digibuzzer.app/img/digibuzzer.img' },
+			{ property: 'og:image', content: 'https://digibuzzer.app/img/digibuzzer.png' },
 			{ property: 'og:locale', content: 'fr_FR' }
 			
 		],
