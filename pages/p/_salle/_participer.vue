@@ -235,19 +235,29 @@ export default {
 	},
 	async asyncData (context) {
 		const salle = context.route.params.salle
-		const { data } = await axios.post(context.store.state.hote + '/api/recuperer-donnees-salle', {
+		const reponse = await axios.post(context.store.state.hote + '/api/recuperer-donnees-salle', {
 			salle: salle
 		}, {
 			headers: { 'Content-Type': 'application/json' }
+		}).catch(function () {
+			return {
+				redirection: '/'
+			}
 		})
-		if (data === 'erreur') {
-			context.redirect('/')
+		if (!reponse || !reponse.hasOwnProperty('data')) {
+			return {
+				redirection: '/'
+			}
+		} else if (reponse.data && reponse.data === 'erreur') {
+			return {
+				redirection: '/'
+			}
 		} else {
 			return {
 				salle: salle,
-				titre: data.titre,
-				statut: data.statut,
-				donnees: data.donnees
+				titre: reponse.data.titre,
+				statut: reponse.data.statut,
+				donnees: reponse.data.donnees
 			}
 		}
 	},
@@ -296,6 +306,9 @@ export default {
 	},
 	watchQuery: ['page'],
 	created () {
+		if (this.redirection) {
+			this.$router.push(this.redirection)
+		}
 		this.$nuxt.$loading.start()
 		if (this.nom !== '' && this.avatar !== '') {
 			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
