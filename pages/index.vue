@@ -80,6 +80,7 @@
 
 <script>
 import axios from 'axios'
+import { io } from 'socket.io-client'
 import chargement from '@/components/chargement.vue'
 
 export default {
@@ -105,6 +106,12 @@ export default {
 		hote () {
 			return this.$store.state.hote
 		},
+		socket () {
+			return io(this.hote, {
+				transports: ['websocket', 'polling'],
+				closeOnBeforeunload: false
+			})
+		},
 		langue () {
 			return this.$store.state.langue
 		},
@@ -117,7 +124,7 @@ export default {
 		if (this.langues.includes(langue) === true) {
 			this.$i18n.setLocale(langue)
 			this.$store.dispatch('modifierLangue', langue)
-			this.$socket.emit('modifierlangue', langue)
+			this.socket.emit('modifierlangue', langue)
 		} else {
 			this.$i18n.setLocale(this.langue)
 		}

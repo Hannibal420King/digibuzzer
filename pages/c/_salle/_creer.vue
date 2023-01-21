@@ -262,116 +262,13 @@
 import axios from 'axios'
 import ClipboardJS from 'clipboard'
 import { saveAs } from 'file-saver'
+import { io } from 'socket.io-client'
 import chargement from '@/components/chargement.vue'
 
 export default {
 	name: 'Creer',
 	components: {
 		chargement
-	},
-	sockets: {
-		connexion: function (donnees) {
-			const utilisateurs = donnees.utilisateurs.filter(function (utilisateur) {
-				return utilisateur.identifiant !== this.identifiant
-			}.bind(this))
-			utilisateurs.forEach(function (utilisateur) {
-				utilisateur.connecte = true
-			})
-			this.utilisateurs = utilisateurs
-			if (this.donnees.utilisateurs.map(function (e) { return e.identifiant }).includes(donnees.utilisateur.identifiant) === false) {
-				this.donnees.utilisateurs.push({ identifiant: donnees.utilisateur.identifiant, nom: donnees.utilisateur.nom, avatar: donnees.utilisateur.avatar })
-			}
-			const donneesUtilisateurs = this.donnees.utilisateurs.filter(function (utilisateur) {
-				return utilisateur.identifiant !== this.identifiant
-			}.bind(this))
-			this.donnees.utilisateurs = donneesUtilisateurs
-			this.$socket.emit('utilisateurs', { salle: this.salle, utilisateurs: donneesUtilisateurs })
-		},
-		deconnexion: function (identifiant) {
-			const utilisateurs = this.utilisateurs
-			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
-				if (utilisateur.identifiant === identifiant) {
-					utilisateurs.splice(indexUtilisateur, 1, { identifiant: utilisateur.identifiant, nom: utilisateur.nom, avatar: utilisateur.avatar, connecte: false })
-				}
-			})
-			this.utilisateurs = utilisateurs
-		},
-		question: function (indexQuestion) {
-			this.chargement = false
-			this.indexQuestion = indexQuestion
-			this.statutQuestion = 'question'
-			this.premiereReponse = ''
-			this.reponses.push([])
-			this.resultats.push([])
-			this.modale = 'question'
-		},
-		reponses: function () {
-			this.chargement = false
-			this.statutQuestion = 'reponses'
-		},
-		reponse: function (reponse) {
-			if (reponse.salle === this.salle && this.premiereReponse === '') {
-				this.premiereReponse = reponse.identifiant
-				this.modale = 'utilisateur'
-				this.$socket.emit('premierereponse', { salle: this.salle, identifiant: reponse.identifiant, indexQuestion: this.indexQuestion })
-			}
-		},
-		premierereponse: function (identifiant) {
-			this.reponses[this.indexQuestion].push(identifiant)
-		},
-		reponseannulee: function () {
-			this.chargement = false
-		},
-		reponsevalidee: function (donnees) {
-			this.chargement = false
-			this.statutQuestion = ''
-			if (this.resultats[donnees.indexQuestion].map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
-				this.resultats[donnees.indexQuestion].forEach(function (resultat, indexResultat) {
-					if (resultat.identifiant === donnees.identifiant) {
-						this.resultats[donnees.indexQuestion][indexResultat].points = parseInt(this.resultats[donnees.indexQuestion][indexResultat].points) + parseInt(donnees.points)
-					}
-				}.bind(this))
-			} else {
-				this.resultats[donnees.indexQuestion].push({ identifiant: donnees.identifiant, points: parseInt(donnees.points) })
-			}
-		},
-		score: function (donnees) {
-			this.chargement = false
-			if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
-				this.donnees.bonus.forEach(function (bonus, indexBonus) {
-					if (bonus.identifiant === donnees.identifiant) {
-						this.donnees.bonus[indexBonus].points = parseInt(donnees.bonus)
-					}
-				}.bind(this))
-			} else {
-				this.donnees.bonus.push({ identifiant: donnees.identifiant, points: parseInt(donnees.bonus) })
-			}
-			this.$store.dispatch('modifierNotification', this.$t('scoreModifie'))
-		},
-		informations: function (donnees) {
-			const utilisateurs = this.utilisateurs
-			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
-				if (utilisateur.identifiant === donnees.identifiant) {
-					utilisateurs[indexUtilisateur].nom = donnees.nom
-					utilisateurs[indexUtilisateur].avatar = donnees.avatar
-				}
-			})
-			this.utilisateurs = utilisateurs
-			const donneesUtilisateurs = this.donnees.utilisateurs
-			donneesUtilisateurs.forEach(function (utilisateur, indexUtilisateur) {
-				if (utilisateur.identifiant === donnees.identifiant) {
-					donneesUtilisateurs[indexUtilisateur].nom = donnees.nom
-					donneesUtilisateurs[indexUtilisateur].avatar = donnees.avatar
-				}
-			})
-			this.donnees.utilisateurs = donneesUtilisateurs
-		},
-		erreur: function () {
-			this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
-		},
-		erreursalle: function () {
-			this.$store.dispatch('modifierMessage', this.$t('salleInexistante'))
-		}
 	},
 	async asyncData (context) {
 		const salle = context.route.params.salle
@@ -427,6 +324,12 @@ export default {
 	computed: {
 		hote () {
 			return this.$store.state.hote
+		},
+		socket () {
+			return io(this.hote, {
+				transports: ['websocket', 'polling'],
+				closeOnBeforeunload: false
+			})
 		},
 		identifiant () {
 			return this.$store.state.identifiant
@@ -522,16 +425,17 @@ export default {
 			this.$router.push(this.redirection)
 		}
 		this.$nuxt.$loading.start()
+		this.ecouterSocket()
 		const langue = this.$route.query.lang
 		if (this.langues.includes(langue) === true) {
 			this.$i18n.setLocale(langue)
 			this.$store.dispatch('modifierLangue', langue)
-			this.$socket.emit('modifierlangue', langue)
+			this.socket.emit('modifierlangue', langue)
 		} else {
 			this.$i18n.setLocale(this.langue)
 		}
 		if (this.statutUtilisateur === 'animateur' && this.salles.includes(this.salle)) {
-			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: '' })
+			this.socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: '' })
 		}
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
 		this.statutQuestion = this.donnees.statutQuestion
@@ -695,8 +599,7 @@ export default {
 		modifierScore () {
 			this.chargement = true
 			const bonus = this.donneesScore.score - this.definirScoreSansBonus(this.donneesScore.identifiant)
-			console.log(bonus)
-			this.$socket.emit('score', { salle: this.salle, identifiant: this.donneesScore.identifiant, bonus: bonus })
+			this.socket.emit('score', { salle: this.salle, identifiant: this.donneesScore.identifiant, bonus: bonus })
 			this.modale = ''
 			this.donneesScore = {}
 		},
@@ -716,7 +619,7 @@ export default {
 				} else if (donnees === 'statut_modifie') {
 					this.statut = 'ouvert'
 					this.$store.dispatch('modifierNotification', this.$t('salleOuverte'))
-					this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre })
+					this.socket.emit('salleouverte', { salle: this.salle, titre: this.titre })
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
@@ -725,11 +628,11 @@ export default {
 		},
 		modifierIndexQuestion () {
 			this.chargement = true
-			this.$socket.emit('question', { salle: this.salle, indexQuestion: this.indexQuestion + 1 })
+			this.socket.emit('question', { salle: this.salle, indexQuestion: this.indexQuestion + 1 })
 		},
 		ouvrirReponses () {
 			this.chargement = true
-			this.$socket.emit('reponses', this.salle)
+			this.socket.emit('reponses', this.salle)
 			this.modale = ''
 		},
 		classer () {
@@ -742,13 +645,13 @@ export default {
 		},
 		valider () {
 			this.chargement = true
-			this.$socket.emit('reponsevalidee', { salle: this.salle, identifiant: this.premiereReponse, points: this.points, indexQuestion: this.indexQuestion })
+			this.socket.emit('reponsevalidee', { salle: this.salle, identifiant: this.premiereReponse, points: this.points, indexQuestion: this.indexQuestion })
 			this.modale = ''
 			this.premiereReponse = ''
 		},
 		annuler() {
 			this.chargement = true
-			this.$socket.emit('reponseannulee', { salle: this.salle, identifiant: this.premiereReponse })
+			this.socket.emit('reponseannulee', { salle: this.salle, identifiant: this.premiereReponse })
 			this.modale = ''
 			this.premiereReponse = ''
 		},
@@ -769,7 +672,7 @@ export default {
 				} else if (donnees === 'statut_modifie') {
 					this.statut = 'ferme'
 					this.$store.dispatch('modifierNotification', this.$t('salleFermee'))
-					this.$socket.emit('sallefermee', this.salle)
+					this.socket.emit('sallefermee', this.salle)
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
@@ -814,6 +717,123 @@ export default {
 			} else {
 				this.$store.dispatch('modifierMessage', this.$t('erreurExportResultat'))
 			}
+		},
+		ecouterSocket () {
+			this.socket.on('connexion', function (donnees) {
+				const utilisateurs = donnees.utilisateurs.filter(function (utilisateur) {
+					return utilisateur.identifiant !== this.identifiant
+				}.bind(this))
+				utilisateurs.forEach(function (utilisateur) {
+					utilisateur.connecte = true
+				})
+				this.utilisateurs = utilisateurs
+				if (this.donnees.utilisateurs.map(function (e) { return e.identifiant }).includes(donnees.utilisateur.identifiant) === false) {
+					this.donnees.utilisateurs.push({ identifiant: donnees.utilisateur.identifiant, nom: donnees.utilisateur.nom, avatar: donnees.utilisateur.avatar })
+				}
+				const donneesUtilisateurs = this.donnees.utilisateurs.filter(function (utilisateur) {
+					return utilisateur.identifiant !== this.identifiant
+				}.bind(this))
+				this.donnees.utilisateurs = donneesUtilisateurs
+				if (donnees.utilisateur.identifiant !== this.identifiant) {
+					this.socket.emit('utilisateurs', { salle: this.salle, utilisateurs: donneesUtilisateurs })
+				}
+			}.bind(this))
+
+			this.socket.on('deconnexion', function (identifiant) {
+				const utilisateurs = this.utilisateurs
+				utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+					if (utilisateur.identifiant === identifiant) {
+						utilisateurs.splice(indexUtilisateur, 1, { identifiant: utilisateur.identifiant, nom: utilisateur.nom, avatar: utilisateur.avatar, connecte: false })
+					}
+				})
+				this.utilisateurs = utilisateurs
+			}.bind(this))
+
+			this.socket.on('question', function (indexQuestion) {
+				this.chargement = false
+				this.indexQuestion = indexQuestion
+				this.statutQuestion = 'question'
+				this.premiereReponse = ''
+				this.reponses.push([])
+				this.resultats.push([])
+				this.modale = 'question'
+			}.bind(this))
+
+			this.socket.on('reponses', function () {
+				this.chargement = false
+				this.statutQuestion = 'reponses'
+			}.bind(this))
+
+			this.socket.on('reponse', function (reponse) {
+				if (reponse.salle === this.salle && this.premiereReponse === '') {
+					this.premiereReponse = reponse.identifiant
+					this.modale = 'utilisateur'
+					this.socket.emit('premierereponse', { salle: this.salle, identifiant: reponse.identifiant, indexQuestion: this.indexQuestion })
+				}
+			}.bind(this))
+
+			this.socket.on('premierereponse', function (identifiant) {
+				this.reponses[this.indexQuestion].push(identifiant)
+			}.bind(this))
+
+			this.socket.on('reponseannulee', function () {
+				this.chargement = false
+			}.bind(this))
+
+			this.socket.on('reponsevalidee', function (donnees) {
+				this.chargement = false
+				this.statutQuestion = ''
+				if (this.resultats[donnees.indexQuestion].map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
+					this.resultats[donnees.indexQuestion].forEach(function (resultat, indexResultat) {
+						if (resultat.identifiant === donnees.identifiant) {
+							this.resultats[donnees.indexQuestion][indexResultat].points = parseInt(this.resultats[donnees.indexQuestion][indexResultat].points) + parseInt(donnees.points)
+						}
+					}.bind(this))
+				} else {
+					this.resultats[donnees.indexQuestion].push({ identifiant: donnees.identifiant, points: parseInt(donnees.points) })
+				}
+			}.bind(this))
+
+			this.socket.on('score', function (donnees) {
+				this.chargement = false
+				if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
+					this.donnees.bonus.forEach(function (bonus, indexBonus) {
+						if (bonus.identifiant === donnees.identifiant) {
+							this.donnees.bonus[indexBonus].points = parseInt(donnees.bonus)
+						}
+					}.bind(this))
+				} else {
+					this.donnees.bonus.push({ identifiant: donnees.identifiant, points: parseInt(donnees.bonus) })
+				}
+				this.$store.dispatch('modifierNotification', this.$t('scoreModifie'))
+			}.bind(this))
+
+			this.socket.on('informations', function (donnees) {
+				const utilisateurs = JSON.parse(JSON.stringify(this.utilisateurs))
+				utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+					if (utilisateur.identifiant === donnees.identifiant) {
+						utilisateurs[indexUtilisateur].nom = donnees.nom
+						utilisateurs[indexUtilisateur].avatar = donnees.avatar
+					}
+				})
+				this.utilisateurs = utilisateurs
+				const donneesUtilisateurs = JSON.parse(JSON.stringify(this.donnees.utilisateurs))
+				donneesUtilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+					if (utilisateur.identifiant === donnees.identifiant) {
+						donneesUtilisateurs[indexUtilisateur].nom = donnees.nom
+						donneesUtilisateurs[indexUtilisateur].avatar = donnees.avatar
+					}
+				})
+				this.donnees.utilisateurs = donneesUtilisateurs
+			}.bind(this))
+
+			this.socket.on('erreur', function () {
+				this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+			}.bind(this))
+
+			this.socket.on('erreursalle', function () {
+				this.$store.dispatch('modifierMessage', this.$t('salleInexistante'))
+			}.bind(this))
 		}
 	}
 }

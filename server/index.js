@@ -283,7 +283,7 @@ app.use(nuxt.render)
 server.listen(port, host)
 
 io.on('connection', function (socket) {
-	socket.on('connexion', function (donnees) {
+	socket.on('connexion', async function (donnees) {
 		const salle = donnees.salle
 		const identifiant = donnees.identifiant
 		const nom = donnees.nom
@@ -292,11 +292,10 @@ io.on('connection', function (socket) {
 		socket.identifiant = identifiant
 		socket.nom = nom
 		socket.avatar = avatar
-		const clients = Object.keys(io.sockets.adapter.rooms[salle].sockets)
+		const clients = await io.in(salle).fetchSockets()
 		const utilisateurs = []
-		for (let client of clients) {
-			client = io.sockets.connected[client]
-			utilisateurs.push({ identifiant: client.identifiant, nom: client.nom, avatar: client.avatar })
+		for (let i = 0; i < clients.length; i++) {
+			utilisateurs.push({ identifiant: clients[i].identifiant, nom: clients[i].nom, avatar: clients[i].avatar })
 		}
 		io.in(salle).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
 	})
@@ -317,12 +316,13 @@ io.on('connection', function (socket) {
 		const salle = donnees.salle
 		const utilisateurs = donnees.utilisateurs
 		db.exists('salles:' + salle, function (err, resultat) {
+			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
 					if (err) { socket.emit('erreur'); return false }
-					const donnees = JSON.parse(reponse.donnees)
-					donnees.utilisateurs = utilisateurs
-					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees))
+					const donneesReponse = JSON.parse(reponse.donnees)
+					donneesReponse.utilisateurs = utilisateurs
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
 				})
 			} else {
 				socket.emit('erreursalle'); return false
@@ -340,16 +340,19 @@ io.on('connection', function (socket) {
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
 					if (err) { socket.emit('erreur'); return false }
-					const donnees = JSON.parse(reponse.donnees)
-					donnees.utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+					const donneesReponse = JSON.parse(reponse.donnees)
+					donneesReponse.utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
 						if (utilisateur.identifiant === identifiant) {
-							donnees.utilisateurs[indexUtilisateur].nom = nom
-							donnees.utilisateurs[indexUtilisateur].avatar = avatar
+							donneesReponse.utilisateurs[indexUtilisateur].nom = nom
+							donneesReponse.utilisateurs[indexUtilisateur].avatar = avatar
 						}
 					})
-					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+					db.hset('salles:' + salle, 'donnees', JSON.stringify(donneesReponse), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
+						socket.identifiant = identifiant
+						socket.nom = nom
+						socket.avatar = avatar
 						socket.handshake.session.nom = nom
 						socket.handshake.session.avatar = avatar
 						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
