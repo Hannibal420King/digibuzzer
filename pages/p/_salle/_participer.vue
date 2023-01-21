@@ -142,7 +142,6 @@
 
 <script>
 import axios from 'axios'
-import { io } from 'socket.io-client'
 import chargement from '@/components/chargement.vue'
 
 export default {
@@ -205,12 +204,6 @@ export default {
 		hote () {
 			return this.$store.state.hote
 		},
-		socket () {
-			return io(this.hote, {
-				transports: ['websocket', 'polling'],
-				closeOnBeforeunload: false
-			})
-		},
 		identifiant () {
 			return this.$store.state.identifiant
 		},
@@ -235,7 +228,7 @@ export default {
 		this.$nuxt.$loading.start()
 		this.ecouterSocket()
 		if (this.nom !== '' && this.avatar !== '') {
-			this.socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
 		} else {
 			this.modale = 'informations'
 		}
@@ -246,7 +239,7 @@ export default {
 		if (this.langues.includes(langue) === true) {
 			this.$i18n.setLocale(langue)
 			this.$store.dispatch('modifierLangue', langue)
-			this.socket.emit('modifierlangue', langue)
+			this.$socket.emit('modifierlangue', langue)
 		} else {
 			this.$i18n.setLocale(this.langue)
 		}
@@ -337,9 +330,9 @@ export default {
 				}).then(function () {
 					this.chargement = false
 					if (modale === 'informations') {
-						this.socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
+						this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					} else {
-						this.socket.emit('informations', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
+						this.$socket.emit('informations', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					}
 					this.$store.dispatch('modifierInformations', { nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					this.$store.dispatch('modifierNotification', this.$t('informationsModifiees'))
@@ -399,7 +392,7 @@ export default {
 			if (this.reponse === true && this.premiereReponse === '' && this.reponses[this.indexQuestion].includes(this.identifiant) === false) {
 				this.chargement = true
 				const date = new Date().getTime()
-				this.socket.emit('reponse', { salle: this.salle, identifiant: this.identifiant, date: date })
+				this.$socket.emit('reponse', { salle: this.salle, identifiant: this.identifiant, date: date })
 			}
 		},
 		definirScore () {
@@ -421,19 +414,19 @@ export default {
 			this.score = score
 		},
 		quitterPage () {
-			this.socket.emit('deconnexion', this.salle)
+			this.$socket.emit('deconnexion', this.salle)
 		},
 		ecouterSocket () {
-			this.socket.on('salleouverte', function (salle) {
+			this.$socket.on('salleouverte', function (salle) {
 				this.statut = 'ouvert'
 				this.titre = salle.titre
 			}.bind(this))
 
-			this.socket.on('sallefermee', function () {
+			this.$socket.on('sallefermee', function () {
 				this.statut = 'ferme'
 			}.bind(this))
 
-			this.socket.on('question', function (indexQuestion) {
+			this.$socket.on('question', function (indexQuestion) {
 				this.indexQuestion = indexQuestion
 				this.reponse = false
 				this.premiereReponse = ''
@@ -442,16 +435,16 @@ export default {
 				this.modale = 'question'
 			}.bind(this))
 
-			this.socket.on('reponses', function () {
+			this.$socket.on('reponses', function () {
 				this.modale = ''
 				this.reponse = true
 			}.bind(this))
 
-			this.socket.on('reponse', function () {
+			this.$socket.on('reponse', function () {
 				this.chargement = false
 			}.bind(this))
 
-			this.socket.on('premierereponse', function (identifiant) {
+			this.$socket.on('premierereponse', function (identifiant) {
 				this.premiereReponse = identifiant
 				this.reponses[this.indexQuestion].push(identifiant)
 				if (identifiant === this.identifiant) {
@@ -462,7 +455,7 @@ export default {
 				}
 			}.bind(this))
 
-			this.socket.on('reponseannulee', function (identifiant) {
+			this.$socket.on('reponseannulee', function (identifiant) {
 				this.premiereReponse = ''
 				if (identifiant === this.identifiant) {
 					this.icone = 'clear'
@@ -475,7 +468,7 @@ export default {
 				}
 			}.bind(this))
 
-			this.socket.on('reponsevalidee', function (donnees) {
+			this.$socket.on('reponsevalidee', function (donnees) {
 				if (donnees.identifiant === this.identifiant) {
 					this.icone = 'thumb_up_alt'
 					this.audio.src = '/fx/correct.mp3'
@@ -497,7 +490,7 @@ export default {
 				this.definirScore()
 			}.bind(this))
 
-			this.socket.on('score', function (donnees) {
+			this.$socket.on('score', function (donnees) {
 				if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
 					this.donnees.bonus.forEach(function (bonus, indexBonus) {
 						if (bonus.identifiant === donnees.identifiant) {
@@ -510,11 +503,11 @@ export default {
 				this.definirScore()
 			}.bind(this))
 
-			this.socket.on('erreur', function () {
+			this.$socket.on('erreur', function () {
 				this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
 			}.bind(this))
 
-			this.socket.on('erreursalle', function () {
+			this.$socket.on('erreursalle', function () {
 				this.$store.dispatch('modifierMessage', this.$t('salleInexistante'))
 			}.bind(this))
 		}

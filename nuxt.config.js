@@ -43,6 +43,9 @@ module.exports = {
 		'destyle.css',
 		'@/assets/css/main.css'
 	],
+	plugins: [
+		{ src: '~/plugins/socket-io', mode: 'client' }
+	],
 	modules: [
 		'nuxt-i18n'
 	],
