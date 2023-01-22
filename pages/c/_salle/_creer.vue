@@ -312,7 +312,8 @@ export default {
 			donneesScore: {},
 			modaleConfirmation: false,
 			codeqr: '',
-			domaine: ''
+			domaine: '',
+			donneesUtilisateurs: []
 		}
 	},
 	head () {
@@ -380,36 +381,13 @@ export default {
 				return b.score - a.score
 			})
 			return utilisateurs
-		},
-		donneesUtilisateurs () {
-			const utilisateurs = JSON.parse(JSON.stringify(this.donnees.utilisateurs))
-			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
-				let score = 0
-				this.resultats.forEach(function (question) {
-					question.forEach(function (u) {
-						if (u.identifiant === utilisateur.identifiant) {
-							score = score + u.points
-						}
-					})
-				})
-				if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(utilisateur.identifiant) === true) {
-					this.donnees.bonus.forEach(function (bonus) {
-						if (bonus.identifiant === utilisateur.identifiant) {
-							score = score + bonus.points
-						}
-					})
-				}
-				utilisateurs[indexUtilisateur].score = score
-			}.bind(this))
-			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
-				if (!utilisateur.score) {
-					utilisateurs[indexUtilisateur].score = 0
-				}
-			})
-			utilisateurs.sort(function (a, b) {
-				return b.score - a.score
-			})
-			return utilisateurs
+		}
+	},
+	watch: {
+		statut: function (statut) {
+			if (statut === 'ferme') {
+				this.definirDonneesUtilisateurs()
+			}
 		}
 	},
 	watchQuery: ['page'],
@@ -441,6 +419,9 @@ export default {
 		}
 		this.reponses = this.donnees.reponses
 		this.resultats = this.donnees.resultats
+		if (this.statut === 'ferme') {
+			this.definirDonneesUtilisateurs()
+		}
 	},
 	mounted () {
 		if (this.statutUtilisateur === 'animateur' && this.salles.includes(this.salle)) {
@@ -524,6 +505,36 @@ export default {
 				}
 			})
 			return nom
+		},
+		definirDonneesUtilisateurs () {
+			const utilisateurs = JSON.parse(JSON.stringify(this.donnees.utilisateurs))
+			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+				let score = 0
+				this.resultats.forEach(function (question) {
+					question.forEach(function (u) {
+						if (u.identifiant === utilisateur.identifiant) {
+							score = score + u.points
+						}
+					})
+				})
+				if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(utilisateur.identifiant) === true) {
+					this.donnees.bonus.forEach(function (bonus) {
+						if (bonus.identifiant === utilisateur.identifiant) {
+							score = score + bonus.points
+						}
+					})
+				}
+				utilisateurs[indexUtilisateur].score = score
+			}.bind(this))
+			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+				if (!utilisateur.score) {
+					utilisateurs[indexUtilisateur].score = 0
+				}
+			})
+			utilisateurs.sort(function (a, b) {
+				return b.score - a.score
+			})
+			this.donneesUtilisateurs = utilisateurs
 		},
 		afficherModaleCodeQR () {
 			this.modale = 'codeqr'
@@ -708,7 +719,7 @@ export default {
 				const fichier = this.salle + '.csv'
 				saveAs(blob, fichier)
 			} else {
-				this.$store.dispatch('modifierMessage', this.$t('erreurExportResultat'))
+				this.$store.dispatch('modifierMessage', this.$t('aucunResultat'))
 			}
 		},
 		ecouterSocket () {
@@ -723,17 +734,24 @@ export default {
 				if (this.donnees.utilisateurs.map(function (e) { return e.identifiant }).includes(donnees.utilisateur.identifiant) === false) {
 					this.donnees.utilisateurs.push({ identifiant: donnees.utilisateur.identifiant, nom: donnees.utilisateur.nom, avatar: donnees.utilisateur.avatar })
 				}
+				this.donnees.utilisateurs.forEach(function (utilisateur, index) {
+					utilisateurs.forEach(function (u) {
+						if (utilisateur.identifiant === u.identifiant) {
+							this.donnees.utilisateurs[index].identifiant = u.identifiant
+							this.donnees.utilisateurs[index].nom = u.nom
+							this.donnees.utilisateurs[index].avatar = u.avatar
+						}
+					}.bind(this))
+				}.bind(this))
 				const donneesUtilisateurs = this.donnees.utilisateurs.filter(function (utilisateur) {
 					return utilisateur.identifiant !== this.identifiant
 				}.bind(this))
 				this.donnees.utilisateurs = donneesUtilisateurs
-				if (donnees.utilisateur.identifiant !== this.identifiant) {
-					this.$socket.emit('utilisateurs', { salle: this.salle, utilisateurs: donneesUtilisateurs })
-				}
+				this.$socket.emit('utilisateurs', { salle: this.salle, utilisateurs: donneesUtilisateurs })
 			}.bind(this))
 
 			this.$socket.on('deconnexion', function (identifiant) {
-				const utilisateurs = this.utilisateurs
+				const utilisateurs = JSON.parse(JSON.stringify(this.utilisateurs))
 				utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
 					if (utilisateur.identifiant === identifiant) {
 						utilisateurs.splice(indexUtilisateur, 1, { identifiant: utilisateur.identifiant, nom: utilisateur.nom, avatar: utilisateur.avatar, connecte: false })
