@@ -90,7 +90,7 @@ cron.schedule('59 23 * * Saturday', () => {
 					if (reponse === 1) {
 						db.hgetall(salle, function (err, resultat) {
 							if (err) { resolve(0) }
-							if (moment(resultat.date).isBefore(moment().subtract(21, 'days'))) {
+							if (moment(resultat.date).isBefore(moment().subtract(14, 'days'))) {
 								db.del(salle, function (err) {
 									if (err) { resolve(0) }
 									resolve(1)
