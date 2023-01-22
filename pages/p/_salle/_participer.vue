@@ -68,10 +68,10 @@
 						<input type="text" id="nom" :value="nomProvisoire" @input="nomProvisoire = $event.target.value" :disabled="statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
-							<span class="avatar" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire}" @click="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
+							<span class="avatar" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': statut !== '' }" @click="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
 							<label for="televerser" class="avatar ajouter" role="button" tabindex="0" :title="$t('televerserFichier')" v-if="statut === ''"><i class="material-icons">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
-							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
+							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
 							<span class="avatar fichier" v-if="statut !== ''" />
 						</div>
 						<div class="televerser" v-else>
@@ -680,6 +680,10 @@ export default {
 .modale .avatars span.actif {
 	border: 2px solid #001d1d;
 	cursor: pointer;
+}
+
+.modale .avatars span.inactif {
+	cursor: default;
 }
 
 .modale .avatars .ajouter {
