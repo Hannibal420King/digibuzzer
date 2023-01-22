@@ -1,8 +1,6 @@
 module.exports = {
-    apps: [{
-		name: 'Digibuzzer',
-		// exec_mode: 'cluster',
-        // instances: 'max',
-        script: 'npm -- start'
-	}]
+  apps: [{
+    name: 'Digibuzzer',
+    script: 'npm -- start'
+  }]
 }
