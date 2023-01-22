@@ -65,5 +65,6 @@ export default {
 	modifier: 'Edit',
 	scoreModifie: 'Score edited.',
 	bonus: 'Bonus',
-	telecharger: 'Download'
+	telecharger: 'Download',
+	aucunResultat: 'No results to export.'
 }
