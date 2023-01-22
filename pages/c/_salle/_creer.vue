@@ -737,7 +737,6 @@ export default {
 				this.donnees.utilisateurs.forEach(function (utilisateur, index) {
 					utilisateurs.forEach(function (u) {
 						if (utilisateur.identifiant === u.identifiant) {
-							this.donnees.utilisateurs[index].identifiant = u.identifiant
 							this.donnees.utilisateurs[index].nom = u.nom
 							this.donnees.utilisateurs[index].avatar = u.avatar
 						}
