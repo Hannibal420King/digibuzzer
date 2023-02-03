@@ -277,7 +277,8 @@ export default {
 		document.addEventListener('visibilitychange', function () {
 			if (document.visibilityState === 'visible') {
 				this.chargement = true
-				this.$socket.volatile.emit('donnees', this.salle)
+				this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+				this.$socket.emit('donnees', this.salle)
 			}
 		}.bind(this))
 	},
