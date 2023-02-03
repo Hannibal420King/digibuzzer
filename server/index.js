@@ -321,11 +321,11 @@ io.on('connection', function (socket) {
 					if (err) { socket.emit('erreur'); return false }
 					const statut = resultat.statut
 					const donnees = JSON.parse(resultat.donnees)
-					socket.emit('donnees', { statut: statut, donnees: donnees })
 					socket.join(salle)
 					socket.identifiant = identifiant
 					socket.nom = nom
 					socket.avatar = avatar
+					socket.emit('donnees', { statut: statut, donnees: donnees })
 					const clients = await io.in(salle).fetchSockets()
 					let utilisateurs = []
 					for (let i = 0; i < clients.length; i++) {
