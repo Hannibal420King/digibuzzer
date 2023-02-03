@@ -304,6 +304,22 @@ io.on('connection', function (socket) {
 		socket.to(salle).emit('deconnexion', socket.handshake.session.identifiant)
 	})
 
+	socket.on('donnees', function (salle) {
+		db.exists('salles:' + salle, function (err, reponse) {
+			if (err) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				db.hgetall('salles:' + salle, function (err, resultat) {
+					if (err) { socket.emit('erreur'); return false }
+					const statut = resultat.statut
+					const donnees = JSON.parse(resultat.donnees)
+					socket.emit('donnees', { statut: statut, donnees: donnees })
+				})
+			} else {
+				socket.emit('erreursalle')
+			}
+		})
+	})
+
 	socket.on('salleouverte', function (donnees) {
 		socket.to(donnees.salle).emit('salleouverte', donnees)
 	})
@@ -325,7 +341,7 @@ io.on('connection', function (socket) {
 					db.hset('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -360,7 +376,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -385,7 +401,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -406,7 +422,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -432,7 +448,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -453,7 +469,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -475,7 +491,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
@@ -504,7 +520,7 @@ io.on('connection', function (socket) {
 					})
 				})
 			} else {
-				socket.emit('erreursalle'); return false
+				socket.emit('erreursalle')
 			}
 		})
 	})
