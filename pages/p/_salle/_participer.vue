@@ -193,7 +193,8 @@ export default {
 			resultats: [],
 			icone: 'pending',
 			audio: '',
-			audioInitialise: false
+			audioInitialise: false,
+			pageChargee: false
 		}
 	},
 	head () {
@@ -279,16 +280,19 @@ export default {
 		if (this.mobile) {
 			window.addEventListener('pageshow', function () {
 				setTimeout(function () {
-					if (!this.chargement && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+					if (this.pageChargee && !this.chargement && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
 						this.chargement = true
 						this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+					}
+					if (!this.pageChargee) {
+						this.pageChargee = true
 					}
 				}.bind(this), 100)
 			}.bind(this))
 
 			document.addEventListener('visibilitychange', function () {
 				setTimeout(function () {
-					if (!this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+					if (this.pageChargee && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
 						this.chargement = true
 						this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
 					}
