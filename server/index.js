@@ -293,10 +293,15 @@ io.on('connection', function (socket) {
 		socket.nom = nom
 		socket.avatar = avatar
 		const clients = await io.in(salle).fetchSockets()
-		const utilisateurs = []
+		let utilisateurs = []
 		for (let i = 0; i < clients.length; i++) {
 			utilisateurs.push({ identifiant: clients[i].identifiant, nom: clients[i].nom, avatar: clients[i].avatar })
 		}
+		utilisateurs = utilisateurs.filter((valeur, index, self) =>
+			index === self.findIndex((t) => (
+				t.identifiant === valeur.identifiant && t.nom === valeur.nom && t.avatar === valeur.avatar
+			))
+		)
 		io.in(salle).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
 	})
 
