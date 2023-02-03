@@ -449,6 +449,7 @@ export default {
 				this.chargement = false
 				this.modale = ''
 				this.reponse = false
+				this.titre = donnees.titre
 				this.statut = donnees.statut
 				this.donnees = donnees.donnees
 				this.indexQuestion = parseInt(this.donnees.indexQuestion)
