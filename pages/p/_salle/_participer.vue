@@ -271,7 +271,14 @@ export default {
 				this.audioInitialise = true
 			}
 		}.bind(this))
+
 		window.addEventListener('beforeunload', this.quitterPage, false)
+
+		document.addEventListener('visibilitychange', function () {
+			if (document.visibilityState === 'visible') {
+				this.$socket.emit('donnees', this.salle)
+			}
+		}.bind(this))
 	},
 	beforeDestroy () {
 		window.removeEventListener('beforeunload', this.quitterPage, false)
@@ -424,6 +431,24 @@ export default {
 
 			this.$socket.on('sallefermee', function () {
 				this.statut = 'ferme'
+			}.bind(this))
+
+			this.$socket.on('donnees', function (donnees) {
+				this.statut = donnees.statut
+				this.donnees = donnees.donnees
+				this.indexQuestion = parseInt(this.donnees.indexQuestion)
+				if (this.donnees.statutQuestion === 'question') {
+					this.modale = 'question'
+				} else if (this.donnees.statutQuestion === 'reponses') {
+					this.reponse = true
+				}
+				this.premiereReponse = this.donnees.premiereReponse
+				if (this.reponse && this.premiereReponse === this.identifiant) {
+					this.modale = 'reponse'
+				}
+				this.reponses = this.donnees.reponses
+				this.resultats = this.donnees.resultats
+				this.definirScore()
 			}.bind(this))
 
 			this.$socket.on('question', function (indexQuestion) {
