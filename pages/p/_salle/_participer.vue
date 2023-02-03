@@ -276,7 +276,8 @@ export default {
 
 		document.addEventListener('visibilitychange', function () {
 			if (document.visibilityState === 'visible') {
-				this.$socket.emit('donnees', this.salle)
+				this.chargement = true
+				this.$socket.volatile.emit('donnees', this.salle)
 			}
 		}.bind(this))
 	},
@@ -434,6 +435,9 @@ export default {
 			}.bind(this))
 
 			this.$socket.on('donnees', function (donnees) {
+				this.chargement = false
+				this.modale = ''
+				this.reponse = false
 				this.statut = donnees.statut
 				this.donnees = donnees.donnees
 				this.indexQuestion = parseInt(this.donnees.indexQuestion)
