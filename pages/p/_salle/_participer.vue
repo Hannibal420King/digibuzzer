@@ -180,6 +180,7 @@ export default {
 	data () {
 		return {
 			chargement: false,
+			mobile: false,
 			modale: '',
 			nomProvisoire: '',
 			avatarProvisoire: '',
@@ -274,23 +275,26 @@ export default {
 
 		window.addEventListener('beforeunload', this.quitterPage, false)
 
-		window.addEventListener('pageshow', function () {
-			setTimeout(function () {
-				if (!this.chargement && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-					this.chargement = true
-					this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-				}
-			}.bind(this), 10)
-		}.bind(this))
+		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
+		if (this.mobile) {
+			window.addEventListener('pageshow', function () {
+				setTimeout(function () {
+					if (!this.chargement && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+						this.chargement = true
+						this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+					}
+				}.bind(this), 100)
+			}.bind(this))
 
-		document.addEventListener('visibilitychange', function () {
-			setTimeout(function () {
-				if (!this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-					this.chargement = true
-					this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-				}
-			}.bind(this), 10)
-		}.bind(this))
+			document.addEventListener('visibilitychange', function () {
+				setTimeout(function () {
+					if (!this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+						this.chargement = true
+						this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+					}
+				}.bind(this), 100)
+			}.bind(this))
+		}
 	},
 	beforeDestroy () {
 		window.removeEventListener('beforeunload', this.quitterPage, false)
