@@ -319,13 +319,11 @@ io.on('connection', function (socket) {
 			if (reponse === 1) {
 				db.hgetall('salles:' + salle, async function (err, resultat) {
 					if (err) { socket.emit('erreur'); return false }
-					const statut = resultat.statut
-					const donnees = JSON.parse(resultat.donnees)
 					socket.join(salle)
 					socket.identifiant = identifiant
 					socket.nom = nom
 					socket.avatar = avatar
-					socket.emit('donnees', { statut: statut, donnees: donnees })
+					socket.emit('donnees', { titre: resultat.titre, statut: resultat.statut, donnees: JSON.parse(resultat.donnees) })
 					const clients = await io.in(salle).fetchSockets()
 					let utilisateurs = []
 					for (let i = 0; i < clients.length; i++) {
