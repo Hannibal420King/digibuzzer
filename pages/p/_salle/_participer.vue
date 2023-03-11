@@ -273,6 +273,12 @@ export default {
 				this.audioInitialise = true
 			}
 		}.bind(this))
+		document.body.addEventListener('click', function () {
+			if (this.audioInitialise === false) {
+				this.audio.play()
+				this.audioInitialise = true
+			}
+		}.bind(this))
 
 		window.addEventListener('beforeunload', this.quitterPage, false)
 
