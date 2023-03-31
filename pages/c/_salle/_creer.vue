@@ -22,7 +22,7 @@
 						<span>{{ $t('lienParticipants') }}</span>
 						<span class="lien">{{ hote.replace('http://', '').replace('https://', '') + '/p/' + salle }}</span>
 						<span id="copier" class="icone" role="button" tabindex="0" :title="$t('copierLien')"><i class="material-icons">content_copy</i></span>
-						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherModaleCodeQR"><i class="material-icons">qr_code</i></span>
+						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 				</div>
 
@@ -90,7 +90,7 @@
 					<div id="titre">
 						<span class="titre">{{ titre }}</span>
 						<span id="copier" class="icone" role="button" tabindex="0" :title="$t('copierLien')"><i class="material-icons">content_copy</i></span>
-						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherModaleCodeQR"><i class="material-icons">qr_code</i></span>
+						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 
 					<div id="parametres">
@@ -226,6 +226,20 @@
 			</div>
 		</div>
 
+		<div class="conteneur-modale" v-else-if="modale === 'code-qr'">
+			<div id="modale-codeqr" class="modale">
+				<header>
+					<span class="titre">{{ $t('codeQR') }}</span>
+					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
+				</header>
+				<div class="conteneur">
+					<div class="contenu">
+						<div id="qr" />
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div class="conteneur-modale" v-if="modaleConfirmation">
 			<div id="modale-confirmation" class="modale">
 				<div class="conteneur">
@@ -235,20 +249,6 @@
 							<span class="bouton" role="button" tabindex="0" @click="modaleConfirmation = false">{{ $t('non') }}</span>
 							<span class="bouton" role="button" tabindex="0" @click="fermer">{{ $t('oui') }}</span>
 						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="conteneur-modale" v-show="modale === 'codeqr'">
-			<div id="modale-codeqr" class="modale">
-				<header>
-					<span class="titre">{{ $t('codeQR') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
-				</header>
-				<div class="conteneur">
-					<div class="contenu">
-						<div id="qr" />
 					</div>
 				</div>
 			</div>
@@ -445,16 +445,7 @@ export default {
 			clipboard.on('success', function () {
 				this.$store.dispatch('modifierNotification', this.$t('lienCopie'))
 			}.bind(this))
-			// eslint-disable-next-line
-			this.codeqr = new QRCode('qr', {
-				text: lien,
-				width: 360,
-				height: 360,
-				colorDark: '#000000',
-				colorLight: '#ffffff',
-				// eslint-disable-next-line
-				correctLevel : QRCode.CorrectLevel.H
-			})
+
 			this.domaine = window.location.href.split('/c/')[0]
 		},
 		definirScore (identifiant) {
@@ -536,8 +527,21 @@ export default {
 			})
 			this.donneesUtilisateurs = utilisateurs
 		},
-		afficherModaleCodeQR () {
-			this.modale = 'codeqr'
+		afficherCodeQR () {
+			this.modale = 'code-qr'
+			this.$nextTick(function () {
+				const lien = this.hote + '/p/' + this.salle
+				// eslint-disable-next-line
+				this.codeqr = new QRCode('qr', {
+					text: lien,
+					width: 360,
+					height: 360,
+					colorDark: '#000000',
+					colorLight: '#ffffff',
+					// eslint-disable-next-line
+					correctLevel : QRCode.CorrectLevel.H
+				})
+			}.bind(this))
 		},
 		fermerModale () {
 			this.modale = ''
@@ -1088,14 +1092,6 @@ export default {
 	font-size: 40vh;
 }
 
-#modale-codeqr .contenu {
-	text-align: center;
-}
-
-#modale-codeqr #qr {
-	display: inline-block;
-}
-
 @media screen and (orientation: landscape) and (max-height: 479px) {
 	#modale-utilisateur {
 		height: 90%;
@@ -1152,6 +1148,14 @@ export default {
 </style>
 
 <style>
+#modale-codeqr .contenu {
+	text-align: center;
+}
+
+#modale-codeqr #qr {
+	display: inline-block;
+}
+
 #modale-codeqr #qr img {
 	max-width: 100%;
 	height: auto;
