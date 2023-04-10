@@ -139,6 +139,8 @@ app.post('/api/creer-salle', function (req, res) {
 	if (req.session.identifiant === '' || req.session.identifiant === undefined) {
 		const identifiant = 'u' + Math.random().toString(16).slice(3)
 		req.session.identifiant = identifiant
+	}
+	if (!req.session.hasOwnProperty('salles')) {
 		req.session.salles = []
 	}
 	const titre = req.body.titre
@@ -415,6 +417,16 @@ io.on('connection', function (socket) {
 					donnees.premiereReponse = ''
 					donnees.reponses.push([])
 					donnees.resultats.push([])
+					if (donnees.reponses.length < (indexQuestion + 1)) {
+						for (let i = 0; i < ((indexQuestion + 1) - donnees.reponses.length); i++) {
+							donnees.reponses.push([])
+						}
+					}
+					if (donnees.resultats.length < (indexQuestion + 1)) {
+						for (let i = 0; i < ((indexQuestion + 1) - donnees.resultats.length); i++) {
+							donnees.resultats.push([])
+						}
+					}
 					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 						if (err) { socket.emit('erreur'); return false }
 						io.in(salle).emit('question', indexQuestion)
