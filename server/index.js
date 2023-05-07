@@ -359,7 +359,7 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donneesReponse = JSON.parse(reponse.donnees)
 					donneesReponse.utilisateurs = utilisateurs
 					db.hset('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
@@ -379,7 +379,7 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donneesReponse = JSON.parse(reponse.donnees)
 					donneesReponse.utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
 						if (utilisateur.identifiant === identifiant) {
@@ -410,7 +410,7 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.indexQuestion = indexQuestion
 					donnees.statutQuestion = 'question'
@@ -445,7 +445,7 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.statutQuestion = 'reponses'
 					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
@@ -470,16 +470,18 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.premiereReponse = identifiant
-					donnees.reponses[indexQuestion].push(identifiant)
-					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-						if (err) { socket.emit('erreur'); return false }
-						io.in(salle).emit('premierereponse', identifiant)
-						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
-						socket.handshake.session.save()
-					})
+					if (donnees.hasOwnProperty('reponses') && donnees.reponses[indexQuestion]) {
+						donnees.reponses[indexQuestion].push(identifiant)
+						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+							if (err) { socket.emit('erreur'); return false }
+							io.in(salle).emit('premierereponse', identifiant)
+							socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
+							socket.handshake.session.save()
+						})
+					}
 				})
 			} else {
 				socket.emit('erreursalle')
@@ -492,7 +494,7 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.premiereReponse = ''
 					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
@@ -513,16 +515,18 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					donnees.statutQuestion = ''
-					donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
-					db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-						if (err) { socket.emit('erreur'); return false }
-						io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
-						socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
-						socket.handshake.session.save()
-					})
+					if (donnees.hasOwnProperty('resultats') && donnees.resultats[indexQuestion]) {
+						donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
+						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+							if (err) { socket.emit('erreur'); return false }
+							io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
+							socket.handshake.session.cookie.expires = new Date(Date.now() + dureeSession)
+							socket.handshake.session.save()
+						})
+					}
 				})
 			} else {
 				socket.emit('erreursalle')
@@ -535,7 +539,7 @@ io.on('connection', function (socket) {
 			if (err) { socket.emit('erreur'); return false }
 			if (resultat === 1) {
 				db.hgetall('salles:' + salle, function (err, reponse) {
-					if (err) { socket.emit('erreur'); return false }
+					if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 					const donnees = JSON.parse(reponse.donnees)
 					if (donnees.bonus.map(function (e) { return e.identifiant }).includes(identifiant) === true) {
 						donnees.bonus.forEach(function (u, index) {
