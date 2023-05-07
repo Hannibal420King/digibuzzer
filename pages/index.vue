@@ -375,6 +375,10 @@ export default {
 	cursor: pointer;
 }
 
+.modale .actions .conteneur-chargement {
+	margin-bottom: 0;
+}
+
 @media screen and (max-width: 359px) {
 	#contenu {
 		padding: 4em 1em 2em;
