@@ -15,6 +15,7 @@ export default {
 	courriel: 'Courriel :',
 	siteWeb: 'Site Web :',
 	soutien: 'Je souhaite apporter mon soutien',
+	codeSource: 'Code source',
 	creer: 'Créer',
 	modifierTitre: 'Modifier le titre',
 	afficherParametres: 'Afficher les paramètres',

@@ -15,6 +15,7 @@ export default {
 	courriel: 'Email:',
 	siteWeb: 'Website:',
 	soutien: 'I would like to support this project',
+	codeSource: 'Source code',
 	creer: 'Create',
 	modifierTitre: 'Change the title',
 	afficherParametres: 'Show settings',
