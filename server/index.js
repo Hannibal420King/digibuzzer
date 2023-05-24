@@ -285,14 +285,14 @@ async function demarrerServeur () {
 	})	
 
   	app.get('*', async (req, res, next) => {
-		let hote = 'http://localhost:3000'
-		if (process.env.PORT) {
-			hote = 'http://localhost:' + process.env.PORT
-		}
-		if (production) {
-			hote = process.env.DOMAIN
-		}
 		if (!req.originalUrl.includes('/avatars/')) {
+			let hote = 'http://localhost:3000'
+			if (process.env.PORT) {
+				hote = 'http://localhost:' + process.env.PORT
+			}
+			if (production) {
+				hote = process.env.DOMAIN
+			}
 			if (req.session.identifiant === '' || req.session.identifiant === undefined) {
 				const identifiant = 'u' + Math.random().toString(16).slice(3)
 				req.session.identifiant = identifiant
