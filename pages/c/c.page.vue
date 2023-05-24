@@ -1,5 +1,5 @@
 <template>
-	<div id="page" v-if="statutUtilisateur === 'animateur' && salles.includes(salle)">
+	<div id="page" v-if="role === 'animateur' && salles.includes(salle)">
 		<div id="salle" v-if="statut === ''">
 			<header>
 				<div id="conteneur-header">
@@ -254,7 +254,13 @@
 			</div>
 		</div>
 
-		<chargement :chargement="chargement" v-if="chargement" />
+		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
+
+		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
+
+		<Chargement v-if="chargement" />
+
+		<ChargementPage v-if="chargementPage" />
 	</div>
 </template>
 
@@ -262,44 +268,25 @@
 import axios from 'axios'
 import ClipboardJS from 'clipboard'
 import { saveAs } from 'file-saver'
-import chargement from '@/components/chargement.vue'
+import ChargementPage from '#root/components/chargement-page.vue'
+import Chargement from '#root/components/chargement.vue'
+import Message from '#root/components/message.vue'
+import Notification from '#root/components/notification.vue'
 
 export default {
 	name: 'Creer',
 	components: {
-		chargement
-	},
-	async asyncData (context) {
-		const salle = context.route.params.salle
-		const reponse = await axios.post(context.store.state.hote + '/api/recuperer-donnees-salle', {
-			salle: salle
-		}, {
-			headers: { 'Content-Type': 'application/json' }
-		}).catch(function () {
-			return {
-				redirection: '/'
-			}
-		})
-		if (!reponse || !reponse.hasOwnProperty('data')) {
-			return {
-				redirection: '/'
-			}
-		} else if (reponse.data && reponse.data === 'erreur') {
-			return {
-				redirection: '/'
-			}
-		} else {
-			return {
-				salle: salle,
-				titre: reponse.data.titre,
-				statut: reponse.data.statut,
-				donnees: reponse.data.donnees
-			}
-		}
+		ChargementPage,
+		Chargement,
+		Message,
+		Notification
 	},
 	data () {
 		return {
+			chargementPage: false,
 			chargement: false,
+			message: '',
+			notification: '',
 			modale: '',
 			utilisateurs: [],
 			indexQuestion: -1,
@@ -313,36 +300,21 @@ export default {
 			modaleConfirmation: false,
 			codeqr: '',
 			domaine: '',
-			donneesUtilisateurs: []
-		}
-	},
-	head () {
-		return {
-			title: this.titre + ' - Digibuzzer by La Digitale'
+			donneesUtilisateurs: [],
+			hote: this.$pageContext.pageProps.hote,
+			identifiant: this.$pageContext.pageProps.identifiant,
+			nom: this.$pageContext.pageProps.nom,
+			role: this.$pageContext.pageProps.role,
+			salles: this.$pageContext.pageProps.salles,
+			langues: this.$pageContext.pageProps.langues,
+			langue: this.$pageContext.pageProps.langue,
+			salle: this.$pageContext.pageProps.salle,
+			titre: this.$pageContext.pageProps.titre,
+			statut: this.$pageContext.pageProps.statut,
+			donnees: this.$pageContext.pageProps.donnees
 		}
 	},
 	computed: {
-		hote () {
-			return this.$store.state.hote
-		},
-		identifiant () {
-			return this.$store.state.identifiant
-		},
-		nom () {
-			return this.$store.state.nom
-		},
-		langue () {
-			return this.$store.state.langue
-		},
-		langues () {
-			return this.$store.state.langues
-		},
-		statutUtilisateur () {
-			return this.$store.state.statut
-		},
-		salles () {
-			return this.$store.state.salles
-		},
 		utilisateursConnectes () {
 			const utilisateurs = []
 			this.utilisateurs.forEach(function (utilisateur) {
@@ -390,22 +362,13 @@ export default {
 			}
 		}
 	},
-	watchQuery: ['page'],
 	created () {
 		if (this.redirection) {
-			this.$router.push(this.redirection)
+			window.location.href = this.redirection
 		}
-		this.$nuxt.$loading.start()
-		this.ecouterSocket()
-		const langue = this.$route.query.lang
-		if (this.langues.includes(langue) === true) {
-			this.$i18n.setLocale(langue)
-			this.$store.dispatch('modifierLangue', langue)
-			this.$socket.emit('modifierlangue', langue)
-		} else {
-			this.$i18n.setLocale(this.langue)
-		}
-		if (this.statutUtilisateur === 'animateur' && this.salles.includes(this.salle)) {
+		this.chargementPage = true
+		this.$i18n.locale = this.langue
+		if (this.role === 'animateur' && this.salles.includes(this.salle)) {
 			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: '' })
 		}
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
@@ -424,14 +387,22 @@ export default {
 		}
 	},
 	mounted () {
-		if (this.statutUtilisateur === 'animateur' && this.salles.includes(this.salle)) {
+		this.ecouterSocket()
+		if (this.role === 'animateur' && this.salles.includes(this.salle)) {
+			const params = new URLSearchParams(document.location.search)
+			const langue = params.get('lang')
+			if (langue && this.langues.includes(langue) === true) {
+				this.$i18n.locale = langue
+				this.langue = langue
+				this.$socket.emit('modifierlangue', langue)
+			}
 			setTimeout(function () {
-				this.$nuxt.$loading.finish()
+				this.chargementPage = false
 				this.initialiser()
 				document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 			}.bind(this), 100)
 		} else {
-			this.$router.push('/')
+			window.location.href = '/'
 		}
 	},
 	methods: {
@@ -443,7 +414,7 @@ export default {
 				}
 			})
 			clipboard.on('success', function () {
-				this.$store.dispatch('modifierNotification', this.$t('lienCopie'))
+				this.notification = this.$t('lienCopie')
 			}.bind(this))
 
 			this.domaine = window.location.href.split('/c/')[0]
@@ -554,7 +525,7 @@ export default {
 		},
 		modifierTitre () {
 			const titre = document.querySelector('#modale-titre input').value
-			if (titre !== '') {
+			if (titre !== '' && titre !== this.titre) {
 				this.fermerModale()
 				this.chargement = true
 				axios.post(this.hote + '/api/modifier-titre-salle', {
@@ -565,16 +536,17 @@ export default {
 					this.chargement = false
 					const donnees = reponse.data
 					if (donnees === 'erreur') {
-						this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+						this.message = this.$t('erreurCommunicationServeur')
 					} else if (donnees === 'non_autorise') {
-						this.$store.dispatch('modifierNotification', this.$t('actionNonAutorisee'))
+						this.notification = this.$t('actionNonAutorisee')
 					} else if (donnees === 'titre_modifie') {
 						this.titre = titre
-						this.$store.dispatch('modifierNotification', this.$t('titreModifie'))
+						document.title = titre + ' - Digibuzzer by La Digitale'
+						this.notification = this.$t('titreModifie')
 					}
 				}.bind(this)).catch(function () {
 					this.chargement = false
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			}
 		},
@@ -588,14 +560,14 @@ export default {
 					identifiant: this.identifiant,
 					langue: langue
 				}).then(function () {
-					this.$i18n.setLocale(langue)
+					this.$i18n.locale = langue
 					document.getElementsByTagName('html')[0].setAttribute('lang', langue)
-					this.$store.dispatch('modifierLangue', langue)
-					this.$store.dispatch('modifierNotification', this.$t('langueModifiee'))
+					this.langue = langue
+					this.notification = this.$t('langueModifiee')
 					this.chargement = false
 				}.bind(this)).catch(function () {
 					this.chargement = false
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			}
 		},
@@ -621,17 +593,17 @@ export default {
 				this.chargement = false
 				const donnees = reponse.data
 				if (donnees === 'erreur') {
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				} else if (donnees === 'non_autorise') {
-					this.$store.dispatch('modifierNotification', this.$t('actionNonAutorisee'))
+					this.notification = this.$t('actionNonAutorisee')
 				} else if (donnees === 'statut_modifie') {
 					this.statut = 'ouvert'
-					this.$store.dispatch('modifierNotification', this.$t('salleOuverte'))
+					this.notification = this.$t('salleOuverte')
 					this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre })
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
-				this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+				this.message = this.$t('erreurCommunicationServeur')
 			}.bind(this))
 		},
 		modifierIndexQuestion () {
@@ -646,9 +618,9 @@ export default {
 		classer () {
 			this.classement = !this.classement
 			if (this.classement === true) {
-				this.$store.dispatch('modifierNotification', this.$t('classementScoreActive'))
+				this.notification = this.$t('classementScoreActive')
 			} else {
-				this.$store.dispatch('modifierNotification', this.$t('classementScoreDesactive'))
+				this.notification = this.$t('classementScoreDesactive')
 			}
 		},
 		valider () {
@@ -674,17 +646,17 @@ export default {
 				this.chargement = false
 				const donnees = reponse.data
 				if (donnees === 'erreur') {
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				} else if (donnees === 'non_autorise') {
-					this.$store.dispatch('modifierNotification', this.$t('actionNonAutorisee'))
+					this.notification = this.$t('actionNonAutorisee')
 				} else if (donnees === 'statut_modifie') {
 					this.statut = 'ferme'
-					this.$store.dispatch('modifierNotification', this.$t('salleFermee'))
+					this.notification = this.$t('salleFermee')
 					this.$socket.emit('sallefermee', this.salle)
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
-				this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+				this.message = this.$t('erreurCommunicationServeur')
 			}.bind(this))
 		},
 		exporter () {
@@ -723,7 +695,7 @@ export default {
 				const fichier = this.salle + '.csv'
 				saveAs(blob, fichier)
 			} else {
-				this.$store.dispatch('modifierMessage', this.$t('aucunResultat'))
+				this.message = this.$t('aucunResultat')
 			}
 		},
 		ecouterSocket () {
@@ -819,7 +791,7 @@ export default {
 				} else {
 					this.donnees.bonus.push({ identifiant: donnees.identifiant, points: parseInt(donnees.bonus) })
 				}
-				this.$store.dispatch('modifierNotification', this.$t('scoreModifie'))
+				this.notification = this.$t('scoreModifie')
 			}.bind(this))
 
 			this.$socket.on('informations', function (donnees) {
@@ -842,11 +814,11 @@ export default {
 			}.bind(this))
 
 			this.$socket.on('erreur', function () {
-				this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+				this.message = this.$t('erreurCommunicationServeur')
 			}.bind(this))
 
 			this.$socket.on('erreursalle', function () {
-				this.$store.dispatch('modifierMessage', this.$t('salleInexistante'))
+				this.message = this.$t('salleInexistante')
 			}.bind(this))
 		}
 	}

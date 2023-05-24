@@ -1,6 +1,6 @@
 <template>
 	<div id="page">
-		<div id="accueil" :style="{'background-image': 'url(./img/fond.png)'}">
+		<div id="accueil" :style="{'background-image': 'url(/img/fond.png)'}">
 			<div id="langues">
 				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
 				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
@@ -74,55 +74,52 @@
 			<iframe src="https://ladigitale.dev/hub.html" />
 		</div>
 
-		<chargement :chargement="chargement" v-if="chargement" />
+		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
+
+		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
+
+		<Chargement v-if="chargement" />
 	</div>
 </template>
 
 <script>
 import axios from 'axios'
-import chargement from '@/components/chargement.vue'
+import Chargement from '#root/components/chargement.vue'
+import Message from '#root/components/message.vue'
+import Notification from '#root/components/notification.vue'
 
 export default {
 	name: 'Accueil',
 	components: {
-		chargement
+		Chargement,
+		Message,
+		Notification
 	},
 	data () {
 		return {
 			chargement: false,
+			message: '',
+			notification: '',
 			modale: '',
 			titre: '',
 			chargementModale: false,
-			hub: false
-		}
-	},
-	head () {
-		return {
-			title: 'Digibuzzer by La Digitale'
-		}
-	},
-	computed: {
-		hote () {
-			return this.$store.state.hote
-		},
-		langue () {
-			return this.$store.state.langue
-		},
-		langues () {
-			return this.$store.state.langues
+			hub: false,
+			hote: this.$pageContext.pageProps.hote,
+			langues: this.$pageContext.pageProps.langues,
+			langue: this.$pageContext.pageProps.langue
 		}
 	},
 	created () {
-		const langue = this.$route.query.lang
-		if (this.langues.includes(langue) === true) {
-			this.$i18n.setLocale(langue)
-			this.$store.dispatch('modifierLangue', langue)
-			this.$socket.emit('modifierlangue', langue)
-		} else {
-			this.$i18n.setLocale(this.langue)
-		}
+		this.$i18n.locale = this.langue
 	},
 	mounted () {
+		const params = new URLSearchParams(document.location.search)
+		const langue = params.get('lang')
+		if (langue && this.langues.includes(langue) === true) {
+			this.$i18n.locale = langue
+			this.langue = langue
+			this.$socket.emit('modifierlangue', langue)
+		}
 		setTimeout(function () {
 			document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 		}.bind(this), 100)
@@ -148,17 +145,17 @@ export default {
 					if (donnees === 'erreur') {
 						this.chargementModale = false
 						this.fermerModaleCreer()
-						this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+						this.message = this.$t('erreurCommunicationServeur')
 					} else {
-						window.location = '/c/' + donnees.salle
+						window.location.href = '/c/' + donnees.salle
 					}
 				}.bind(this)).catch(function () {
 					this.chargementModale = false
 					this.fermerModaleCreer()
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			} else {
-				this.$store.dispatch('modifierMessage', this.$t('completerChampTitre'))
+				this.message = this.$t('completerChampTitre')
 			}
 		},
 		modifierLangue (langue) {
@@ -167,14 +164,14 @@ export default {
 				axios.post(this.hote + '/api/modifier-langue', {
 					langue: langue
 				}).then(function () {
-					this.$i18n.setLocale(langue)
+					this.$i18n.locale = langue
 					document.getElementsByTagName('html')[0].setAttribute('lang', langue)
-					this.$store.dispatch('modifierLangue', langue)
-					this.$store.dispatch('modifierNotification', this.$t('langueModifiee'))
+					this.langue = langue
+					this.notification = this.$t('langueModifiee')
 					this.chargement = false
 				}.bind(this)).catch(function () {
 					this.chargement = false
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			}
 		},

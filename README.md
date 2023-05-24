@@ -17,8 +17,7 @@ npm run dev
 
 ### Compilation, minification des fichiers et lancement du serveur de production
 ```
-npm run build
-npm run start
+npm run prod
 ```
 
 ### Avec PM2
@@ -31,7 +30,7 @@ pm2 start
 ```
 DOMAIN (protocole + domaine. ex : https://digibuzzer.app)
 HOST (IP publique du serveur de production)
-PORT (port du serveur local nuxt.js / 3000 par défaut)
+PORT (port du serveur local / 3000 par défaut)
 DB_HOST (IP publique du serveur de base de données Redis)
 DB_PWD (mot de passe de la base de données Redis)
 DB_PORT (port de la base de données Redis / 6379 par défaut)
@@ -39,11 +38,10 @@ SESSION_KEY (clé de session Express Session)
 SESSION_DURATION (durée de la session de connexion des utilisateurs en millisecondes)
 ```
 
-### Projet Nuxt.js avec serveur Node.js (Express) et base de données Redis
+### Projet Vue SSR (Vue.js 3 et Vite SSR Plugin) avec serveur Node.js (Express) et base de données Redis
 
 ### Démo
 https://digibuzzer.app
 
 ### Soutien
 https://opencollective.com/ladigitale
-

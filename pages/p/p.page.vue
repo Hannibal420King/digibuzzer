@@ -18,16 +18,18 @@
 				</div>
 			</header>
 
-			<transition-group name="fondu">
-				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'" key="conteneur-ouvert">
+			<transition name="fondu">
+				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'">
 					<div id="conteneur-buzzer">
 						<div id="base">
 							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" @click="envoyerReponse" />
 						</div>
 					</div>
 				</div>
+			</transition>
 
-				<div id="conteneur" class="salle-fermee" v-else key="conteneur-ferme">
+			<transition name="fondu">
+				<div id="conteneur" class="salle-fermee" v-if="statut !== 'ouvert'">
 					<div class="section">
 						<div class="information" v-if="statut === ''">
 							{{ $t('sallePasOuverte') }}
@@ -42,25 +44,27 @@
 						</div>
 					</div>
 				</div>
+			</transition>
 
-				<footer v-if="statut === 'ouvert'" key="footer">
+			<transition name="fondu">
+				<footer v-if="statut === 'ouvert'">
 					<div class="section">
 						<span class="score">{{ $t('score') }} {{ score }}</span>
 					</div>
 				</footer>
-			</transition-group>
+			</transition>
 		</div>
 
-		<div class="conteneur-modale" v-if="modale === 'parametres'">
+		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
 			<div id="modale-parametres" class="modale">
-				<header>
+				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
 					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<label>{{ $t('langue') }}</label>
-						<div class="langue">
+						<label v-if="modale === 'parametres'">{{ $t('langue') }}</label>
+						<div class="langue" v-if="modale === 'parametres'">
 							<span role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
 							<span role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
 						</div>
@@ -81,33 +85,6 @@
 							</div>
 						</div>
 						<div class="actions" :class="{'inactif': progression !== 0}" v-if="statut === ''">
-							<span class="bouton" role="button" tabindex="0" @click="modifierInformations">{{ $t('valider') }}</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="conteneur-modale" v-else-if="modale === 'informations'">
-			<div id="modale-informations" class="modale">
-				<div class="conteneur">
-					<div class="contenu">
-						<label>{{ $t('nomOuPseudo') }}</label>
-						<input type="text" id="nom" :value="nomProvisoire" @input="nomProvisoire = $event.target.value">
-						<label>{{ $t('avatar') }}</label>
-						<div class="avatars" v-if="progression === 0">
-							<span class="avatar" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire}" @click="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<label for="televerser" class="avatar ajouter" role="button" tabindex="0" :title="$t('televerserFichier')"><i class="material-icons">add_photo_alternate</i></label>
-							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
-							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
-						</div>
-						<div class="televerser" v-else>
-							<div class="conteneur-chargement" v-if="progression > 0">
-								<progress class="barre-progression" max="100" :value="progression" />
-								<div class="chargement" />
-							</div>
-						</div>
-						<div class="actions" :class="{'inactif': progression !== 0}">
 							<span class="bouton" role="button" tabindex="0" @click="modifierInformations">{{ $t('valider') }}</span>
 						</div>
 					</div>
@@ -136,50 +113,37 @@
 			</div>
 		</div>
 
-		<chargement :chargement="chargement" v-if="chargement" />
+		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
+
+		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
+
+		<Chargement v-if="chargement" />
+
+		<ChargementPage v-if="chargementPage" />
 	</div>
 </template>
 
 <script>
 import axios from 'axios'
-import chargement from '@/components/chargement.vue'
+import ChargementPage from '#root/components/chargement-page.vue'
+import Chargement from '#root/components/chargement.vue'
+import Message from '#root/components/message.vue'
+import Notification from '#root/components/notification.vue'
 
 export default {
 	name: 'Participer',
 	components: {
-		chargement
-	},
-	async asyncData (context) {
-		const salle = context.route.params.salle
-		const reponse = await axios.post(context.store.state.hote + '/api/recuperer-donnees-salle', {
-			salle: salle
-		}, {
-			headers: { 'Content-Type': 'application/json' }
-		}).catch(function () {
-			return {
-				redirection: '/'
-			}
-		})
-		if (!reponse || !reponse.hasOwnProperty('data')) {
-			return {
-				redirection: '/'
-			}
-		} else if (reponse.data && reponse.data === 'erreur') {
-			return {
-				redirection: '/'
-			}
-		} else {
-			return {
-				salle: salle,
-				titre: reponse.data.titre,
-				statut: reponse.data.statut,
-				donnees: reponse.data.donnees
-			}
-		}
+		ChargementPage,
+		Chargement,
+		Message,
+		Notification
 	},
 	data () {
 		return {
+			chargementPage: false,
 			chargement: false,
+			message: '',
+			notification: '',
 			mobile: false,
 			modale: '',
 			nomProvisoire: '',
@@ -194,57 +158,25 @@ export default {
 			icone: 'pending',
 			audio: '',
 			audioInitialise: false,
-			pageChargee: false
+			pageChargee: false,
+			hote: this.$pageContext.pageProps.hote,
+			identifiant: this.$pageContext.pageProps.identifiant,
+			nom: this.$pageContext.pageProps.nom,
+			avatar: this.$pageContext.pageProps.avatar,
+			langues: this.$pageContext.pageProps.langues,
+			langue: this.$pageContext.pageProps.langue,
+			salle: this.$pageContext.pageProps.salle,
+			titre: this.$pageContext.pageProps.titre,
+			statut: this.$pageContext.pageProps.statut,
+			donnees: this.$pageContext.pageProps.donnees
 		}
 	},
-	head () {
-		return {
-			title: this.titre + ' - Digibuzzer by La Digitale'
-		}
-	},
-	computed: {
-		hote () {
-			return this.$store.state.hote
-		},
-		identifiant () {
-			return this.$store.state.identifiant
-		},
-		nom () {
-			return this.$store.state.nom
-		},
-		avatar () {
-			return this.$store.state.avatar
-		},
-		langue () {
-			return this.$store.state.langue
-		},
-		langues () {
-			return this.$store.state.langues
-		}
-	},
-	watchQuery: ['page'],
 	created () {
 		if (this.redirection) {
-			this.$router.push(this.redirection)
+			window.location.href = this.redirection
 		}
-		this.$nuxt.$loading.start()
-		this.ecouterSocket()
-		if (this.nom !== '' && this.avatar !== '') {
-			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-		} else {
-			this.modale = 'informations'
-		}
-		if (this.statut === '' && this.modale === '') {
-			this.afficherModaleInformations()
-		}
-		const langue = this.$route.query.lang
-		if (this.langues.includes(langue) === true) {
-			this.$i18n.setLocale(langue)
-			this.$store.dispatch('modifierLangue', langue)
-			this.$socket.emit('modifierlangue', langue)
-		} else {
-			this.$i18n.setLocale(this.langue)
-		}
+		this.chargementPage = true
+		this.$i18n.locale = this.langue
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
 		if (this.donnees.statutQuestion === 'question') {
 			this.modale = 'question'
@@ -260,19 +192,41 @@ export default {
 		this.definirScore()
 	},
 	mounted () {
-		setTimeout(function () {
-			this.$nuxt.$loading.finish()
-			document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-		}.bind(this), 100)
+		const params = new URLSearchParams(document.location.search)
+		const langue = params.get('lang')
+		if (langue && this.langues.includes(langue) === true) {
+			this.$i18n.locale = langue
+			this.langue = langue
+			this.$socket.emit('modifierlangue', langue)
+		}
+
+		if (this.nom !== '' && this.avatar !== '') {
+			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+		} else {
+			this.modale = 'connexion'
+		}
+		if (this.statut === '' && this.modale === '') {
+			this.afficherModaleInformations()
+		}
+
 		this.audio = new Audio()
 		this.audio.autoplay = true
 		this.audio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+
+		this.ecouterSocket()
+
+		setTimeout(function () {
+			this.chargementPage = false
+			document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
+		}.bind(this), 100)
+
 		document.body.addEventListener('touchstart', function () {
 			if (this.audioInitialise === false) {
 				this.audio.play()
 				this.audioInitialise = true
 			}
 		}.bind(this))
+
 		document.body.addEventListener('click', function () {
 			if (this.audioInitialise === false) {
 				this.audio.play()
@@ -306,9 +260,6 @@ export default {
 			}.bind(this))
 		}
 	},
-	beforeDestroy () {
-		window.removeEventListener('beforeunload', this.quitterPage, false)
-	},
 	methods: {
 		afficherModaleParametres () {
 			this.nomProvisoire = this.nom
@@ -340,14 +291,14 @@ export default {
 					identifiant: this.identifiant,
 					langue: langue
 				}).then(function () {
-					this.$i18n.setLocale(langue)
+					this.$i18n.locale = langue
 					document.getElementsByTagName('html')[0].setAttribute('lang', langue)
-					this.$store.dispatch('modifierLangue', langue)
-					this.$store.dispatch('modifierNotification', this.$t('langueModifiee'))
+					this.langue = langue
+					this.notification = this.$t('langueModifiee')
 					this.chargement = false
 				}.bind(this)).catch(function () {
 					this.chargement = false
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			}
 		},
@@ -362,16 +313,17 @@ export default {
 					avatar: this.avatarProvisoire
 				}).then(function () {
 					this.chargement = false
-					if (modale === 'informations') {
+					if (modale === 'connexion') {
 						this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					} else {
 						this.$socket.emit('informations', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					}
-					this.$store.dispatch('modifierInformations', { nom: this.nomProvisoire, avatar: this.avatarProvisoire })
-					this.$store.dispatch('modifierNotification', this.$t('informationsModifiees'))
+					this.nom = this.nomProvisoire
+					this.avatar = this.avatarProvisoire
+					this.notification = this.$t('informationsModifiees')
 				}.bind(this)).catch(function () {
 					this.chargement = false
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			} else if (this.progression === 0 && this.nomProvisoire !== '' && this.nomProvisoire === this.nom && this.avatarProvisoire !== '' && this.avatarProvisoire === this.avatar) {
 				this.modale = ''
@@ -401,7 +353,7 @@ export default {
 				}).then(function (reponse) {
 					const donnees = reponse.data
 					if (donnees === 'erreur') {
-						this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+						this.message = this.$t('erreurCommunicationServeur')
 					} else {
 						this.avatarProvisoire = donnees
 					}
@@ -410,15 +362,15 @@ export default {
 				}.bind(this)).catch(function () {
 					champ.value = ''
 					this.progression = 0
-					this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
 			} else {
-				if (!formats.includes(extension)) {
-					this.$store.dispatch('modifierMessage', this.$t('formatImageNonAccepte'))
-				} else if (champ.files[0].size >= 1048576) {
-					this.$store.dispatch('modifierMessage', this.$t('tailleMaximaleImage'))
-				}
 				champ.value = ''
+				if (!formats.includes(extension)) {
+					this.message = this.$t('formatImageNonAccepte')
+				} else if (champ.files[0].size >= 1048576) {
+					this.message = this.$t('tailleMaximaleImage')
+				}
 			}
 		},
 		envoyerReponse () {
@@ -559,11 +511,11 @@ export default {
 			}.bind(this))
 
 			this.$socket.on('erreur', function () {
-				this.$store.dispatch('modifierMessage', this.$t('erreurCommunicationServeur'))
+				this.message = this.$t('erreurCommunicationServeur')
 			}.bind(this))
 
 			this.$socket.on('erreursalle', function () {
-				this.$store.dispatch('modifierMessage', this.$t('salleInexistante'))
+				this.message = this.$t('salleInexistante')
 			}.bind(this))
 		}
 	}
@@ -703,12 +655,10 @@ export default {
 	line-height: 1;
 }
 
-#modale-informations,
 #modale-parametres {
 	max-width: 500px;
 }
 
-#modale-informations span.bouton,
 #modale-parametres span.bouton {
 	width: 100%;
 	text-align: center;
@@ -805,7 +755,6 @@ export default {
 }
 
 @media screen and (orientation: landscape) and (max-height: 479px) {
-	#modale-informations,
 	#modale-parametres {
 		height: 90%;
 	}
