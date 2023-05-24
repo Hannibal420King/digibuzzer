@@ -110,7 +110,7 @@ async function demarrerServeur () {
 
 	app.set('trust proxy', true)
 	app.use(compression())
-	app.use('/avatars', express.static(path.join(__dirname, 'avatars')))
+	app.use('/avatars', express.static('avatars'))
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
@@ -289,36 +289,40 @@ async function demarrerServeur () {
 		if (process.env.PORT) {
 			hote = 'http://localhost:' + process.env.PORT
 		}
-		if (process.env.NODE_ENV === 'production') {
+		if (production) {
 			hote = process.env.DOMAIN
 		}
-		if (req.session.identifiant === '' || req.session.identifiant === undefined) {
-			const identifiant = 'u' + Math.random().toString(16).slice(3)
-			req.session.identifiant = identifiant
-			req.session.nom = ''
-			req.session.avatar = ''
-			req.session.langue = 'fr'
-			req.session.role = 'joueur'
-			req.session.salles = []
-			req.session.cookie.expires = new Date(Date.now() + dureeSession)
-		}	
-		const pageContextInit = {
-			urlOriginal: req.originalUrl,
-			hote: hote,
-			langues: ['fr', 'en'],
-			identifiant: req.session.identifiant,
-			nom: req.session.nom,
-			avatar: req.session.avatar,
-			langue: req.session.langue,
-			role: req.session.role,
-			salles: req.session.salles
+		if (!req.originalUrl.includes('/avatars/')) {
+			if (req.session.identifiant === '' || req.session.identifiant === undefined) {
+				const identifiant = 'u' + Math.random().toString(16).slice(3)
+				req.session.identifiant = identifiant
+				req.session.nom = ''
+				req.session.avatar = ''
+				req.session.langue = 'fr'
+				req.session.role = 'joueur'
+				req.session.salles = []
+				req.session.cookie.expires = new Date(Date.now() + dureeSession)
+			}	
+			const pageContextInit = {
+				urlOriginal: req.originalUrl,
+				hote: hote,
+				langues: ['fr', 'en'],
+				identifiant: req.session.identifiant,
+				nom: req.session.nom,
+				avatar: req.session.avatar,
+				langue: req.session.langue,
+				role: req.session.role,
+				salles: req.session.salles
+			}
+			const pageContext = await renderPage(pageContextInit)
+			const { httpResponse } = pageContext
+			if (!httpResponse) return next()
+			const { body, statusCode, contentType, earlyHints } = httpResponse
+			if (res.writeEarlyHints) res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
+			res.status(statusCode).type(contentType).send(body)
+		} else {
+			next()
 		}
-		const pageContext = await renderPage(pageContextInit)
-		const { httpResponse } = pageContext
-		if (!httpResponse) return next()
-		const { body, statusCode, contentType, earlyHints } = httpResponse
-		if (res.writeEarlyHints) res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
-		res.status(statusCode).type(contentType).send(body)
   	})
 
 	const port = process.env.PORT || 3000
