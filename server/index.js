@@ -110,7 +110,7 @@ async function demarrerServeur () {
 
 	app.set('trust proxy', true)
 	app.use(compression())
-	app.use(express.static(path.join(__dirname, 'avatars')))
+	app.use('/avatars', express.static(path.join(__dirname, 'avatars')))
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
