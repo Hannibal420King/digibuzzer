@@ -2,7 +2,7 @@ import { createSSRApp, h } from 'vue'
 import PageShell from './PageShell.vue'
 import { io } from 'socket.io-client'
 import { createI18n } from 'vue-i18n'
-import messages from '../lang'
+import messages from '#root/lang'
 
 export { createApp }
 
