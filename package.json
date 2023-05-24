@@ -1,6 +1,6 @@
 {
   "name": "digibuzzer",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "homepage": "https://digibuzzer.app",
   "repository": {
     "type": "git",
@@ -35,7 +35,7 @@
     "fs-extra": "^11.1.0",
     "helmet": "^3.23.3",
     "moment": "^2.29.4",
-    "multer": "^1.4.4",
+    "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.2",
     "nuxt": "^2.15.8",
     "nuxt-i18n": "^6.28.1",
