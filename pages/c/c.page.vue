@@ -267,7 +267,8 @@
 <script>
 import axios from 'axios'
 import ClipboardJS from 'clipboard'
-import { saveAs } from 'file-saver'
+import fileSaver from 'file-saver'
+const { saveAs } = fileSaver
 import ChargementPage from '#root/components/chargement-page.vue'
 import Chargement from '#root/components/chargement.vue'
 import Message from '#root/components/message.vue'
