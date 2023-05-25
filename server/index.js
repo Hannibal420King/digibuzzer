@@ -114,7 +114,7 @@ async function demarrerServeur () {
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
-				"default-src": ["'self'", "https:", "ws:"],
+				"default-src": ["'self'", "https:", "ws:", ":wss"],
 				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
 				"media-src": ["'self'", "data:"],
 				"frame-ancestors": ["'self'", 'https://ladigitale.dev', 'https://digipad.app', 'https://digiwall.app']
@@ -603,7 +603,7 @@ async function demarrerServeur () {
 							if (err) { socket.emit('erreur'); return false }
 							io.in(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
 							socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-							socket.request.session.session.save()
+							socket.request.session.save()
 						})
 					})
 				} else {
