@@ -79,11 +79,14 @@
 		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
 
 		<Chargement v-if="chargement" />
+
+		<ChargementPage v-if="chargementPage" />
 	</div>
 </template>
 
 <script>
 import axios from 'axios'
+import ChargementPage from '#root/components/chargement-page.vue'
 import Chargement from '#root/components/chargement.vue'
 import Message from '#root/components/message.vue'
 import Notification from '#root/components/notification.vue'
@@ -91,12 +94,14 @@ import Notification from '#root/components/notification.vue'
 export default {
 	name: 'Accueil',
 	components: {
+		ChargementPage,
 		Chargement,
 		Message,
 		Notification
 	},
 	data () {
 		return {
+			chargementPage: true,
 			chargement: false,
 			message: '',
 			notification: '',
@@ -113,6 +118,7 @@ export default {
 		this.$i18n.locale = this.langue
 	},
 	mounted () {
+		this.chargementPage = false
 		const params = new URLSearchParams(document.location.search)
 		const langue = params.get('lang')
 		if (langue && this.langues.includes(langue) === true) {
