@@ -40,7 +40,7 @@ async function render (pageContext) {
 				<meta name="apple-mobile-web-app-capable" content="yes">
 				<meta name="mobile-web-app-capable" content="yes">
 				<meta name="HandheldFriendly" content="true">
-				<meta name="keywords" content="ladigitale, questions pour un champion, buzzer, éducation, openedtech, free software">
+				<meta name="keywords" content="ladigitale, quiz, buzzer, education, openedtech, free software">
 				<meta name="description" content="Une application en ligne pour créer des salles de jeu virtuelles proposée par La Digitale">
 				<meta name="robots" content="index, no-follow" />
 				<meta name="theme-color" content="#00ced1">
