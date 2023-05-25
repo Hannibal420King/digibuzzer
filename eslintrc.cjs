@@ -13,7 +13,7 @@ module.exports = {
     'generator-star-spacing': 'off',
     'indent': [
       'error',
-      'tab''
+      'tab'
     ],
     'no-tabs': 0,
     'no-console': 0
