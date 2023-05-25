@@ -24,6 +24,7 @@ function createApp (Page, pageProps, pageContext) {
 	const i18n = createI18n({
 		locale: 'fr',
 		fallbackLocale: 'fr',
+		warnHtmlInMessage: 'off',
 		messages
 	})
 
