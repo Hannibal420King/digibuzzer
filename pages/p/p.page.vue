@@ -172,92 +172,95 @@ export default {
 		}
 	},
 	created () {
-		if (this.redirection) {
-			window.location.href = this.redirection
-		}
 		this.chargementPage = true
-		this.$i18n.locale = this.langue
-		this.indexQuestion = parseInt(this.donnees.indexQuestion)
-		if (this.donnees.statutQuestion === 'question') {
-			this.modale = 'question'
-		} else if (this.donnees.statutQuestion === 'reponses') {
-			this.reponse = true
+		if (!this.$pageContext.pageProps.hasOwnProperty('erreur')) {
+			this.$i18n.locale = this.langue
+			this.indexQuestion = parseInt(this.donnees.indexQuestion)
+			if (this.donnees.statutQuestion === 'question') {
+				this.modale = 'question'
+			} else if (this.donnees.statutQuestion === 'reponses') {
+				this.reponse = true
+			}
+			this.premiereReponse = this.donnees.premiereReponse
+			if (this.reponse && this.premiereReponse === this.identifiant) {
+				this.modale = 'reponse'
+			}
+			this.reponses = this.donnees.reponses
+			this.resultats = this.donnees.resultats
+			this.definirScore()
 		}
-		this.premiereReponse = this.donnees.premiereReponse
-		if (this.reponse && this.premiereReponse === this.identifiant) {
-			this.modale = 'reponse'
-		}
-		this.reponses = this.donnees.reponses
-		this.resultats = this.donnees.resultats
-		this.definirScore()
 	},
 	mounted () {
-		const params = new URLSearchParams(document.location.search)
-		const langue = params.get('lang')
-		if (langue && this.langues.includes(langue) === true) {
-			this.$i18n.locale = langue
-			this.langue = langue
-			this.$socket.emit('modifierlangue', langue)
-		}
+		if (!this.$pageContext.pageProps.hasOwnProperty('erreur')) {
+			const params = new URLSearchParams(document.location.search)
+			const langue = params.get('lang')
+			if (langue && this.langues.includes(langue) === true) {
+				this.$i18n.locale = langue
+				this.langue = langue
+				this.$socket.emit('modifierlangue', langue)
+			}
 
-		if (this.nom !== '' && this.avatar !== '') {
-			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+			if (this.nom !== '' && this.avatar !== '') {
+				this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+			} else {
+				this.modale = 'connexion'
+			}
+			if (this.statut === '' && this.modale === '') {
+				this.afficherModaleInformations()
+			}
+
+			this.audio = new Audio()
+			this.audio.autoplay = true
+			this.audio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+
+			this.ecouterSocket()
+
+			setTimeout(function () {
+				this.chargementPage = false
+				document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
+			}.bind(this), 100)
+
+			document.body.addEventListener('touchstart', function () {
+				if (this.audioInitialise === false) {
+					this.audio.play()
+					this.audioInitialise = true
+				}
+			}.bind(this))
+
+			document.body.addEventListener('click', function () {
+				if (this.audioInitialise === false) {
+					this.audio.play()
+					this.audioInitialise = true
+				}
+			}.bind(this))
+
+			window.addEventListener('beforeunload', this.quitterPage, false)
+
+			this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
+			if (this.mobile) {
+				window.addEventListener('pageshow', function () {
+					setTimeout(function () {
+						if (this.pageChargee && !this.chargement && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+							this.chargement = true
+							this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+						}
+						if (!this.pageChargee) {
+							this.pageChargee = true
+						}
+					}.bind(this), 100)
+				}.bind(this))
+
+				document.addEventListener('visibilitychange', function () {
+					setTimeout(function () {
+						if (this.pageChargee && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+							this.chargement = true
+							this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+						}
+					}.bind(this), 100)
+				}.bind(this))
+			}
 		} else {
-			this.modale = 'connexion'
-		}
-		if (this.statut === '' && this.modale === '') {
-			this.afficherModaleInformations()
-		}
-
-		this.audio = new Audio()
-		this.audio.autoplay = true
-		this.audio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
-
-		this.ecouterSocket()
-
-		setTimeout(function () {
-			this.chargementPage = false
-			document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-		}.bind(this), 100)
-
-		document.body.addEventListener('touchstart', function () {
-			if (this.audioInitialise === false) {
-				this.audio.play()
-				this.audioInitialise = true
-			}
-		}.bind(this))
-
-		document.body.addEventListener('click', function () {
-			if (this.audioInitialise === false) {
-				this.audio.play()
-				this.audioInitialise = true
-			}
-		}.bind(this))
-
-		window.addEventListener('beforeunload', this.quitterPage, false)
-
-		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
-		if (this.mobile) {
-			window.addEventListener('pageshow', function () {
-				setTimeout(function () {
-					if (this.pageChargee && !this.chargement && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-						this.chargement = true
-						this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-					}
-					if (!this.pageChargee) {
-						this.pageChargee = true
-					}
-				}.bind(this), 100)
-			}.bind(this))
-
-			document.addEventListener('visibilitychange', function () {
-				setTimeout(function () {
-					if (this.pageChargee && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-						this.chargement = true
-						this.$socket.emit('donnees', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-					}
-				}.bind(this), 100)
-			}.bind(this))
+			window.location.href = '/'
 		}
 	},
 	methods: {
