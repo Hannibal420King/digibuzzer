@@ -1,27 +1,9 @@
-export { onBeforeRender }
 export { render }
 export const passToClient = ['pageProps', 'urlPathname']
 
 import { renderToString as renderToString_ } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
 import { createApp } from './app'
-
-async function onBeforeRender (pageContext) {
-	const hote = pageContext.hote
-	const langues = pageContext.langues
-	const identifiant = pageContext.identifiant
-	const nom = pageContext.nom
-	const avatar = pageContext.avatar
-	const langue = pageContext.langue
-	const role = pageContext.role
-	const salles = pageContext.salles
-	const pageProps = { hote, langues, identifiant, nom, avatar, langue, role, salles }
-	return {
-		pageContext: {
-			pageProps
-		}
-	}
-}
 
 async function render (pageContext) {
 	const { Page, pageProps } = pageContext
