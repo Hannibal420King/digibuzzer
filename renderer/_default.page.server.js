@@ -1,13 +1,13 @@
 export { render }
+
 export const passToClient = ['pageProps', 'urlPathname']
 
-import { renderToString as renderToString_ } from '@vue/server-renderer'
+import { renderToString } from '@vue/server-renderer'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
 import { createApp } from './app'
 
 async function render (pageContext) {
 	const { Page, pageProps } = pageContext
-	if (!Page) throw new Error('My render() hook expects pageContext.Page to be defined')
 	const app = createApp(Page, pageProps, pageContext)
 	const appHtml = await renderToString(app)
 	let titre = 'Digibuzzer by La Digitale'
@@ -47,14 +47,4 @@ async function render (pageContext) {
   	return {
     	documentHtml
   	}
-}
-
-async function renderToString (app) {
-  	let err
-  	app.config.errorHandler = (err_) => {
-    	err = err_
-  	}
-  	const appHtml = await renderToString_(app)
-  	if (err) throw err
-  	return appHtml
 }
