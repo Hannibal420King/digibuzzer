@@ -8,12 +8,12 @@ export { createApp }
 
 function createApp (Page, pageProps, pageContext) {
 	const PageWithLayout = {
-    	render() {
+    	render () {
       		return h(
         		PageShell,
         		{},
         		{
-          			default() {
+          			default () {
             			return h(Page, pageProps || {})
           			}
         		}
