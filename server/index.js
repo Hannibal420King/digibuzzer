@@ -114,7 +114,7 @@ async function demarrerServeur () {
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
-				"default-src": ["'self'", "https:", "ws:", ":wss"],
+				"default-src": ["'self'", "https:", "ws:"],
 				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
 				"media-src": ["'self'", "data:"],
 				"frame-ancestors": ["'self'", 'https://ladigitale.dev', 'https://digipad.app', 'https://digiwall.app']
