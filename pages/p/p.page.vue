@@ -196,6 +196,7 @@ export default {
 			if (langue && this.langues.includes(langue) === true) {
 				this.$i18n.locale = langue
 				this.langue = langue
+				document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 				this.$socket.emit('modifierlangue', langue)
 			}
 
@@ -216,8 +217,7 @@ export default {
 
 			setTimeout(function () {
 				this.chargementPage = false
-				document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-			}.bind(this), 100)
+			}.bind(this), 300)
 
 			document.body.addEventListener('touchstart', function () {
 				if (this.audioInitialise === false) {
