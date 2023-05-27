@@ -140,7 +140,7 @@ export default {
 	},
 	data () {
 		return {
-			chargementPage: false,
+			chargementPage: true,
 			chargement: false,
 			message: '',
 			notification: '',
@@ -172,7 +172,6 @@ export default {
 		}
 	},
 	created () {
-		this.chargementPage = true
 		if (!this.$pageContext.pageProps.hasOwnProperty('erreur')) {
 			this.$i18n.locale = this.langue
 			this.indexQuestion = parseInt(this.donnees.indexQuestion)
