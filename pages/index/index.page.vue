@@ -118,7 +118,6 @@ export default {
 		this.$i18n.locale = this.langue
 	},
 	mounted () {
-		this.chargementPage = false
 		const params = new URLSearchParams(document.location.search)
 		const langue = params.get('lang')
 		if (langue && this.langues.includes(langue) === true) {
@@ -126,9 +125,12 @@ export default {
 			this.langue = langue
 			this.$socket.emit('modifierlangue', langue)
 		}
+
+		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
+
 		setTimeout(function () {
-			document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-		}.bind(this), 100)
+			this.chargementPage = false
+		}.bind(this), 300)
 	},
 	methods: {
 		ouvrirModaleCreer () {
