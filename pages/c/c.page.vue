@@ -284,7 +284,7 @@ export default {
 	},
 	data () {
 		return {
-			chargementPage: false,
+			chargementPage: true,
 			chargement: false,
 			message: '',
 			notification: '',
@@ -364,7 +364,6 @@ export default {
 		}
 	},
 	created () {
-		this.chargementPage = true
 		if (!this.$pageContext.pageProps.hasOwnProperty('erreur')) {
 			this.$i18n.locale = this.langue
 			if (this.role === 'animateur' && this.salles.includes(this.salle)) {
