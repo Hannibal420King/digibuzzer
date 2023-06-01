@@ -147,11 +147,15 @@ async function demarrerServeur () {
   	}
 	
 	app.get('/', async function (req, res, next) {
+		let langue = 'fr'
+		if (req.session.hasOwnProperty('langue') && req.session.langue !== '') {
+			langue = req.session.langue
+		}
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
 			hote: hote,
 			langues: ['fr', 'en'],
-			langue: req.session.langue,
+			langue: langue
 		}
 		const pageContext = await renderPage(pageContextInit)
 		const { httpResponse } = pageContext
@@ -166,9 +170,13 @@ async function demarrerServeur () {
   	})
 
 	app.get('/c/:salle', async function (req, res, next) {
-		if (req.session.identifiant === '' || req.session.identifiant === undefined) {
+		if (req.session.identifiant === undefined || req.session.identifiant === '')  {
 			res.redirect('/')
 		} else {
+			let langue = 'fr'
+			if (req.session.hasOwnProperty('langue') && req.session.langue !== '') {
+				langue = req.session.langue
+			}
 			const pageContextInit = {
 				urlOriginal: req.originalUrl,
 				hote: hote,
@@ -176,7 +184,7 @@ async function demarrerServeur () {
 				identifiant: req.session.identifiant,
 				nom: req.session.nom,
 				avatar: req.session.avatar,
-				langue: req.session.langue,
+				langue: langue,
 				role: req.session.role,
 				salles: req.session.salles
 			}
