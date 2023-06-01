@@ -14,6 +14,7 @@ const multer = require('multer')
 const sharp = require('sharp')
 const dayjs = require('dayjs')
 const cron = require('node-cron')
+const sirv = require('sirv')
 const { renderPage } = require('vite-plugin-ssr/server')
 
 const production = process.env.NODE_ENV === 'production'
@@ -110,7 +111,7 @@ async function demarrerServeur () {
 
 	app.set('trust proxy', true)
 	app.use(compression())
-	app.use('/avatars', express.static('avatars'))
+	app.use(sirv(`${root}/avatars`))
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
@@ -126,7 +127,6 @@ async function demarrerServeur () {
 	app.use(cors())
 
 	if (production) {
-		const sirv = require('sirv')
 		app.use(sirv(`${root}/dist/client`))
 	} else {
     	const vite = require('vite')
@@ -284,45 +284,45 @@ async function demarrerServeur () {
 		}
 	})	
 
-  	app.get('*', async (req, res, next) => {
-		if (!req.originalUrl.includes('/avatars/')) {
-			let hote = 'http://localhost:3000'
-			if (process.env.PORT) {
-				hote = 'http://localhost:' + process.env.PORT
-			}
-			if (production) {
-				hote = process.env.DOMAIN
-			}
-			if (req.session.identifiant === '' || req.session.identifiant === undefined) {
-				const identifiant = 'u' + Math.random().toString(16).slice(3)
-				req.session.identifiant = identifiant
-				req.session.nom = ''
-				req.session.avatar = ''
-				req.session.langue = 'fr'
-				req.session.role = 'joueur'
-				req.session.salles = []
-				req.session.cookie.expires = new Date(Date.now() + dureeSession)
-			}	
-			const pageContextInit = {
-				urlOriginal: req.originalUrl,
-				hote: hote,
-				langues: ['fr', 'en'],
-				identifiant: req.session.identifiant,
-				nom: req.session.nom,
-				avatar: req.session.avatar,
-				langue: req.session.langue,
-				role: req.session.role,
-				salles: req.session.salles
-			}
-			const pageContext = await renderPage(pageContextInit)
-			const { httpResponse } = pageContext
-			if (!httpResponse) return next()
-			const { body, statusCode, contentType, earlyHints } = httpResponse
-			if (res.writeEarlyHints) res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
-			res.status(statusCode).type(contentType).send(body)
-		} else {
-			next()
+  	app.get('*', async function (req, res, next) {
+		let hote = 'http://localhost:3000'
+		if (process.env.PORT) {
+			hote = 'http://localhost:' + process.env.PORT
 		}
+		if (production) {
+			hote = process.env.DOMAIN
+		}
+		if (req.session.identifiant === '' || req.session.identifiant === undefined) {
+			const identifiant = 'u' + Math.random().toString(16).slice(3)
+			req.session.identifiant = identifiant
+			req.session.nom = ''
+			req.session.avatar = ''
+			req.session.langue = 'fr'
+			req.session.role = 'joueur'
+			req.session.salles = []
+			req.session.cookie.expires = new Date(Date.now() + dureeSession)
+		}	
+		const pageContextInit = {
+			urlOriginal: req.originalUrl,
+			hote: hote,
+			langues: ['fr', 'en'],
+			identifiant: req.session.identifiant,
+			nom: req.session.nom,
+			avatar: req.session.avatar,
+			langue: req.session.langue,
+			role: req.session.role,
+			salles: req.session.salles
+		}
+		const pageContext = await renderPage(pageContextInit)
+		const { httpResponse } = pageContext
+		if (!httpResponse) {
+			return next()
+		}
+		const { body, statusCode, contentType, earlyHints } = httpResponse
+		if (res.writeEarlyHints) {
+			res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
+		}
+		res.status(statusCode).type(contentType).send(body)
   	})
 
 	const port = process.env.PORT || 3000
