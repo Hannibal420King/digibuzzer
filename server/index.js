@@ -5,7 +5,6 @@ const express = require('express')
 const { createServer } = require('http')
 const { Server } = require('socket.io')
 const session = require('express-session')
-const compression = require('compression')
 const cors = require('cors')
 const redis = require('redis')
 const bodyParser = require('body-parser')
@@ -116,7 +115,6 @@ async function demarrerServeur () {
 	})
 
 	app.set('trust proxy', true)
-	app.use(compression())
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
@@ -133,15 +131,14 @@ async function demarrerServeur () {
 	app.use('/avatars', express.static('avatars'))
 
 	if (production) {
-		const sirv = require('sirv')
-		app.use(sirv(`${root}/dist/client`))
+		app.use(express.static('dist/client'))
 	} else {
     	const vite = require('vite')
     	const viteDevMiddleware = (
       		await vite.createServer({
         		root,
         		server: { middlewareMode: true }
-     		 })
+			})
     	).middlewares
     	app.use(viteDevMiddleware)
   	}
