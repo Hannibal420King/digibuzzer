@@ -1,12 +1,13 @@
-import { createSSRApp, h } from 'vue'
+import { createApp, h } from 'vue'
 import PageShell from './PageShell.vue'
 import { io } from 'socket.io-client'
 import { createI18n } from 'vue-i18n'
 import messages from './lang'
 
-export { createApp }
+export { createPageApp }
 
-function createApp (Page, pageProps, pageContext) {
+function createPageApp (pageContext) {
+	const { Page, pageProps } = pageContext
 	const PageWithLayout = {
     	render () {
       		return h(
@@ -28,7 +29,7 @@ function createApp (Page, pageProps, pageContext) {
 		messages
 	})
 
-  	const app = createSSRApp(PageWithLayout)
+	const app = createApp(PageWithLayout)
 	app.use(i18n)
 
 	app.config.globalProperties.$socket = io(pageProps.hote, {

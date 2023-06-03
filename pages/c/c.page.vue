@@ -364,51 +364,45 @@ export default {
 		}
 	},
 	created () {
-		if (!this.$pageContext.pageProps.hasOwnProperty('erreur')) {
+		const params = this.$pageContext.pageProps.params
+		const langue = params.lang
+		if (langue && this.langues.includes(langue) === true) {
+			this.$i18n.locale = langue
+			this.langue = langue
+			this.$socket.emit('modifierlangue', langue)
+		} else {
 			this.$i18n.locale = this.langue
-			if (this.role === 'animateur' && this.salles.includes(this.salle)) {
-				this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: '' })
-			}
-			this.indexQuestion = parseInt(this.donnees.indexQuestion)
-			this.statutQuestion = this.donnees.statutQuestion
-			if (this.statutQuestion === 'question') {
-				this.modale = 'question'
-			}
-			this.premiereReponse = this.donnees.premiereReponse
-			if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
-				this.modale = 'utilisateur'
-			}
-			this.reponses = this.donnees.reponses
-			this.resultats = this.donnees.resultats
-			if (this.statut === 'ferme') {
-				this.definirDonneesUtilisateurs()
-			}
+		}
+
+		this.ecouterSocket()
+
+		if (this.role === 'animateur' && this.salles.includes(this.salle)) {
+			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: '' })
+		}
+
+		this.indexQuestion = parseInt(this.donnees.indexQuestion)
+		this.statutQuestion = this.donnees.statutQuestion
+		if (this.statutQuestion === 'question') {
+			this.modale = 'question'
+		}
+		this.premiereReponse = this.donnees.premiereReponse
+		if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
+			this.modale = 'utilisateur'
+		}
+		this.reponses = this.donnees.reponses
+		this.resultats = this.donnees.resultats
+		if (this.statut === 'ferme') {
+			this.definirDonneesUtilisateurs()
 		}
 	},
 	mounted () {
-		if (!this.$pageContext.pageProps.hasOwnProperty('erreur')) {
-			this.ecouterSocket()
-			if (this.role === 'animateur' && this.salles.includes(this.salle)) {
-				const params = new URLSearchParams(document.location.search)
-				const langue = params.get('lang')
-				if (langue && this.langues.includes(langue) === true) {
-					this.$i18n.locale = langue
-					this.langue = langue
-					document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-					this.$socket.emit('modifierlangue', langue)
-				}
+		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 
-				this.initialiser()
+		this.initialiser()
 
-				setTimeout(function () {
-					this.chargementPage = false
-				}.bind(this), 300)
-			} else {
-				window.location.href = '/'
-			}
-		} else {
-			window.location.href = '/'
-		}
+		setTimeout(function () {
+			this.chargementPage = false
+		}.bind(this), 300)
 	},
 	methods: {
 		initialiser () {

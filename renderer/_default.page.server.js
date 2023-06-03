@@ -2,17 +2,12 @@ export { render }
 
 export const passToClient = ['pageProps', 'urlPathname']
 
-import { renderToString } from '@vue/server-renderer'
-import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
-import { createApp } from './app'
+import { escapeInject } from 'vite-plugin-ssr/server'
 
 async function render (pageContext) {
-	const { Page, pageProps } = pageContext
-	const app = createApp(Page, pageProps, pageContext)
-	const appHtml = await renderToString(app)
 	let titre = 'Digibuzzer by La Digitale'
-	if (pageProps.hasOwnProperty('titre')) {
-		titre = pageProps.titre + ' - Digibuzzer by La Digitale'
+	if (pageContext.pageProps.hasOwnProperty('titre')) {
+		titre = pageContext.pageProps.titre + ' - Digibuzzer by La Digitale'
 	}
 	const documentHtml = escapeInject`<!DOCTYPE html>
 		<html lang="fr">
@@ -39,7 +34,7 @@ async function render (pageContext) {
 				<noscript>
       				<strong>Veuillez activer Javascript dans votre navigateur pour utiliser <i>Digibuzzer</i>.</strong>
     			</noscript>
-				<div id="app">${dangerouslySkipEscape(appHtml)}</div>
+				<div id="app"></div>
 				<script src="/js/qrcode.js"></script>
 			</body>
 		</html>`

@@ -150,6 +150,7 @@ async function demarrerServeur () {
 		}
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
+			params: req.query,
 			hote: hote,
 			langues: ['fr', 'en'],
 			langue: langue
@@ -176,6 +177,7 @@ async function demarrerServeur () {
 			}
 			const pageContextInit = {
 				urlOriginal: req.originalUrl,
+				params: req.query,
 				hote: hote,
 				langues: ['fr', 'en'],
 				identifiant: req.session.identifiant,
@@ -211,6 +213,7 @@ async function demarrerServeur () {
 		}	
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
+			params: req.query,
 			hote: hote,
 			langues: ['fr', 'en'],
 			identifiant: req.session.identifiant,

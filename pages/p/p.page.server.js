@@ -17,6 +17,7 @@ async function onBeforeRender (pageContext) {
 		erreur = true
 		pageProps = { erreur }
 	} else {
+		const params = pageContext.params
 		const hote = pageContext.hote
 		const langues = pageContext.langues
 		const identifiant = pageContext.identifiant
@@ -26,7 +27,7 @@ async function onBeforeRender (pageContext) {
 		const titre = reponse.data.titre
 		const statut = reponse.data.statut
 		const donnees = reponse.data.donnees
-		pageProps = { hote, langues, identifiant, nom, avatar, langue, salle, titre, statut, donnees }
+		pageProps = { params, hote, langues, identifiant, nom, avatar, langue, salle, titre, statut, donnees }
 	}
 	return {
 		pageContext: {

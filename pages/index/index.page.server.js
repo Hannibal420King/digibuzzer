@@ -1,10 +1,11 @@
 export { onBeforeRender }
 
-async function onBeforeRender (pageContext) {
+function onBeforeRender (pageContext) {
+	const params = pageContext.params
 	const hote = pageContext.hote
 	const langues = pageContext.langues
 	const langue = pageContext.langue
-	const pageProps = { hote, langues, langue }
+	const pageProps = { params, hote, langues, langue }
 	return {
 		pageContext: {
 			pageProps

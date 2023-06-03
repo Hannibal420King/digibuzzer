@@ -16,7 +16,11 @@ async function onBeforeRender (pageContext) {
 	if (!reponse || !reponse.hasOwnProperty('data') || (reponse.data && reponse.data === 'erreur')) {
 		erreur = true
 		pageProps = { erreur }
+	} else if (pageContext.role !== 'animateur' || !pageContext.salles.includes(salle)) {
+		erreur = true
+		pageProps = { erreur }
 	} else {
+		const params = pageContext.params
 		const hote = pageContext.hote
 		const langues = pageContext.langues
 		const identifiant = pageContext.identifiant
@@ -27,7 +31,7 @@ async function onBeforeRender (pageContext) {
 		const titre = reponse.data.titre
 		const statut = reponse.data.statut
 		const donnees = reponse.data.donnees
-		pageProps = { hote, langues, identifiant, nom, langue, role, salles, salle, titre, statut, donnees }
+		pageProps = { params, hote, langues, identifiant, nom, langue, role, salles, salle, titre, statut, donnees }
 	}
 	return {
 		pageContext: {

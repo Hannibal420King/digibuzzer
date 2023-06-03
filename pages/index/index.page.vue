@@ -115,17 +115,17 @@ export default {
 		}
 	},
 	created () {
-		this.$i18n.locale = this.langue
-	},
-	mounted () {
-		const params = new URLSearchParams(document.location.search)
-		const langue = params.get('lang')
+		const params = this.$pageContext.pageProps.params
+		const langue = params.lang
 		if (langue && this.langues.includes(langue) === true) {
 			this.$i18n.locale = langue
 			this.langue = langue
 			this.$socket.emit('modifierlangue', langue)
+		} else {
+			this.$i18n.locale = this.langue
 		}
-
+	},
+	mounted () {
 		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 
 		setTimeout(function () {
