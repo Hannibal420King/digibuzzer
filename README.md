@@ -38,7 +38,7 @@ SESSION_KEY (clé de session Express Session)
 SESSION_DURATION (durée de la session de connexion des utilisateurs en millisecondes)
 ```
 
-### Projet Vue SSR (Vue.js 3 et Vite SSR Plugin) avec serveur Node.js (Express) et base de données Redis
+### Projet Vue (Vue.js 3 et Vite SSR Plugin) avec serveur Node.js (Express) et base de données Redis
 
 ### Démo
 https://digibuzzer.app
