@@ -362,14 +362,14 @@ async function demarrerServeur () {
 				if (extension === '.jpg' || extension === '.jpeg') {
 					sharp(chemin).withMetadata().rotate().jpeg().resize(300, 320).toBuffer((err, buffer) => {
 						if (err) { res.send('erreur'); return false }
-						fs.writeFile(chemin, buffer, function() {
+						fs.writeFile(chemin, buffer, function () {
 							res.send(fichier.filename)
 						})
 					})
 				} else if (extension === '.png') {
 					sharp(chemin).withMetadata().resize(300, 320).toBuffer((err, buffer) => {
 						if (err) { res.send('erreur'); return false }
-						fs.writeFile(chemin, buffer, function() {
+						fs.writeFile(chemin, buffer, function () {
 							res.send(fichier.filename)
 						})
 					})
