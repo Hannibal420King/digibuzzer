@@ -18,7 +18,7 @@
 				</div>
 			</header>
 
-			<transition name="fondu">
+			<Transition name="fondu">
 				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'">
 					<div id="conteneur-buzzer">
 						<div id="base">
@@ -26,9 +26,9 @@
 						</div>
 					</div>
 				</div>
-			</transition>
+			</Transition>
 
-			<transition name="fondu">
+			<Transition name="fondu">
 				<div id="conteneur" class="salle-fermee" v-if="statut !== 'ouvert'">
 					<div class="section">
 						<div class="information" v-if="statut === ''">
@@ -44,15 +44,15 @@
 						</div>
 					</div>
 				</div>
-			</transition>
+			</Transition>
 
-			<transition name="fondu">
+			<Transition name="fondu">
 				<footer v-if="statut === 'ouvert'">
 					<div class="section">
 						<span class="score">{{ $t('score') }} {{ score }}</span>
 					</div>
 				</footer>
-			</transition>
+			</Transition>
 		</div>
 
 		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
