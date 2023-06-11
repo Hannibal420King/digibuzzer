@@ -68,5 +68,6 @@ export default {
 	bonus: 'Bonus',
 	telecharger: 'Télécharger',
 	aucunResultat: 'Aucun résultat à exporter.',
-	rechargerDonnees: 'Recharger les données'
+	rechargerDonnees: 'Recharger les données',
+	donneesRechargees: 'Données rechargées.'
 }
