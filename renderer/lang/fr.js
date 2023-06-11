@@ -67,5 +67,6 @@ export default {
 	scoreModifie: 'Score modifié.',
 	bonus: 'Bonus',
 	telecharger: 'Télécharger',
-	aucunResultat: 'Aucun résultat à exporter.'
+	aucunResultat: 'Aucun résultat à exporter.',
+	rechargerDonnees: 'Recharger les données'
 }

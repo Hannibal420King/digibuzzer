@@ -419,39 +419,6 @@ async function demarrerServeur () {
 			socket.to(salle).emit('deconnexion', socket.request.session.identifiant)
 		})
 	
-		socket.on('donnees', function (donnees) {
-			const salle = donnees.salle
-			const identifiant = donnees.identifiant
-			const nom = donnees.nom
-			const avatar = donnees.avatar
-			db.exists('salles:' + salle, function (err, reponse) {
-				if (err) { socket.emit('erreur'); return false }
-				if (reponse === 1) {
-					db.hgetall('salles:' + salle, async function (err, resultat) {
-						if (err) { socket.emit('erreur'); return false }
-						socket.join(salle)
-						socket.identifiant = identifiant
-						socket.nom = nom
-						socket.avatar = avatar
-						socket.emit('donnees', { titre: resultat.titre, statut: resultat.statut, donnees: JSON.parse(resultat.donnees) })
-						const clients = await io.in(salle).fetchSockets()
-						let utilisateurs = []
-						for (let i = 0; i < clients.length; i++) {
-							utilisateurs.push({ identifiant: clients[i].identifiant, nom: clients[i].nom, avatar: clients[i].avatar })
-						}
-						utilisateurs = utilisateurs.filter((valeur, index, self) =>
-							index === self.findIndex((t) => (
-								t.identifiant === valeur.identifiant && t.nom === valeur.nom && t.avatar === valeur.avatar
-							))
-						)
-						io.in(salle).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
-		})
-	
 		socket.on('salleouverte', function (donnees) {
 			socket.to(donnees.salle).emit('salleouverte', donnees)
 		})
