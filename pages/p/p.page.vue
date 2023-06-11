@@ -10,11 +10,11 @@
 					</div>
 
 					<div id="parametres" v-if="avatar === ''">
-						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees"><i class="material-icons">sync</i></span>
+						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
 						<span role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><i class="material-icons">settings</i></span>
 					</div>
 					<div id="parametres" class="avatar" v-else>
-						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees"><i class="material-icons">sync</i></span>
+						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
 						<span role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
 					</div>
 				</div>
@@ -77,8 +77,8 @@
 							<span class="avatar" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': avatar !== '' && statut !== '' }" @click="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
 							<label for="televerser" class="avatar ajouter" role="button" tabindex="0" :title="$t('televerserFichier')" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
-							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': avatar !== '' && statut !== ''}" v-if="(avatar === '' || nom === '' || statut === '') && avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"><img :src="'/avatars/' + avatarProvisoire"></span>
-							<span class="avatar fichier" v-else />
+							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
+							<span class="avatar fichier" v-if="avatar !== '' && statut !== ''" />
 						</div>
 						<div class="televerser" v-else>
 							<div class="conteneur-chargement" v-if="progression > 0">
@@ -240,10 +240,10 @@ export default {
 		document.addEventListener('visibilitychange', function () {
 			if (this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
 				setTimeout(function () {
-					this.rechargerDonnees()
+					this.rechargerDonnees('')
 				}.bind(this), 200)
 			} else if (!this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-				this.rechargerDonnees()
+				this.rechargerDonnees('')
 			}
 		}.bind(this))
 	},
@@ -385,7 +385,7 @@ export default {
 			}
 			this.score = score
 		},
-		rechargerDonnees () {
+		rechargerDonnees (notification) {
 			this.chargement = true
 			axios.post(this.hote + '/api/recuperer-donnees-salle', {
 				salle: this.salle
@@ -410,7 +410,9 @@ export default {
 					this.reponses = this.donnees.reponses
 					this.resultats = this.donnees.resultats
 					this.definirScore()
-					this.notification = this.$t('donneesRechargees')
+					if (notification !== '') {
+						this.notification = this.$t('donneesRechargees')
+					}
 					this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
 				} else {
 					this.message = this.$t('erreurCommunicationServeur')
