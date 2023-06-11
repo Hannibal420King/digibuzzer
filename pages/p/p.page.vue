@@ -410,6 +410,8 @@ export default {
 					this.reponses = this.donnees.reponses
 					this.resultats = this.donnees.resultats
 					this.definirScore()
+					this.notification = this.$t('donneesRechargees')
+					this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
 				} else {
 					this.message = this.$t('erreurCommunicationServeur')
 				}
