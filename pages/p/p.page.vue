@@ -13,7 +13,7 @@
 						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
 						<span role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><i class="material-icons">settings</i></span>
 					</div>
-					<div id="parametres" class="avatar" v-else>
+					<div id="parametres" v-else>
 						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
 						<span role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
 					</div>
@@ -536,24 +536,24 @@ export default {
 }
 
 #parametres {
-	font-size: 24px;
-	line-height: 40px;
-	margin-left: 20px;
-	cursor: pointer;
-}
-
-#parametres.avatar {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	font-size: 24px;
+	line-height: 40px;
+	margin-left: 20px;
 	line-height: 1;
 }
 
-#parametres.avatar span:first-child {
+#parametres span {
+	cursor: pointer;
+}
+
+#parametres span:first-child {
 	margin-right: 20px;
 }
 
-#parametres.avatar span img {
+#parametres span img {
 	border-radius: 50%;
 	width: 24px;
 }
