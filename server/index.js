@@ -210,7 +210,10 @@ async function demarrerServeur () {
 			req.session.role = 'joueur'
 			req.session.salles = []
 			req.session.cookie.expires = new Date(Date.now() + dureeSession)
-		}	
+		}
+		if (!req.session.hasOwnProperty('salles')) {
+			req.session.salles = []
+		}
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
 			params: req.query,
