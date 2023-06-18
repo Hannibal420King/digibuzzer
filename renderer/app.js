@@ -33,7 +33,7 @@ function createPageApp (pageContext) {
 	app.use(i18n)
 
 	app.config.globalProperties.$socket = io(pageProps.hote, {
-		transports: ['websocket', 'polling'],
+		// transports: ['websocket', 'polling'],
 		autoConnect: true,
 		closeOnBeforeunload: false
 	})
