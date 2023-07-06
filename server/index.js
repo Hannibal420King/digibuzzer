@@ -88,13 +88,13 @@ async function demarrerServeur () {
 			for (const salle of salles) {
 				const donneesSalle = new Promise(function (resolve) {
 					db.exists(salle, function (err, reponse) {
-						if (err) { resolve(0) }
+						if (err) { resolve(0); return false }
 						if (reponse === 1) {
 							db.hgetall(salle, function (err, resultat) {
-								if (err) { resolve(0) }
+								if (err) { resolve(0); return false }
 								if (dayjs(new Date(resultat.date)).isBefore(dayjs().subtract(14, 'days'))) {
 									db.del(salle, function (err) {
-										if (err) { resolve(0) }
+										if (err) { resolve(0); return false }
 										resolve(1)
 									})
 								} else {
