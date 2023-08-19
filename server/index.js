@@ -160,11 +160,14 @@ async function demarrerServeur () {
 		if (!httpResponse) {
 			return next()
 		}
-		const { body, statusCode, contentType, earlyHints } = httpResponse
+		const { body, statusCode, headers, earlyHints } = httpResponse
 		if (res.writeEarlyHints) {
 			res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 		}
-		res.status(statusCode).type(contentType).send(body)
+		if (headers) {
+			headers.forEach(([name, value]) => res.setHeader(name, value))
+		}
+		res.status(statusCode).send(body)
   	})
 
 	app.get('/c/:salle', async function (req, res, next) {
@@ -192,11 +195,14 @@ async function demarrerServeur () {
 			if (!httpResponse) {
 				return next()
 			}
-			const { body, statusCode, contentType, earlyHints } = httpResponse
+			const { body, statusCode, headers, earlyHints } = httpResponse
 			if (res.writeEarlyHints) {
 				res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 			}
-			res.status(statusCode).type(contentType).send(body)
+			if (headers) {
+				headers.forEach(([name, value]) => res.setHeader(name, value))
+			}
+			res.status(statusCode).send(body)
 		}
   	})
 
@@ -231,11 +237,14 @@ async function demarrerServeur () {
 		if (!httpResponse) {
 			return next()
 		}
-		const { body, statusCode, contentType, earlyHints } = httpResponse
+		const { body, statusCode, headers, earlyHints } = httpResponse
 		if (res.writeEarlyHints) {
 			res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 		}
-		res.status(statusCode).type(contentType).send(body)
+		if (headers) {
+			headers.forEach(([name, value]) => res.setHeader(name, value))
+		}
+		res.status(statusCode).send(body)
   	})
 
 	app.post('/api/creer-salle', function (req, res) {
