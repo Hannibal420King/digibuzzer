@@ -43,5 +43,8 @@ SESSION_DURATION (durée de la session de connexion des utilisateurs en millisec
 ### Démo
 https://digibuzzer.app
 
+### Remerciements et crédits
+Traduction en italien par Paolo Mauri (https://codeberg.org/maupao)
+
 ### Soutien
 https://opencollective.com/ladigitale
