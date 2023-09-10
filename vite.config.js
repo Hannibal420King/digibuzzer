@@ -8,6 +8,11 @@ export default {
 			'#root': __dirname
 		}
 	},
+	server: {
+		watch: {
+			ignored: ["**/avatars/**"],
+		}
+	},
 	build: {
 		target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari12']
 	}

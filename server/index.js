@@ -1,29 +1,34 @@
-require('dotenv').config()
-const path = require('path')
-const fs = require('fs-extra')
-const express = require('express')
-const { createServer } = require('http')
-const { Server } = require('socket.io')
-const session = require('express-session')
-const cors = require('cors')
-const redis = require('redis')
-const bodyParser = require('body-parser')
-const helmet = require('helmet')
-const multer = require('multer')
-const sharp = require('sharp')
-const dayjs = require('dayjs')
-const cron = require('node-cron')
-const { renderPage } = require('vite-plugin-ssr/server')
+import 'dotenv/config'
+import path from 'path'
+import fs from 'fs-extra'
+import express from 'express'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+import compression from 'compression'
+import cors from 'cors'
+import redis from 'redis'
+import bodyParser from 'body-parser'
+import helmet from 'helmet'
+import multer from 'multer'
+import sharp from 'sharp'
+import dayjs from 'dayjs'
+import cron from 'node-cron'
+import { fileURLToPath } from 'url'
+import connectRedis from 'connect-redis'
+import session from 'express-session'
+import { renderPage } from 'vite-plugin-ssr/server'
 
 const production = process.env.NODE_ENV === 'production'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = `${__dirname}/..`
 
 demarrerServeur()
 
 async function demarrerServeur () {
 	const app = express()
+	app.use(compression())
 	const httpServer = createServer(app)
-	const RedisStore = require('connect-redis')(session)
+	const RedisStore = connectRedis(session)
 
 	let hote = 'http://localhost:3000'
 	if (process.env.PORT) {
@@ -131,9 +136,10 @@ async function demarrerServeur () {
 	app.use('/avatars', express.static('avatars'))
 
 	if (production) {
-		app.use(express.static('dist/client'))
+		const sirv = (await import('sirv')).default
+		app.use(sirv(`${root}/dist/client`))
 	} else {
-    	const vite = require('vite')
+    	const vite = await import('vite')
     	const viteDevMiddleware = (
       		await vite.createServer({
         		root,
