@@ -34,7 +34,7 @@
 				<div class="conteneur">
 					<div class="contenu">
 						<label for="champ-titre">{{ $t('titre') }}</label>
-						<input id="champ-titre" type="text" :value="titre" @input="titre = $event.target.value" @keydown.enter="creer">
+						<input id="champ-titre" type="text" v-model="titre" @keydown.enter="creer">
 						<div class="actions">
 							<span class="bouton" role="button" tabindex="0" @click="creer" v-if="!chargementModale">{{ $t('creer') }}</span>
 							<div class="conteneur-chargement" v-else>
