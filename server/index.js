@@ -16,7 +16,7 @@ import cron from 'node-cron'
 import { fileURLToPath } from 'url'
 import connectRedis from 'connect-redis'
 import session from 'express-session'
-import { renderPage } from 'vite-plugin-ssr/server'
+import { renderPage } from 'vike/server'
 
 const production = process.env.NODE_ENV === 'production'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
