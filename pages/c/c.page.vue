@@ -199,7 +199,7 @@
 						</div>
 						<div class="points">
 							<label for="points">{{ $t('pointsBonneReponse') }}</label>
-							<input type="number" id="points" :value="points" @input="points = $event.target.value">
+							<input type="number" id="points" v-model="points">
 						</div>
 						<div class="actions">
 							<span class="bouton" role="button" tabindex="0" @click="annuler">{{ $t('mauvaiseReponse') }}</span>
@@ -218,7 +218,7 @@
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<input type="number" :value="donneesScore.score" @input="donneesScore.score = $event.target.value">
+						<input type="number" v-model="donneesScore.score">
 						<div class="actions">
 							<span class="bouton" role="button" tabindex="0" @click="modifierScore">{{ $t('modifier') }}</span>
 						</div>
@@ -880,7 +880,7 @@ export default {
 	font-weight: 700;
 	width: 100%;
 	border: 2px solid #242f3d;
-	border-radius: 1em;
+	border-radius: 0.5em;
 	background: #e3e9f0;
 	padding: 15px 20px;
 }
