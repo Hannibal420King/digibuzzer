@@ -72,7 +72,7 @@
 							<span role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
 						</div>
 						<label>{{ $t('nomOuPseudo') }}</label>
-						<input type="text" id="nom" :value="nomProvisoire" @input="nomProvisoire = $event.target.value" :disabled="nom !== '' && statut !== ''">
+						<input type="text" id="nom" v-model="nomProvisoire" :disabled="nom !== '' && statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
 							<span class="avatar" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': avatar !== '' && statut !== '' }" @click="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
