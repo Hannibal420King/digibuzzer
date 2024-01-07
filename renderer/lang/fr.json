@@ -69,5 +69,16 @@
 	"telecharger": "Télécharger",
 	"aucunResultat": "Aucun résultat à exporter.",
 	"rechargerDonnees": "Recharger les données",
-	"donneesRechargees": "Données rechargées."
+	"donneesRechargees": "Données rechargées.",
+	"reponse": "Réponse",
+	"reponses": "Réponses",
+	"orales": "Orales",
+	"ecrites": "Écrites",
+	"activationBuzzer": "Activation du buzzer",
+	"immediate": "Immédiate",
+	"avecDelaiAleatoire": "Avec délai aléatoire (entre 100 et 1500ms)",
+	"modifierLangue": "Modifier la langue",
+	"votreReponse": "Votre réponse…",
+	"envoyer": "Envoyer",
+	"attenteTexte": "En attente de la réponse écrite…"
 }

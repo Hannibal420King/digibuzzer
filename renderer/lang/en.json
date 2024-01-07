@@ -69,5 +69,16 @@
 	"telecharger": "Download",
 	"aucunResultat": "No results to export.",
 	"rechargerDonnees": "Reload data",
-	"donneesRechargees": "Data reloaded."
+	"donneesRechargees": "Data reloaded.",
+	"reponse": "Answer",
+	"reponses": "Answers",
+	"orales": "Oral",
+	"ecrites": "Written",
+	"activationBuzzer": "Buzzer activation",
+	"immediate": "Immediate",
+	"avecDelaiAleatoire": "With random delay (between 100 and 1500ms)",
+	"modifierLangue": "Change language",
+	"votreReponse": "Your answer…",
+	"envoyer": "Send",
+	"attenteTexte": "Awaiting written reply…"
 }

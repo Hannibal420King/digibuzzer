@@ -69,5 +69,16 @@
     "telecharger": "Scarica",
     "aucunResultat": "Nessun risultato da esportare.",
     "rechargerDonnees": "Ricarica i dati",
-    "donneesRechargees": "Dati ricaricati."
+    "donneesRechargees": "Dati ricaricati.",
+    "reponse": "Risposta",
+	"reponses": "Risposte",
+	"orales": "Orali",
+	"ecrites": "Scritte",
+	"activationBuzzer": "Attivazione del buzzer",
+	"immediate": "Immediata",
+	"avecDelaiAleatoire": "Con ritardo casuale (tra 100 e 1500 ms)",
+	"modifierLangue": "Modifica della lingua",
+	"votreReponse": "La vostra risposta…",
+	"envoyer": "Invia",
+	"attenteTexte": "In attesa di risposta scritta…"
 }

@@ -272,6 +272,7 @@ async function demarrerServeur () {
 				donnees.statutQuestion = ''
 				donnees.premiereReponse = ''
 				donnees.reponses = []
+				donnees.textes = []
 				donnees.resultats = []
 				donnees.utilisateurs = []
 				donnees.bonus = []
@@ -438,7 +439,24 @@ async function demarrerServeur () {
 		})
 	
 		socket.on('salleouverte', function (donnees) {
-			socket.to(donnees.salle).emit('salleouverte', donnees)
+			if (donnees.hasOwnProperty('options') === true) {
+				db.exists('salles:' + donnees.salle, function (err, resultat) {
+					if (err) { socket.emit('erreur'); return false }
+					if (resultat === 1) {
+						db.hgetall('salles:' + donnees.salle, function (err, reponse) {
+							if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+							const donneesServeur = JSON.parse(reponse.donnees)
+							donneesServeur.options = donnees.options
+							db.hset('salles:' + donnees.salle, 'donnees', JSON.stringify(donneesServeur), function (err) {
+								if (err) { socket.emit('erreur'); return false }
+								socket.to(donnees.salle).emit('salleouverte', donnees)
+							})
+						})
+					}
+				})
+			} else {
+				socket.to(donnees.salle).emit('salleouverte', donnees)
+			}
 		})
 	
 		socket.on('sallefermee', function (salle) {
@@ -510,6 +528,9 @@ async function demarrerServeur () {
 						donnees.premiereReponse = ''
 						donnees.reponses.push([])
 						donnees.resultats.push([])
+						if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites') {
+							donnees.textes.push([])
+						}
 						if (donnees.reponses.length < (indexQuestion + 1)) {
 							for (let i = 0; i < ((indexQuestion + 1) - donnees.reponses.length); i++) {
 								donnees.reponses.push([])
@@ -518,6 +539,11 @@ async function demarrerServeur () {
 						if (donnees.resultats.length < (indexQuestion + 1)) {
 							for (let i = 0; i < ((indexQuestion + 1) - donnees.resultats.length); i++) {
 								donnees.resultats.push([])
+							}
+						}
+						if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites' && donnees.textes.length < (indexQuestion + 1)) {
+							for (let i = 0; i < ((indexQuestion + 1) - donnees.textes.length); i++) {
+								donnees.textes.push([])
 							}
 						}
 						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
@@ -554,8 +580,12 @@ async function demarrerServeur () {
 			})
 		})
 	
-		socket.on('reponse', function (reponse) {
-			io.in(reponse.salle).emit('reponse', reponse)
+		socket.on('reponse', function (donnees) {
+			io.in(donnees.salle).emit('reponse', donnees)
+		})
+
+		socket.on('texte', function (donnees) {
+			io.in(donnees.salle).emit('texte', donnees)
 		})
 	
 		socket.on('premierereponse', function ({ salle, identifiant, indexQuestion }) {
@@ -571,6 +601,29 @@ async function demarrerServeur () {
 							db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
 								if (err) { socket.emit('erreur'); return false }
 								io.in(salle).emit('premierereponse', identifiant)
+								socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+								socket.request.session.save()
+							})
+						}
+					})
+				} else {
+					socket.emit('erreursalle')
+				}
+			})
+		})
+
+		socket.on('texteenvoye', function ({ salle, identifiant, indexQuestion, texte }) {
+			db.exists('salles:' + salle, function (err, resultat) {
+				if (err) { socket.emit('erreur'); return false }
+				if (resultat === 1) {
+					db.hgetall('salles:' + salle, function (err, reponse) {
+						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+						const donnees = JSON.parse(reponse.donnees)
+						if (donnees.hasOwnProperty('textes') && donnees.textes[indexQuestion]) {
+							donnees.textes[indexQuestion].push({ identifiant: identifiant, texte: texte })
+							db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
+								if (err) { socket.emit('erreur'); return false }
+								io.in(salle).emit('texteenvoye', texte)
 								socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 								socket.request.session.save()
 							})

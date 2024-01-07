@@ -10,8 +10,8 @@
 						<span class="modifier" role="button" tabindex="0" :title="$t('modifierTitre')"><i class="material-icons">edit</i></span>
 					</div>
 
-					<div id="parametres">
-						<span class="parametres" role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><i class="material-icons">settings</i></span>
+					<div id="langues">
+						<span class="langues" role="button" tabindex="0" :title="$t('modifierLangue')" @click="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -23,6 +23,34 @@
 						<span class="lien">{{ hote.replace('http://', '').replace('https://', '') + '/p/' + salle }}</span>
 						<span id="copier" class="icone" role="button" tabindex="0" :title="$t('copierLien')"><i class="material-icons">content_copy</i></span>
 						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherCodeQR"><i class="material-icons">qr_code</i></span>
+					</div>
+				</div>
+
+				<div id="section-parametres" class="section">
+					<h3>{{ $t('parametres') }}</h3>
+					<div class="conteneur-parametres">
+						<div class="parametre">
+							<h3>{{ $t('reponses') }}</h3>
+							<label class="bouton-radio">{{ $t('orales') }}
+								<input type="radio" name="reponses" :checked="options.reponses === 'orales'" @change="modifierParametres('reponses', 'orales')">
+								<span class="coche" />
+							</label>
+							<label class="bouton-radio">{{ $t('ecrites') }}
+								<input type="radio" name="reponses" :checked="options.reponses === 'ecrites'" @change="modifierParametres('reponses', 'ecrites')">
+								<span class="coche" />
+							</label>
+						</div>
+						<div class="parametre">
+							<h3>{{ $t('activationBuzzer') }}</h3>
+							<label class="bouton-radio">{{ $t('immediate') }}
+								<input type="radio" name="buzzer" :checked="options.buzzer === 'immediate'" @change="modifierParametres('buzzer', 'immediate')">
+								<span class="coche" />
+							</label>
+							<label class="bouton-radio">{{ $t('avecDelaiAleatoire') }}
+								<input type="radio" name="buzzer" :checked="options.buzzer === 'delai'" @change="modifierParametres('buzzer', 'delai')">
+								<span class="coche" />
+							</label>
+						</div>
 					</div>
 				</div>
 
@@ -54,8 +82,8 @@
 						<span class="titre">{{ titre }}</span>
 					</div>
 
-					<div id="parametres">
-						<span class="parametres" role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><i class="material-icons">settings</i></span>
+					<div id="langues">
+						<span class="langues" role="button" tabindex="0" :title="$t('modifierLangue')" @click="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -93,8 +121,8 @@
 						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 
-					<div id="parametres">
-						<span class="parametres" role="button" tabindex="0" :title="$t('afficherParametres')"><i class="material-icons" @click="afficherModaleParametres">settings</i></span>
+					<div id="langues">
+						<span class="langues" role="button" tabindex="0" :title="$t('modifierLangue')"><i class="material-icons" @click="afficherModaleLangues">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -154,20 +182,17 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" v-else-if="modale === 'parametres'">
-			<div id="modale-parametres" class="modale">
+		<div class="conteneur-modale" v-else-if="modale === 'langues'">
+			<div id="modale-langues" class="modale">
 				<header>
-					<span class="titre">{{ $t('parametres') }}</span>
+					<span class="titre">{{ $t('langue') }}</span>
 					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<label>{{ $t('langue') }}</label>
-						<div class="langue">
-							<span role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
-							<span role="button" tabindex="0" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</span>
-							<span role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
-						</div>
+						<span role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
+						<span role="button" tabindex="0" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</span>
+						<span role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
 					</div>
 				</div>
 			</div>
@@ -196,6 +221,11 @@
 						</div>
 						<div class="nom">
 							{{ definirNom() }}
+						</div>
+						<div class="texte" v-if="options.reponses === 'ecrites'">
+							<label for="texte">{{ $t('reponse') }}</label>
+							<span v-if="texte === ''">{{ $t('attenteTexte') }}</span>
+							<span v-else v-html="texte" />
 						</div>
 						<div class="points">
 							<label for="points">{{ $t('pointsBonneReponse') }}</label>
@@ -291,12 +321,18 @@ export default {
 			notification: '',
 			modale: '',
 			utilisateurs: [],
+			options: {
+				reponses: 'orales',
+				buzzer: 'immediate'
+			},
 			indexQuestion: -1,
 			statutQuestion: '',
 			premiereReponse: '',
 			points: 1000,
 			reponses: [],
 			resultats: [],
+			textes: [],
+			texte: '',
 			classement: false,
 			donneesScore: {},
 			modaleConfirmation: false,
@@ -387,8 +423,21 @@ export default {
 			this.modale = 'question'
 		}
 		this.premiereReponse = this.donnees.premiereReponse
+		if (this.donnees.hasOwnProperty('options') === true) {
+			this.options = this.donnees.options
+		}
+		if (this.donnees.hasOwnProperty('textes') === true) {
+			this.textes = this.donnees.textes
+		}
 		if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
 			this.modale = 'utilisateur'
+			if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
+				for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
+					if (this.textes[this.indexQuestion][i].identifiant === this.premiereReponse) {
+						this.texte = this.textes[this.indexQuestion][i].texte
+					}
+				}
+			}
 		}
 		this.reponses = this.donnees.reponses
 		this.resultats = this.donnees.resultats
@@ -550,8 +599,8 @@ export default {
 				}.bind(this))
 			}
 		},
-		afficherModaleParametres () {
-			this.modale = 'parametres'
+		afficherModaleLangues () {
+			this.modale = 'langues'
 		},
 		modifierLangue (langue) {
 			if (this.langue !== langue) {
@@ -583,6 +632,9 @@ export default {
 			this.modale = ''
 			this.donneesScore = {}
 		},
+		modifierParametres (type, valeur) {
+			this.options[type] = valeur
+		},
 		lancer () {
 			this.chargement = true
 			axios.post(this.hote + '/api/modifier-statut-salle', {
@@ -599,7 +651,7 @@ export default {
 				} else if (donnees === 'statut_modifie') {
 					this.statut = 'ouvert'
 					this.notification = this.$t('salleOuverte')
-					this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre })
+					this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre, options: this.options })
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
@@ -612,7 +664,14 @@ export default {
 		},
 		ouvrirReponses () {
 			this.chargement = true
-			this.$socket.emit('reponses', this.salle)
+			if (this.options.buzzer === 'immediate') {
+				this.$socket.emit('reponses', this.salle)
+			} else {
+				const delai = Math.random() * (1500 - 100) + 100
+				setTimeout(function () {
+					this.$socket.emit('reponses', this.salle)
+				}.bind(this), delai)
+			}
 			this.modale = ''
 		},
 		classer () {
@@ -634,6 +693,7 @@ export default {
 			this.$socket.emit('reponseannulee', { salle: this.salle, identifiant: this.premiereReponse })
 			this.modale = ''
 			this.premiereReponse = ''
+			this.texte = ''
 		},
 		fermer () {
 			this.modaleConfirmation = false
@@ -740,8 +800,10 @@ export default {
 				this.indexQuestion = indexQuestion
 				this.statutQuestion = 'question'
 				this.premiereReponse = ''
+				this.texte = ''
 				this.reponses.push([])
 				this.resultats.push([])
+				this.textes.push([])
 				this.modale = 'question'
 			}.bind(this))
 
@@ -758,8 +820,19 @@ export default {
 				}
 			}.bind(this))
 
+			this.$socket.on('texte', function (donnees) {
+				if (donnees.salle === this.salle && donnees.identifiant === this.premiereReponse) {
+					this.texte = donnees.texte
+					this.$socket.emit('texteenvoye', { salle: this.salle, identifiant: donnees.identifiant, indexQuestion: this.indexQuestion, texte: this.texte })
+				}
+			}.bind(this))
+
 			this.$socket.on('premierereponse', function (identifiant) {
 				this.reponses[this.indexQuestion].push(identifiant)
+			}.bind(this))
+
+			this.$socket.on('texteenvoye', function (texte) {
+				this.textes[this.indexQuestion].push(texte)
 			}.bind(this))
 
 			this.$socket.on('reponseannulee', function () {
@@ -830,22 +903,13 @@ export default {
 	cursor: pointer;
 }
 
-#parametres {
+#langues {
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
 	font-size: 24px;
 	margin-left: 20px;
 	cursor: pointer;
-}
-
-#parametres span.compte {
-	margin-left: 15px;
-}
-
-#parametres span.deconnexion {
-	margin-left: 15px;
-	color: #ff6259;
 }
 
 #titre span.titre {
@@ -901,6 +965,94 @@ export default {
 #afficher:active,
 #copier:active {
 	opacity: 0.7;
+}
+
+#section-parametres {
+	margin-bottom: 25px;
+}
+
+#section-parametres + .section {
+	margin-top: 25px!important;
+}
+
+#section-parametres .conteneur-parametres {
+	display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+#section-parametres.section h3 {
+	display: block;
+	width: 100%;
+	font-weight: 700;
+	font-size: 17px;
+	margin-bottom: 10px;
+	line-height: 1.2;
+}
+
+#section-parametres .parametre {
+	margin-right: 30px;
+}
+
+#section-parametres .bouton-radio {
+	display: inline-block;
+	position: relative;
+	padding-left: 30px;
+	cursor: pointer;
+	font-size: 16px;
+	user-select: none;
+	margin-bottom: 15px;
+	margin-right: 15px;
+	line-height: 22px;
+}
+
+#section-parametres .bouton-radio:last-child {
+	margin-right: 0;
+}
+
+#section-parametres .bouton-radio input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+#section-parametres .coche {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 22px;
+	width: 22px;
+	background-color: #eee;
+	border-radius: 50%;
+}
+
+#section-parametres .bouton-radio:hover input ~ .coche {
+	background-color: #ccc;
+}
+
+#section-parametres .bouton-radio input:checked ~ .coche {
+	background-color: #00ced1;
+}
+
+#section-parametres .coche:after {
+	content: '';
+	position: absolute;
+	display: none;
+}
+
+#section-parametres .bouton-radio input:checked ~ .coche:after {
+	display: block;
+}
+
+#section-parametres .bouton-radio .coche:after {
+	top: 6px;
+	left: 6px;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #fff;
 }
 
 .utilisateurs {
@@ -973,30 +1125,28 @@ export default {
 	padding: 30px 25px;
 }
 
-#modale-parametres .actions span {
-	width: 100%;
+#modale-langues .contenu {
+	display: flex;
 }
 
-#modale-parametres .actions span {
-	margin-bottom: 20px;
+#modale-langues .contenu span {
+    display: flex;
+    justify-content: center;
+	align-items: center;
+	font-size: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+	cursor: pointer;
 }
 
-#modale-parametres .actions span.supprimer {
-	background: #ff6259;
-	margin-bottom: 0;
-}
-
-#modale-parametres .actions span.supprimer:hover {
-	background: #d70b00;
-}
-
-#modale-parametres .conteneur p {
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
-#modale-parametres .langue:last-of-type {
-	margin-bottom: 0;
+#modale-langues .contenu span.selectionne {
+    background: #242f3d;
+    color: #fff;
+    border: 1px solid #222;
+    cursor: default;
 }
 
 #modale-utilisateur {
@@ -1020,8 +1170,23 @@ export default {
 	margin-bottom: 20px;
 }
 
+#modale-utilisateur .texte,
 #modale-utilisateur .points {
 	text-align: left;
+}
+
+#modale-utilisateur .texte {
+	margin-bottom: 20px;
+}
+
+#modale-utilisateur .texte span {
+	display: block;
+	padding: 10px 15px;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	white-space: pre-line;
+	max-height: 70px;
+	overflow: auto;
 }
 
 #modale-utilisateur .bouton {

@@ -111,6 +111,10 @@
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="icone"><i class="material-icons">{{ icone }}</i></span>
+						<textarea v-if="options.reponses === 'ecrites' && icone === 'pending'" v-model="texte" :placeholder="$t('votreReponse')" :disabled="texteEnvoye" />
+						<div class="actions" v-if="options.reponses === 'ecrites' && icone === 'pending' && !texteEnvoye">
+							<span class="bouton" role="button" tabindex="0" @click="envoyerTexte">{{ $t('envoyer') }}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -152,12 +156,19 @@ export default {
 			nomProvisoire: '',
 			avatarProvisoire: '',
 			avatars: ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png', 'avatar6.png', 'avatar7.png', 'avatar8.png'],
+			options: {
+				reponses: 'orales',
+				buzzer: 'immediate'
+			},
 			progression: 0,
 			score: 0,
 			reponse: false,
 			premiereReponse: '',
 			reponses: [],
 			resultats: [],
+			textes: [],
+			texte: '',
+			texteEnvoye: false,
 			icone: 'pending',
 			audio: '',
 			audioInitialise: false,
@@ -199,8 +210,27 @@ export default {
 			this.reponse = true
 		}
 		this.premiereReponse = this.donnees.premiereReponse
+		if (this.donnees.hasOwnProperty('options') === true) {
+			this.options = this.donnees.options
+		}
+		if (this.donnees.hasOwnProperty('textes') === true) {
+			this.textes = this.donnees.textes
+		}
 		if (this.reponse && this.premiereReponse === this.identifiant) {
 			this.modale = 'reponse'
+			if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
+				for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
+					if (this.textes[this.indexQuestion][i].identifiant === this.identifiant) {
+						this.texte = this.textes[this.indexQuestion][i].texte
+						this.texteEnvoye = true
+					}
+				}
+			}
+			if (this.options.reponses === 'ecrites' && this.texteEnvoye === false) {
+				this.$nextTick(function () {
+					document.querySelector('#modale-reponse textarea').focus()
+				})
+			}
 		}
 		this.reponses = this.donnees.reponses
 		this.resultats = this.donnees.resultats
@@ -368,6 +398,12 @@ export default {
 				this.$socket.emit('reponse', { salle: this.salle, identifiant: this.identifiant, date: date })
 			}
 		},
+		envoyerTexte () {
+			if (this.reponse === true && this.premiereReponse === this.identifiant && this.reponses[this.indexQuestion].includes(this.identifiant) === true) {
+				this.chargement = true
+				this.$socket.emit('texte', { salle: this.salle, identifiant: this.identifiant, texte: this.texte })
+			}
+		},
 		definirScore () {
 			let score = 0
 			this.resultats.forEach(function (question) {
@@ -405,8 +441,27 @@ export default {
 						this.reponse = true
 					}
 					this.premiereReponse = this.donnees.premiereReponse
+					if (this.donnees.hasOwnProperty('options') === true) {
+						this.options = this.donnees.options
+					}
+					if (this.donnees.hasOwnProperty('textes') === true) {
+						this.textes = this.donnees.textes
+					}
 					if (this.reponse && this.premiereReponse === this.identifiant) {
 						this.modale = 'reponse'
+						if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
+							for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
+								if (this.textes[this.indexQuestion][i].identifiant === this.identifiant) {
+									this.texte = this.textes[this.indexQuestion][i].texte
+									this.texteEnvoye = true
+								}
+							}
+						}
+						if (this.options.reponses === 'ecrites' && this.texteEnvoye === false) {
+							this.$nextTick(function () {
+								document.querySelector('#modale-reponse textarea').focus()
+							})
+						}
 					}
 					this.reponses = this.donnees.reponses
 					this.resultats = this.donnees.resultats
@@ -430,6 +485,9 @@ export default {
 			this.$socket.on('salleouverte', function (salle) {
 				this.statut = 'ouvert'
 				this.titre = salle.titre
+				if (this.nom !== '' && this.avatar !== '' && this.modale === 'informations') {
+					this.modale = ''
+				}
 			}.bind(this))
 
 			this.$socket.on('sallefermee', function () {
@@ -440,8 +498,11 @@ export default {
 				this.indexQuestion = indexQuestion
 				this.reponse = false
 				this.premiereReponse = ''
+				this.texte = ''
+				this.texteEnvoye = false
 				this.reponses.push([])
 				this.resultats.push([])
+				this.textes.push([])
 				this.modale = 'question'
 			}.bind(this))
 
@@ -454,6 +515,11 @@ export default {
 				this.chargement = false
 			}.bind(this))
 
+			this.$socket.on('texte', function () {
+				this.chargement = false
+				this.texteEnvoye = true
+			}.bind(this))
+
 			this.$socket.on('premierereponse', function (identifiant) {
 				this.premiereReponse = identifiant
 				this.reponses[this.indexQuestion].push(identifiant)
@@ -462,7 +528,16 @@ export default {
 					this.icone = 'pending'
 					this.audio.src = '/fx/reponse.mp3'
 					this.audio.play()
+					if (this.options.reponses === 'ecrites') {
+						this.$nextTick(function () {
+							document.querySelector('#modale-reponse textarea').focus()
+						})
+					}
 				}
+			}.bind(this))
+
+			this.$socket.on('texteenvoye', function (texte) {
+				this.textes[this.indexQuestion].push(texte)
 			}.bind(this))
 
 			this.$socket.on('reponseannulee', function (identifiant) {
@@ -671,6 +746,26 @@ export default {
 	text-align: center;
 }
 
+#modale-parametres .langue span {
+    display: flex;
+    justify-content: center;
+	align-items: center;
+	font-size: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+	cursor: pointer;
+}
+
+#modale-parametres .langue span.selectionne {
+    background: #242f3d;
+    color: #fff;
+    border: 1px solid #222;
+    cursor: default;
+}
+
 .modale .avatars {
 	display: flex;
 	justify-content: space-between;
@@ -745,6 +840,18 @@ export default {
 #modale-reponse {
 	font-size: 0;
 	line-height: 1;
+}
+
+#modale-reponse .icone {
+	display: block;
+}
+
+#modale-reponse textarea {
+	margin-bottom: 0;
+}
+
+#modale-reponse textarea + .actions {
+	margin-top: 20px;
 }
 
 #modale-question .icone i,
