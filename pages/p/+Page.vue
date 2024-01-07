@@ -201,6 +201,9 @@ export default {
 			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
 		} else {
 			this.modale = 'connexion'
+			this.$nextTick(function () {
+				document.querySelector('#nom').focus()
+			})
 		}
 
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
