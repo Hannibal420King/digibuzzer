@@ -488,6 +488,7 @@ export default {
 			this.$socket.on('salleouverte', function (salle) {
 				this.statut = 'ouvert'
 				this.titre = salle.titre
+				this.options = salle.options
 				if (this.nom !== '' && this.avatar !== '' && this.modale === 'informations') {
 					this.modale = ''
 				}
