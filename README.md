@@ -38,7 +38,7 @@ SESSION_KEY (clé de session Express Session)
 SESSION_DURATION (durée de la session de connexion des utilisateurs en millisecondes)
 ```
 
-### Projet Vue (Vue.js 3 et Vite SSR Plugin) avec serveur Node.js (Express) et base de données Redis
+### Projet Vue (Vue.js 3 et Vike) avec serveur Node.js (Express) et base de données Redis
 
 ### Démo
 https://digibuzzer.app
@@ -47,4 +47,6 @@ https://digibuzzer.app
 Traduction en italien par Paolo Mauri (https://codeberg.org/maupao)
 
 ### Soutien
-https://opencollective.com/ladigitale
+Open Collective : https://opencollective.com/ladigitale
+
+Liberapay : https://liberapay.com/ladigitale/
