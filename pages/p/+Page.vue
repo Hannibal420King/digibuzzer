@@ -57,8 +57,8 @@
 			</Transition>
 		</div>
 
-		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
-			<div id="modale-parametres" class="modale">
+		<div class="conteneur-modale" role="dialog" tabindex="-1" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
+			<div id="modale-parametres" class="modale" role="document">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
 					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
@@ -95,8 +95,8 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" v-else-if="modale === 'question'">
-			<div id="modale-question" class="modale">
+		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'question'">
+			<div id="modale-question" class="modale" role="document">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
@@ -106,8 +106,8 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" v-else-if="modale === 'reponse'">
-			<div id="modale-reponse" class="modale">
+		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'reponse'">
+			<div id="modale-reponse" class="modale" role="document">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="icone"><i class="material-icons">{{ icone }}</i></span>

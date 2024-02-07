@@ -25,8 +25,8 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" v-if="modale === 'creer'">
-			<div id="creer" class="modale">
+		<div class="conteneur-modale" role="dialog" tabindex="-1" v-if="modale === 'creer'">
+			<div id="creer" class="modale" role="document">
 				<header>
 					<span class="titre">{{ $t('creerSalleJeu') }}</span>
 					<span class="fermer" role="button" tabindex="0" @click="fermerModaleCreer"><i class="material-icons">close</i></span>
@@ -46,8 +46,8 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" v-else-if="modale === 'mentions-legales'">
-			<div id="mentions-legales" class="modale">
+		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'mentions-legales'">
+			<div id="mentions-legales" class="modale" role="document">
 				<header>
 					<span class="titre">{{ $t('mentionsLegales') }}</span>
 					<span class="fermer" @click="modale = ''"><i class="material-icons">close</i></span>
