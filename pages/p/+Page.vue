@@ -172,6 +172,8 @@ export default {
 			icone: 'pending',
 			audio: '',
 			audioInitialise: false,
+			verrouVeilleAPI: false,
+			verrouVeille: '',
 			hote: this.$pageContext.pageProps.hote,
 			identifiant: this.$pageContext.pageProps.identifiant,
 			nom: this.$pageContext.pageProps.nom,
@@ -239,7 +241,7 @@ export default {
 		this.resultats = this.donnees.resultats
 		this.definirScore()
 	},
-	mounted () {
+	async mounted () {
 		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 
 		if (this.statut === '' && this.modale === '') {
@@ -249,6 +251,13 @@ export default {
 		this.audio = new Audio()
 		this.audio.autoplay = true
 		this.audio.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV'
+
+		if ('wakeLock' in navigator) {
+			this.verrouVeilleAPI = true
+		}
+		if (this.verrouVeilleAPI) {
+			this.verrouVeille = await navigator.wakeLock.request('screen')
+		}
 
 		setTimeout(function () {
 			this.chargementPage = false
@@ -271,13 +280,16 @@ export default {
 		window.addEventListener('beforeunload', this.quitterPage, false)
 
 		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
-		document.addEventListener('visibilitychange', function () {
+		document.addEventListener('visibilitychange', async function () {
 			if (this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
 				setTimeout(function () {
 					this.rechargerDonnees('')
 				}.bind(this), 200)
 			} else if (!this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
 				this.rechargerDonnees('')
+			}
+			if (this.verrouVeilleAPI && this.verrouVeille !== '' && document.visibilityState === 'visible') {
+				this.verrouVeille = await navigator.wakeLock.request('screen')
 			}
 		}.bind(this))
 	},
