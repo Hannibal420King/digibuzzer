@@ -255,25 +255,36 @@ export default {
 		if ('wakeLock' in navigator) {
 			this.verrouVeilleAPI = true
 		}
-		if (this.verrouVeilleAPI) {
-			this.verrouVeille = await navigator.wakeLock.request('screen')
-		}
 
 		setTimeout(function () {
 			this.chargementPage = false
 		}.bind(this), 300)
 
-		document.body.addEventListener('touchstart', function () {
+		document.body.addEventListener('touchstart', async function () {
 			if (this.audioInitialise === false) {
 				this.audio.play()
 				this.audioInitialise = true
 			}
+			if (this.verrouVeilleAPI && this.verrouVeille === '') {
+				try {
+					this.verrouVeille = await navigator.wakeLock.request('screen')
+				} catch (err) {
+					this.verrouVeille = ''
+				}
+			}
 		}.bind(this))
 
-		document.body.addEventListener('click', function () {
+		document.body.addEventListener('click', async function () {
 			if (this.audioInitialise === false) {
 				this.audio.play()
 				this.audioInitialise = true
+			}
+			if (this.verrouVeilleAPI && this.verrouVeille === '') {
+				try {
+					this.verrouVeille = await navigator.wakeLock.request('screen')
+				} catch (err) {
+					this.verrouVeille = ''
+				}
 			}
 		}.bind(this))
 
@@ -289,7 +300,11 @@ export default {
 				this.rechargerDonnees('')
 			}
 			if (this.verrouVeilleAPI && this.verrouVeille !== '' && document.visibilityState === 'visible') {
-				this.verrouVeille = await navigator.wakeLock.request('screen')
+				try {
+					this.verrouVeille = await navigator.wakeLock.request('screen')
+				} catch (err) {
+					this.verrouVeille = ''
+				}
 			}
 		}.bind(this))
 	},
