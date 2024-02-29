@@ -349,7 +349,7 @@ async function demarrerServeur () {
 					res.json({ titre: titre, statut: statut, donnees: donnees })
 				})
 			} else {
-				res.send('erreur')
+				res.send('salle_inexistante')
 			}
 		})
 	})

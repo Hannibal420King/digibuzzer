@@ -458,7 +458,7 @@ export default {
 				salle: this.salle
 			}).then(function (reponse) {
 				this.chargement = false
-				if (reponse.hasOwnProperty('data') && reponse.data !== 'erreur') {
+				if (reponse.hasOwnProperty('data') && reponse.data !== 'erreur' && reponse.data !== 'salle_inexistante') {
 					this.modale = ''
 					this.reponse = false
 					this.titre = reponse.data.titre
@@ -500,6 +500,8 @@ export default {
 						this.notification = this.$t('donneesRechargees')
 					}
 					this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+				} else if (reponse.data === 'salle_inexistante') {
+					window.location.href = '/'
 				} else {
 					this.message = this.$t('erreurCommunicationServeur')
 				}
