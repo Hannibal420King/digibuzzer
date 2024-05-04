@@ -688,7 +688,7 @@ export default {
 			this.modale = ''
 			this.premiereReponse = ''
 		},
-		annuler() {
+		annuler () {
 			this.chargement = true
 			this.$socket.emit('reponseannulee', { salle: this.salle, identifiant: this.premiereReponse })
 			this.modale = ''
