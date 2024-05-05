@@ -584,8 +584,8 @@ async function demarrerServeur () {
 			io.in(donnees.salle).emit('reponse', donnees)
 		})
 
-		socket.on('texte', function () {
-			socket.emit('texte')
+		socket.on('texte', function (donnees) {
+			io.in(donnees.salle).emit('texte', donnees)
 		})
 	
 		socket.on('premierereponse', function ({ salle, identifiant, indexQuestion }) {
