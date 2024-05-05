@@ -548,9 +548,11 @@ export default {
 				this.chargement = false
 			}.bind(this))
 
-			this.$socket.on('texte', function () {
+			this.$socket.on('texte', function (donnees) {
 				this.chargement = false
-				this.texteEnvoye = true
+				if (donnees.identifiant === this.identifiant) {
+					this.texteEnvoye = true
+				}
 			}.bind(this))
 
 			this.$socket.on('premierereponse', function (identifiant) {
