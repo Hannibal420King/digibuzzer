@@ -80,5 +80,6 @@
 	"modifierLangue": "Modifica della lingua",
 	"votreReponse": "La vostra risposta…",
 	"envoyer": "Invia",
-	"attenteTexte": "In attesa di risposta scritta…"
+	"attenteTexte": "In attesa di risposta scritta…",
+    "completerChampTitre": "Completa il campo «&nbsp;Titolo&nbsp;»."
 }

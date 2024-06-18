@@ -80,5 +80,6 @@
 	"modifierLangue": "Modifier la langue",
 	"votreReponse": "Votre réponse…",
 	"envoyer": "Envoyer",
-	"attenteTexte": "En attente de la réponse écrite…"
+	"attenteTexte": "En attente de la réponse écrite…",
+	"completerChampTitre": "Veuillez compléter le champ «&nbsp;Titre&nbsp;»."
 }

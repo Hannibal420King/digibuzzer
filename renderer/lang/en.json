@@ -80,5 +80,6 @@
 	"modifierLangue": "Change language",
 	"votreReponse": "Your answer…",
 	"envoyer": "Send",
-	"attenteTexte": "Awaiting written reply…"
+	"attenteTexte": "Awaiting written reply…",
+	"completerChampTitre": "Please fill in the field \"Title\"."
 }
