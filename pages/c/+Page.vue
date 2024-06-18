@@ -5,13 +5,13 @@
 				<div id="conteneur-header">
 					<a id="logo" :href="hote" />
 
-					<div id="titre" class="edition" @click="afficherModaleTitre">
+					<div id="titre" class="edition" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModaleTitre" @keydown.enter="afficherModaleTitre">
 						<span class="titre">{{ titre }}</span>
-						<span class="modifier" role="button" tabindex="0" :title="$t('modifierTitre')"><i class="material-icons">edit</i></span>
+						<span class="modifier" :title="$t('modifierTitre')"><i class="material-icons">edit</i></span>
 					</div>
 
 					<div id="langues">
-						<span class="langues" role="button" tabindex="0" :title="$t('modifierLangue')" @click="afficherModaleLangues"><i class="material-icons">language</i></span>
+						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -21,8 +21,8 @@
 					<div class="informations">
 						<span>{{ $t('lienParticipants') }}</span>
 						<span class="lien">{{ hote.replace('http://', '').replace('https://', '') + '/p/' + salle }}</span>
-						<span id="copier" class="icone" role="button" tabindex="0" :title="$t('copierLien')"><i class="material-icons">content_copy</i></span>
-						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherCodeQR"><i class="material-icons">qr_code</i></span>
+						<span id="copier" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('copierLien')" @keydown.enter="copierLien"><i class="material-icons">content_copy</i></span>
+						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 				</div>
 
@@ -31,23 +31,23 @@
 					<div class="conteneur-parametres">
 						<div class="parametre">
 							<h3>{{ $t('reponses') }}</h3>
-							<label class="bouton-radio">{{ $t('orales') }}
-								<input type="radio" name="reponses" :checked="options.reponses === 'orales'" @change="modifierParametres('reponses', 'orales')">
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('reponses-orales')">{{ $t('orales') }}
+								<input id="reponses-orales" type="radio" name="reponses" :checked="options.reponses === 'orales'" @change="modifierParametres('reponses', 'orales')">
 								<span class="coche" />
 							</label>
-							<label class="bouton-radio">{{ $t('ecrites') }}
-								<input type="radio" name="reponses" :checked="options.reponses === 'ecrites'" @change="modifierParametres('reponses', 'ecrites')">
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('reponses-ecrites')">{{ $t('ecrites') }}
+								<input id="reponses-ecrites" type="radio" name="reponses" :checked="options.reponses === 'ecrites'" @change="modifierParametres('reponses', 'ecrites')">
 								<span class="coche" />
 							</label>
 						</div>
 						<div class="parametre">
 							<h3>{{ $t('activationBuzzer') }}</h3>
-							<label class="bouton-radio">{{ $t('immediate') }}
-								<input type="radio" name="buzzer" :checked="options.buzzer === 'immediate'" @change="modifierParametres('buzzer', 'immediate')">
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('buzzer-immediat')">{{ $t('immediate') }}
+								<input id="buzzer-immediat" type="radio" name="buzzer" :checked="options.buzzer === 'immediate'" @change="modifierParametres('buzzer', 'immediate')">
 								<span class="coche" />
 							</label>
-							<label class="bouton-radio">{{ $t('avecDelaiAleatoire') }}
-								<input type="radio" name="buzzer" :checked="options.buzzer === 'delai'" @change="modifierParametres('buzzer', 'delai')">
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('buzzer-delai')">{{ $t('avecDelaiAleatoire') }}
+								<input id="buzzer-delai" type="radio" name="buzzer" :checked="options.buzzer === 'delai'" @change="modifierParametres('buzzer', 'delai')">
 								<span class="coche" />
 							</label>
 						</div>
@@ -68,7 +68,7 @@
 
 			<footer>
 				<div class="section">
-					<span class="bouton" role="button" tabindex="0" @click="lancer">{{ $t('lancer') }}</span>
+					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="lancer" @keydown.enter="lancer">{{ $t('lancer') }}</span>
 				</div>
 			</footer>
 		</div>
@@ -83,7 +83,7 @@
 					</div>
 
 					<div id="langues">
-						<span class="langues" role="button" tabindex="0" :title="$t('modifierLangue')" @click="afficherModaleLangues"><i class="material-icons">language</i></span>
+						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -92,7 +92,7 @@
 				<div class="section">
 					<div class="informations">
 						<span>{{ $t('telechargerResultats') }}</span>
-						<span class="icone" role="button" tabindex="0" :title="$t('telecharger')" @click="exporter"><i class="material-icons">get_app</i></span>
+						<span class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('telecharger')" @click="exporter" @keydown.enter="exporter"><i class="material-icons">get_app</i></span>
 					</div>
 				</div>
 
@@ -117,12 +117,12 @@
 
 					<div id="titre">
 						<span class="titre">{{ titre }}</span>
-						<span id="copier" class="icone" role="button" tabindex="0" :title="$t('copierLien')"><i class="material-icons">content_copy</i></span>
-						<span id="afficher" class="icone" role="button" tabindex="0" :title="$t('afficherCodeQR')" @click="afficherCodeQR"><i class="material-icons">qr_code</i></span>
+						<span id="copier" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('copierLien')" @keydown.enter="copierLien"><i class="material-icons">content_copy</i></span>
+						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 
 					<div id="langues">
-						<span class="langues" role="button" tabindex="0" :title="$t('modifierLangue')"><i class="material-icons" @click="afficherModaleLangues">language</i></span>
+						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -135,8 +135,8 @@
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">
-								<span>{{ definirScore(utilisateur.identifiant) }}</span>
-								<span class="modifier" role="button" tabindex="0" @click="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
+								<span :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)">{{ definirScore(utilisateur.identifiant) }}</span>
+								<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
 							</span>
 						</div>
 					</div>
@@ -145,8 +145,8 @@
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">
-								<span>{{ utilisateur.score }}</span>
-								<span class="modifier" role="button" tabindex="0" :title="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
+								<span :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)">{{ utilisateur.score }}</span>
+								<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
 							</span>
 						</div>
 					</div>
@@ -156,64 +156,64 @@
 
 			<footer>
 				<div class="section">
-					<span class="bouton icone active" role="button" tabindex="0" @click="classer" :title="$t('desactiverClassementParScore')" v-if="classement"><i class="material-icons">equalizer</i></span>
-					<span class="bouton icone" role="button" tabindex="0" @click="classer" :title="$t('classerParScore')" v-else><i class="material-icons">equalizer</i></span>
-					<span class="bouton" role="button" tabindex="0" @click="modifierIndexQuestion">{{ $t('nouvelleQuestion') }}</span>
-					<span class="bouton" role="button" tabindex="0" @click="modaleConfirmation = true">{{ $t('fermer') }}</span>
+					<span class="bouton icone active" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="classer" @keydown.enter="classer" :title="$t('desactiverClassementParScore')" v-if="classement"><i class="material-icons">equalizer</i></span>
+					<span class="bouton icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="classer" @keydown.enter="classer" :title="$t('classerParScore')" v-else><i class="material-icons">equalizer</i></span>
+					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="modifierIndexQuestion" @keydown.enter="modifierIndexQuestion">{{ $t('nouvelleQuestion') }}</span>
+					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModaleConfirmation" @keydown.enter="afficherModaleConfirmation">{{ $t('fermer') }}</span>
 				</div>
 			</footer>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-if="modale === 'titre'">
-			<div id="modale-titre" class="modale" role="document">
+		<div class="conteneur-modale" v-if="modale === 'titre'">
+			<div id="modale-titre" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('modifierTitre') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<label>{{ $t('titre') }}</label>
-						<input type="text" :value="titre">
+						<label for="champ-titre">{{ $t('titre') }}</label>
+						<input id="champ-titre" type="text" :value="titre" @keydown.enter="modifierTitre">
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="modifierTitre">{{ $t('valider') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierTitre" @keydown.enter="modifierTitre">{{ $t('valider') }}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'langues'">
-			<div id="modale-langues" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'langues'">
+			<div id="modale-langues" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('langue') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<span role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
-						<span role="button" tabindex="0" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</span>
-						<span role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'question'">
-			<div id="modale-question" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'question'">
+			<div id="modale-question" class="modale" role="dialog">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
 						<span class="icone"><i class="material-icons">chat_bubble_outline</i></span>
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="ouvrirReponses">{{ $t('cestParti') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="ouvrirReponses" @keydown.enter="ouvrirReponses">{{ $t('cestParti') }}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'utilisateur'">
-			<div id="modale-utilisateur" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'utilisateur'">
+			<div id="modale-utilisateur" class="modale" role="dialog">
 				<div class="conteneur">
 					<div class="contenu">
 						<div class="avatar">
@@ -229,39 +229,39 @@
 						</div>
 						<div class="points">
 							<label for="points">{{ $t('pointsBonneReponse') }}</label>
-							<input type="number" id="points" v-model="points">
+							<input id="points" type="number" v-model="points">
 						</div>
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="annuler">{{ $t('mauvaiseReponse') }}</span>
-							<span class="bouton" role="button" tabindex="0" @click="valider">{{ $t('bonneReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="annuler" @keydown.enter="annuler">{{ $t('mauvaiseReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="valider" @keydown.enter="valider">{{ $t('bonneReponse') }}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'score'">
-			<div id="modale-score" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'score'">
+			<div id="modale-score" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('modifierScore') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="modale = ''"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<input type="number" v-model="donneesScore.score">
+						<input type="number" v-model="donneesScore.score" @keydown.enter="modifierScore">
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="modifierScore">{{ $t('modifier') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierScore" @keydown.enter="modifierScore">{{ $t('modifier') }}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'code-qr'">
-			<div id="modale-codeqr" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'code-qr'">
+			<div id="modale-codeqr" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('codeQR') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
@@ -271,14 +271,14 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-if="modaleConfirmation">
-			<div id="modale-confirmation" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'confirmation'">
+			<div id="modale-confirmation" class="modale" role="dialog">
 				<div class="conteneur">
 					<div class="contenu">
 						<p v-html="$t('confirmationFermerSalle')" />
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="modaleConfirmation = false">{{ $t('non') }}</span>
-							<span class="bouton" role="button" tabindex="0" @click="fermer">{{ $t('oui') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale">{{ $t('non') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="fermer" @keydown.enter="fermer">{{ $t('oui') }}</span>
 						</div>
 					</div>
 				</div>
@@ -287,7 +287,7 @@
 
 		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
 
-		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
+		<Message :message="message" @elementPrecedent="definirElementPrecedent" @fermer="fermerMessage" v-if="message !== ''" />
 
 		<Chargement v-if="chargement" />
 
@@ -335,10 +335,10 @@ export default {
 			texte: '',
 			classement: false,
 			donneesScore: {},
-			modaleConfirmation: false,
 			codeqr: '',
 			domaine: '',
 			donneesUtilisateurs: [],
+			elementPrecedent: null,
 			hote: this.$pageContext.pageProps.hote,
 			identifiant: this.$pageContext.pageProps.identifiant,
 			nom: this.$pageContext.pageProps.nom,
@@ -421,6 +421,9 @@ export default {
 		this.statutQuestion = this.donnees.statutQuestion
 		if (this.statutQuestion === 'question') {
 			this.modale = 'question'
+			this.$nextTick(function () {
+				document.querySelector('#modale-question .bouton').focus()
+			})
 		}
 		this.premiereReponse = this.donnees.premiereReponse
 		if (this.donnees.hasOwnProperty('options') === true) {
@@ -438,6 +441,9 @@ export default {
 					}
 				}
 			}
+			this.$nextTick(function () {
+				document.querySelector('#points').focus()
+			})
 		}
 		this.reponses = this.donnees.reponses
 		this.resultats = this.donnees.resultats
@@ -453,6 +459,11 @@ export default {
 		setTimeout(function () {
 			this.chargementPage = false
 		}.bind(this), 300)
+
+		document.addEventListener('keydown', this.gererClavier, false)
+	},
+	beforeUnmount () {
+		document.removeEventListener('keydown', this.gererClavier, false)
 	},
 	methods: {
 		initialiser () {
@@ -463,6 +474,7 @@ export default {
 				}
 			})
 			clipboard.on('success', function () {
+				document.querySelector('#copier').focus()
 				this.notification = this.$t('lienCopie')
 			}.bind(this))
 
@@ -547,7 +559,11 @@ export default {
 			})
 			this.donneesUtilisateurs = utilisateurs
 		},
+		copierLien () {
+			document.querySelector('#copier').click()
+		},
 		afficherCodeQR () {
+			this.elementPrecedent = (document.activeElement || document.body)
 			this.modale = 'code-qr'
 			this.$nextTick(function () {
 				const lien = this.hote + '/p/' + this.salle
@@ -561,12 +577,22 @@ export default {
 					// eslint-disable-next-line
 					correctLevel : QRCode.CorrectLevel.H
 				})
+				document.querySelector('.modale .fermer').focus()
 			}.bind(this))
 		},
 		fermerModale () {
 			this.modale = ''
+			this.gererFocus()
+		},
+		fermerMessage () {
+			this.message = ''
+			this.gererFocus()
+		},
+		definirElementPrecedent (element) {
+			this.elementPrecedent = element
 		},
 		afficherModaleTitre () {
+			this.elementPrecedent = (document.activeElement || document.body)
 			this.modale = 'titre'
 			this.$nextTick(function () {
 				document.querySelector('#modale-titre input').focus()
@@ -600,7 +626,11 @@ export default {
 			}
 		},
 		afficherModaleLangues () {
+			this.elementPrecedent = (document.activeElement || document.body)
 			this.modale = 'langues'
+			this.$nextTick(function () {
+				document.querySelector('#modale-langues .fermer').focus()
+			})
 		},
 		modifierLangue (langue) {
 			if (this.langue !== langue) {
@@ -621,16 +651,23 @@ export default {
 			}
 		},
 		afficherModifierScore (identifiant) {
+			this.elementPrecedent = (document.activeElement || document.body)
 			this.donneesScore.score = this.definirScore(identifiant)
 			this.donneesScore.identifiant = identifiant
 			this.modale = 'score'
+			this.$nextTick(function () {
+				document.querySelector('#modale-score input').focus()
+			})
 		},
 		modifierScore () {
 			this.chargement = true
 			const bonus = this.donneesScore.score - this.definirScoreSansBonus(this.donneesScore.identifiant)
 			this.$socket.emit('score', { salle: this.salle, identifiant: this.donneesScore.identifiant, bonus: bonus })
-			this.modale = ''
+			this.fermerModale()
 			this.donneesScore = {}
+		},
+		modifierParametre (id) {
+			document.querySelector('#' + id).click()
 		},
 		modifierParametres (type, valeur) {
 			this.options[type] = valeur
@@ -652,6 +689,9 @@ export default {
 					this.statut = 'ouvert'
 					this.notification = this.$t('salleOuverte')
 					this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre, options: this.options })
+					this.$nextTick(function () {
+						document.querySelector('footer .bouton:nth-child(2)').focus()
+					})
 				}
 			}.bind(this)).catch(function () {
 				this.chargement = false
@@ -687,6 +727,9 @@ export default {
 			this.$socket.emit('reponsevalidee', { salle: this.salle, identifiant: this.premiereReponse, points: this.points, indexQuestion: this.indexQuestion })
 			this.modale = ''
 			this.premiereReponse = ''
+			this.$nextTick(function () {
+				document.querySelector('footer .bouton:nth-child(2)').focus()
+			})
 		},
 		annuler () {
 			this.chargement = true
@@ -694,9 +737,19 @@ export default {
 			this.modale = ''
 			this.premiereReponse = ''
 			this.texte = ''
+			this.$nextTick(function () {
+				document.body.focus()
+			})
+		},
+		afficherModaleConfirmation () {
+			this.elementPrecedent = (document.activeElement || document.body)
+			this.modale = 'confirmation'
+			this.$nextTick(function () {
+				document.querySelector('.modale .bouton').focus()
+			})
 		},
 		fermer () {
-			this.modaleConfirmation = false
+			this.fermerModale()
 			this.chargement = true
 			axios.post(this.hote + '/api/modifier-statut-salle', {
 				identifiant: this.identifiant,
@@ -758,6 +811,19 @@ export default {
 				this.message = this.$t('aucunResultat')
 			}
 		},
+		gererClavier (event) {
+			if (event.key === 'Escape' && this.message !== '') {
+				this.message = ''
+			} else if (event.key === 'Escape' && (this.modale === 'titre' || this.modale === 'langues' || this.modale === 'code-qr' || this.modale === 'score' || this.modale === 'confirmation')) {
+				this.fermerModale()
+			}
+		},
+		gererFocus () {
+			if (this.elementPrecedent) {
+				this.elementPrecedent.focus()
+				this.elementPrecedent = null
+			}
+		},
 		ecouterSocket () {
 			this.$socket.on('connexion', function (donnees) {
 				const utilisateurs = donnees.utilisateurs.filter(function (utilisateur) {
@@ -805,6 +871,9 @@ export default {
 				this.resultats.push([])
 				this.textes.push([])
 				this.modale = 'question'
+				this.$nextTick(function () {
+					document.querySelector('#modale-question .bouton').focus()
+				})
 			}.bind(this))
 
 			this.$socket.on('reponses', function () {
@@ -814,9 +883,13 @@ export default {
 
 			this.$socket.on('reponse', function (reponse) {
 				if (reponse.salle === this.salle && this.premiereReponse === '') {
+					this.elementPrecedent = (document.activeElement || document.body)
 					this.premiereReponse = reponse.identifiant
 					this.modale = 'utilisateur'
 					this.$socket.emit('premierereponse', { salle: this.salle, identifiant: reponse.identifiant, indexQuestion: this.indexQuestion })
+					this.$nextTick(function () {
+						document.querySelector('#points').focus()
+					})
 				}
 			}.bind(this))
 
@@ -1011,11 +1084,7 @@ export default {
 }
 
 #section-parametres .bouton-radio input {
-	position: absolute;
-	opacity: 0;
-	cursor: pointer;
-	height: 0;
-	width: 0;
+	display: none;
 }
 
 #section-parametres .coche {
@@ -1096,6 +1165,7 @@ export default {
 	border-top: 1px solid #ddd;
 	font-weight: 700;
 	font-size: 18px;
+	cursor: pointer;
 }
 
 .utilisateurs .utilisateur span.score .modifier {
@@ -1109,7 +1179,6 @@ export default {
 	padding: 3px 1rem;
 	background: rgba(0, 0, 0, 0.25);
 	border-radius: 4px;
-	cursor: pointer;
 }
 
 .utilisateurs .utilisateur span.score:hover .modifier {

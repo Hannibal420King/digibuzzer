@@ -2,9 +2,9 @@
 	<div id="page">
 		<div id="accueil" :style="{'background-image': 'url(/img/fond.png)'}">
 			<div id="langues">
-				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
-				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</span>
-				<span class="bouton" role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
 			</div>
 			<div id="conteneur">
 				<div id="contenu">
@@ -14,29 +14,29 @@
 					<div>
 						<p v-html="$t('slogan')" />
 						<div id="actions">
-							<span class="bouton" role="button" tabindex="0" @click="ouvrirModaleCreer">{{ $t('creerSalleJeu') }}</span>
+							<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirModaleCreer" @keydown.enter="ouvrirModaleCreer">{{ $t('creerSalleJeu') }}</span>
 						</div>
 					</div>
 				</div>
 				<div id="credits">
-					<p><span class="mentions-legales" @click="modale = 'mentions-legales'">{{ $t('mentionsLegales') }}</span> - <a href="https://opencollective.com/ladigitale" target="_blank">{{ $t('soutien') }} ❤️.</a></p>
-					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <span class="hub" @click="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></span></p>
+					<p><span class="mentions-legales" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirModaleMentionsLegales" @keydown.enter="ouvrirModaleMentionsLegales">{{ $t('mentionsLegales') }}</span> - <a href="https://opencollective.com/ladigitale" target="_blank">{{ $t('soutien') }} ❤️.</a></p>
+					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <span class="hub" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirHub" @keydown.enter="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></span></p>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-if="modale === 'creer'">
-			<div id="creer" class="modale" role="document">
+		<div class="conteneur-modale" v-if="modale === 'creer'">
+			<div id="creer" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('creerSalleJeu') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModaleCreer"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" tabindex="0" @click="fermerModaleCreer" @keydown.enter="fermerModaleCreer"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
 						<label for="champ-titre">{{ $t('titre') }}</label>
 						<input id="champ-titre" type="text" v-model="titre" @keydown.enter="creer">
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="creer" v-if="!chargementModale">{{ $t('creer') }}</span>
+							<span class="bouton" role="button" tabindex="0" @click="creer" @keydown.enter="creer" v-if="!chargementModale">{{ $t('creer') }}</span>
 							<div class="conteneur-chargement" v-else>
 								<div class="chargement" />
 							</div>
@@ -46,13 +46,13 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'mentions-legales'">
-			<div id="mentions-legales" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'mentions-legales'">
+			<div id="mentions-legales" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('mentionsLegales') }}</span>
-					<span class="fermer" @click="modale = ''"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" tabindex="0" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
-				<div class="conteneur">
+				<div class="conteneur" tabindex="-1">
 					<div class="contenu">
 						<p>{{ $t('mentionsLegales1') }}</p>
 						<label>{{ $t('administrationEtDeveloppement') }}</label>
@@ -70,14 +70,14 @@
 			</div>
 		</div>
 
-		<div id="hub" :class="{'ouvert': hub}">
-			<span @click="fermerHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="36px" height="36px"><path d="M0 0h24v24H0z" fill="none" /><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></span>
-			<iframe src="https://ladigitale.dev/hub.html" />
+		<div id="hub" :class="{'ouvert': hub}" :tabindex="hub ? 0 : -1">
+			<span role="button" :tabindex="hub ? 0 : -1" @click="fermerHub" @keydown.enter="fermerHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="36px" height="36px"><path d="M0 0h24v24H0z" fill="none" /><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></span>
+			<iframe src="https://ladigitale.dev/hub.html" title="Le Hub by La Digitale"></iframe>
 		</div>
 
 		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
 
-		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
+		<Message :message="message" @elementPrecedent="definirElementPrecedent" @fermer="fermerMessage" v-if="message !== ''" />
 
 		<Chargement v-if="chargement" />
 
@@ -109,6 +109,7 @@ export default {
 			modale: '',
 			titre: '',
 			chargementModale: false,
+			elementPrecedent: null,
 			hub: false,
 			hote: this.$pageContext.pageProps.hote,
 			langues: this.$pageContext.pageProps.langues,
@@ -133,9 +134,26 @@ export default {
 		setTimeout(function () {
 			this.chargementPage = false
 		}.bind(this), 300)
+
+		document.addEventListener('keydown', this.gererClavier, false)
+	},
+	beforeUnmount () {
+		document.removeEventListener('keydown', this.gererClavier, false)
 	},
 	methods: {
+		ouvrirModaleMentionsLegales () {
+			this.elementPrecedent = (document.activeElement || document.body)
+			this.modale = 'mentions-legales'
+			this.$nextTick(function () {
+				document.querySelector('#mentions-legales .fermer').focus()
+			})
+		},
+		fermerModale () {
+			this.modale = ''
+			this.gererFocus()
+		},
 		ouvrirModaleCreer () {
+			this.elementPrecedent = (document.activeElement || document.body)
 			this.modale = 'creer'
 			this.$nextTick(function () {
 				document.querySelector('#creer input').focus()
@@ -144,6 +162,7 @@ export default {
 		fermerModaleCreer () {
 			this.modale = ''
 			this.titre = ''
+			this.gererFocus()
 		},
 		creer () {
 			if (this.titre !== '') {
@@ -185,11 +204,42 @@ export default {
 				}.bind(this))
 			}
 		},
+		fermerMessage () {
+			this.message = ''
+			this.gererFocus()
+		},
+		definirElementPrecedent (element) {
+			this.elementPrecedent = element
+		},
+		gererClavier (event) {
+			if (event.key === 'Escape' && this.message !== '') {
+				this.message = ''
+			} else if (event.key === 'Escape' && this.modale === 'creer') {
+				this.fermerModaleCreer()
+			} else if (event.key === 'Escape' && this.modale !== '') {
+				this.modale = ''
+				this.gererFocus()
+			} else if (event.key === 'Escape' && this.hub) {
+				this.hub = false
+				this.gererFocus()
+			}
+		},
+		gererFocus () {
+			if (this.elementPrecedent) {
+				this.elementPrecedent.focus()
+				this.elementPrecedent = null
+			}
+		},
 		ouvrirHub () {
+			this.elementPrecedent = (document.activeElement || document.body)
 			this.hub = true
+			this.$nextTick(function () {
+				document.querySelector('#hub span').focus()
+			})
 		},
 		fermerHub () {
 			this.hub = false
+			this.gererFocus()
 		}
 	}
 }

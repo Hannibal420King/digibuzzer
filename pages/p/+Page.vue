@@ -10,12 +10,12 @@
 					</div>
 
 					<div id="parametres" v-if="avatar === ''">
-						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><i class="material-icons">settings</i></span>
+						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><i class="material-icons">settings</i></span>
 					</div>
 					<div id="parametres" v-else>
-						<span role="button" tabindex="0" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span role="button" tabindex="0" :title="$t('afficherParametres')" @click="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
+						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
 					</div>
 				</div>
 			</header>
@@ -24,7 +24,7 @@
 				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'">
 					<div id="conteneur-buzzer">
 						<div id="base">
-							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" @click="envoyerReponse" />
+							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="envoyerReponse" @keydown.enter="envoyerReponse" />
 						</div>
 					</div>
 				</div>
@@ -57,26 +57,26 @@
 			</Transition>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
-			<div id="modale-parametres" class="modale" role="document">
+		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
+			<div id="modale-parametres" class="modale" role="dialog">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
 						<label v-if="modale === 'parametres'">{{ $t('langue') }}</label>
 						<div class="langue" v-if="modale === 'parametres'">
-							<span role="button" tabindex="0" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</span>
-							<span role="button" tabindex="0" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</span>
-							<span role="button" tabindex="0" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
 						</div>
-						<label>{{ $t('nomOuPseudo') }}</label>
-						<input type="text" id="nom" v-model="nomProvisoire" :disabled="nom !== '' && statut !== ''">
+						<label for="nom">{{ $t('nomOuPseudo') }}</label>
+						<input id="nom" type="text" v-model="nomProvisoire" :disabled="nom !== '' && statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
-							<span class="avatar" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': avatar !== '' && statut !== '' }" @click="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<label for="televerser" class="avatar ajouter" role="button" tabindex="0" :title="$t('televerserFichier')" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons">add_photo_alternate</i></label>
+							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': avatar !== '' && statut !== '' }" @click="modifierAvatar(item)" @keydown.enter="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
+							<label for="televerser" class="avatar ajouter" role="button" :tabindex="message === '' ? 0 : -1" @keydown.enter="afficherSelectionAvatar" :title="$t('televerserFichier')" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
 							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
 							<span class="avatar fichier" v-if="avatar !== '' && statut !== ''" />
@@ -88,15 +88,15 @@
 							</div>
 						</div>
 						<div class="actions" :class="{'inactif': progression !== 0}" v-if="avatar === '' || nom === '' || statut === ''">
-							<span class="bouton" role="button" tabindex="0" @click="modifierInformations">{{ $t('valider') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierInformations" @keydown.enter="modifierInformations">{{ $t('valider') }}</span>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'question'">
-			<div id="modale-question" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'question'">
+			<div id="modale-question" class="modale" role="dialog">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
@@ -106,14 +106,14 @@
 			</div>
 		</div>
 
-		<div class="conteneur-modale" role="dialog" tabindex="-1" v-else-if="modale === 'reponse'">
-			<div id="modale-reponse" class="modale" role="document">
+		<div class="conteneur-modale" v-else-if="modale === 'reponse'">
+			<div id="modale-reponse" class="modale" role="dialog">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="icone"><i class="material-icons">{{ icone }}</i></span>
 						<textarea v-if="options.reponses === 'ecrites' && icone === 'pending'" v-model="texte" :placeholder="$t('votreReponse')" :disabled="texteEnvoye" />
 						<div class="actions" v-if="options.reponses === 'ecrites' && icone === 'pending' && !texteEnvoye">
-							<span class="bouton" role="button" tabindex="0" @click="envoyerTexte">{{ $t('envoyer') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="envoyerTexte" @keydown.enter="envoyerTexte">{{ $t('envoyer') }}</span>
 						</div>
 					</div>
 				</div>
@@ -122,7 +122,7 @@
 
 		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
 
-		<Message :message="message" @fermer="message = ''" v-if="message !== ''" />
+		<Message :message="message" @elementPrecedent="definirElementPrecedent" @fermer="fermerMessage" v-if="message !== ''" />
 
 		<Chargement v-if="chargement" />
 
@@ -213,6 +213,9 @@ export default {
 			this.modale = 'question'
 		} else if (this.donnees.statutQuestion === 'reponses') {
 			this.reponse = true
+			this.$nextTick(function () {
+				document.querySelector('#buzzer').focus()
+			})
 		}
 		this.premiereReponse = this.donnees.premiereReponse
 		if (this.donnees.hasOwnProperty('options') === true) {
@@ -288,6 +291,8 @@ export default {
 			}
 		}.bind(this))
 
+		document.addEventListener('keydown', this.gererClavier, false)
+
 		window.addEventListener('beforeunload', this.quitterPage, false)
 
 		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
@@ -308,29 +313,47 @@ export default {
 			}
 		}.bind(this))
 	},
+	beforeUnmount () {
+		document.removeEventListener('keydown', this.gererClavier, false)
+	},
 	methods: {
+		definirElementPrecedent (element) {
+			this.elementPrecedent = element
+		},
+		fermerMessage () {
+			this.message = ''
+			this.gererFocus()
+		},
 		afficherModaleParametres () {
-			this.nomProvisoire = this.nom
-			this.avatarProvisoire = this.avatar
-			this.modale = 'parametres'
-			if (this.statut === '') {
+			if (this.modale !== 'question' && this.modale !== 'reponse') {
+				this.elementPrecedent = (document.activeElement || document.body)
+				this.nomProvisoire = this.nom
+				this.avatarProvisoire = this.avatar
+				this.modale = 'parametres'
+				this.$nextTick(function () {
+					if (this.statut === '') {
+						document.querySelector('#nom').focus()
+					} else {
+						document.querySelector('.modale .fermer').focus()
+					}
+				}.bind(this))
+			}
+		},
+		afficherModaleInformations () {
+			if (this.modale !== 'question' && this.modale !== 'reponse') {
+				this.nomProvisoire = this.nom
+				this.avatarProvisoire = this.avatar
+				this.modale = 'informations'
 				this.$nextTick(function () {
 					document.querySelector('#nom').focus()
 				})
 			}
 		},
-		afficherModaleInformations () {
-			this.nomProvisoire = this.nom
-			this.avatarProvisoire = this.avatar
-			this.modale = 'informations'
-			this.$nextTick(function () {
-				document.querySelector('#nom').focus()
-			})
-		},
 		fermerModale () {
 			this.modale = ''
 			this.nomProvisoire = ''
 			this.avatarProvisoire = ''
+			this.gererFocus()
 		},
 		modifierLangue (langue) {
 			if (this.langue !== langue) {
@@ -369,6 +392,7 @@ export default {
 					this.nom = this.nomProvisoire
 					this.avatar = this.avatarProvisoire
 					this.notification = this.$t('informationsModifiees')
+					this.gererFocus()
 				}.bind(this)).catch(function () {
 					this.chargement = false
 					this.message = this.$t('erreurCommunicationServeur')
@@ -381,6 +405,9 @@ export default {
 			if (this.statut === '' || this.avatar === '') {
 				this.avatarProvisoire = avatar
 			}
+		},
+		afficherSelectionAvatar () {
+			document.querySelector('#televerser').click()
 		},
 		televerserAvatar (event) {
 			const champ = event.target
@@ -510,6 +537,19 @@ export default {
 				this.message = this.$t('erreurCommunicationServeur')
 			}.bind(this))
 		},
+		gererClavier (event) {
+			if (event.key === 'Escape' && this.message !== '') {
+				this.message = ''
+			} else if (event.key === 'Escape' && (this.modale === 'parametres' || this.modale === 'informations')) {
+				this.fermerModale()
+			}
+		},
+		gererFocus () {
+			if (this.elementPrecedent) {
+				this.elementPrecedent.focus()
+				this.elementPrecedent = null
+			}
+		},
 		quitterPage () {
 			this.$socket.emit('deconnexion', this.salle)
 		},
@@ -542,6 +582,9 @@ export default {
 			this.$socket.on('reponses', function () {
 				this.modale = ''
 				this.reponse = true
+				this.$nextTick(function () {
+					document.querySelector('#buzzer').focus()
+				})
 			}.bind(this))
 
 			this.$socket.on('reponse', function () {
