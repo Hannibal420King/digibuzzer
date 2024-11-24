@@ -1,8 +1,21 @@
 module.exports = {
 	apps: [{
     	name: 'Digibuzzer',
-    	script: 'npm -- run server:prod',
+    	script: 'server/index.js',
+		node_args: [
+			'--nouse-idle-notification',
+			'--expose-gc'
+		],
 		autorestart: true,
-		max_restarts: 20
+		max_restarts: 10,
+		// instances: 'max',
+		exec_interpreter: 'node',
+		// exec_mode: 'cluster',
+		env: {
+			'NODE_ENV': 'development'
+		},
+		env_production: {
+			'NODE_ENV': 'production'
+		}
 	}]
 }
