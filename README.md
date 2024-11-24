@@ -23,14 +23,16 @@ npm run prod
 ### Avec PM2
 ```
 npm run build
-pm2 start ecosystem.config.cjs
+pm2 start ecosystem.config.cjs --env production
 ```
 
 ### Variables d'environnement pour la mise en production (fichier .env à créer à la racine du dossier)
 ```
 DOMAIN (protocole + domaine. ex : https://digibuzzer.app)
-HOST (IP publique du serveur de production)
 PORT (port du serveur local / 3000 par défaut)
+REVERSE_PROXY (utilisation d'un reverse proxy / 0 ou 1 / 0 par défaut)
+NODE_CLUSTER (utilisation de node.js en cluster / 0 ou 1 / 0 par défaut)
+EARLY_HINTS (utilisation par le serveur des early hints et du code de statut 103 / 0 ou 1 / 0 par défaut)
 DB_HOST (IP publique du serveur de base de données Redis)
 DB_PWD (mot de passe de la base de données Redis)
 DB_PORT (port de la base de données Redis / 6379 par défaut)
