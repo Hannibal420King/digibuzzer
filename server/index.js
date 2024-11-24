@@ -4,9 +4,10 @@ import fs from 'fs-extra'
 import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import { createAdapter } from '@socket.io/cluster-adapter'
 import compression from 'compression'
 import cors from 'cors'
-import redis from 'redis'
+import { createClient } from 'redis'
 import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import multer from 'multer'
@@ -14,13 +15,27 @@ import sharp from 'sharp'
 import dayjs from 'dayjs'
 import cron from 'node-cron'
 import { fileURLToPath } from 'url'
-import connectRedis from 'connect-redis'
+import RedisStore from 'connect-redis'
 import session from 'express-session'
 import { renderPage } from 'vike/server'
 
 const production = process.env.NODE_ENV === 'production'
+const cluster = parseInt(process.env.NODE_CLUSTER) === 1
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = `${__dirname}/..`
+
+planifierCollecteDechets()
+
+function planifierCollecteDechets () {
+	if (!global.gc) {
+		return false
+	}
+	const prochainAppel = 30 + (Math.random() * 15)
+	setTimeout(function () {
+		global.gc()
+		planifierCollecteDechets()
+	}, prochainAppel * 1000)
+}
 
 demarrerServeur()
 
@@ -28,14 +43,12 @@ async function demarrerServeur () {
 	const app = express()
 	app.use(compression())
 	const httpServer = createServer(app)
-	const RedisStore = connectRedis(session)
 
 	let hote = 'http://localhost:3000'
-	if (process.env.PORT) {
-		hote = 'http://localhost:' + process.env.PORT
-	}
 	if (production) {
 		hote = process.env.DOMAIN
+	} else if (process.env.PORT) {
+		hote = 'http://localhost:' + process.env.PORT
 	}
 	let db
 	let db_port = 6379
@@ -43,9 +56,17 @@ async function demarrerServeur () {
 		db_port = process.env.DB_PORT
 	}
 	if (production) {
-		db = redis.createClient({ host: process.env.DB_HOST, port: db_port, password: process.env.DB_PWD })
+		db = await createClient({
+			url: 'redis://default:' + process.env.DB_PWD  + '@' + process.env.DB_HOST + ':' + db_port
+		}).on('error', function (err) {
+			console.log('redis: ', err)
+		}).connect()
 	} else {
-		db = redis.createClient({ port: db_port })
+		db = await createClient({
+			url: 'redis://localhost:' + db_port
+		}).on('error', function (err) {
+			console.log('redis: ' + err)
+		}).connect()
 	}
 	let storeOptions, cookie, dureeSession
 	if (production) {
@@ -71,9 +92,10 @@ async function demarrerServeur () {
 			secure: false
 		}
 	}
+	const redisStore = new RedisStore(storeOptions)
 	const sessionOptions = {
 		secret: process.env.SESSION_KEY,
-		store: new RedisStore(storeOptions),
+		store: redisStore,
 		name: 'digibuzzer',
 		resave: false,
 		rolling: true,
@@ -87,35 +109,36 @@ async function demarrerServeur () {
 	}
 	const sessionMiddleware = session(sessionOptions)
 
-	cron.schedule('59 23 * * Saturday', () => {
-		db.keys('salles:*', function (err, salles) {
-			const donneesSalles = []
-			for (const salle of salles) {
-				const donneesSalle = new Promise(function (resolve) {
-					db.exists(salle, function (err, reponse) {
-						if (err) { resolve(0); return false }
-						if (reponse === 1) {
-							db.hgetall(salle, function (err, resultat) {
-								if (err) { resolve(0); return false }
-								if (dayjs(new Date(resultat.date)).isBefore(dayjs().subtract(14, 'days'))) {
-									db.del(salle, function (err) {
-										if (err) { resolve(0); return false }
-										resolve(1)
-									})
-								} else {
-									resolve(0)
-								}
-							})
-						} else {
-							resolve(0)
-						}
-					})
-				})
-				donneesSalles.push(donneesSalle)
-			}
-			Promise.all(donneesSalles).then(function (resultats) {
-				console.log(resultats)
+	let earlyHints103 = false
+	if (process.env.EARLY_HINTS && parseInt(process.env.EARLY_HINTS) === 1) {
+		earlyHints103 = true
+	}
+
+	cron.schedule('59 23 * * Saturday', async function () {
+		const salles = await db.KEYS('salles:*')
+		const donneesSalles = []
+		for (const salle of salles) {
+			const donneesSalle = new Promise(async function (resolve) {
+				const reponse = await db.EXISTS(salle)
+				if (reponse === null) { resolve(0); return false }
+				if (reponse === 1) {
+					let resultat = await db.HGETALL(salle)
+					resultat = Object.assign({}, resultat)
+					if (resultat === null) { resolve(0); return false }
+					if (dayjs(new Date(resultat.date)).isBefore(dayjs().subtract(14, 'days'))) {
+						await db.DEL(salle)
+						resolve(1)
+					} else {
+						resolve(0)
+					}
+				} else {
+					resolve(0)
+				}
 			})
+			donneesSalles.push(donneesSalle)
+		}
+		Promise.all(donneesSalles).then(function (resultats) {
+			console.log(resultats)
 		})
 	})
 
@@ -130,16 +153,15 @@ async function demarrerServeur () {
 			}
 		})
 	)
-	app.use(bodyParser.json({ limit: '10mb' }))
+	app.use(bodyParser.json({ limit: '50mb' }))
 	app.use(sessionMiddleware)
 	app.use(cors())
-	app.use('/avatars', express.static('avatars'))
+	if (parseInt(process.env.REVERSE_PROXY) !== 1 || !production) {
+		app.use('/avatars', express.static('avatars'))
+	}
 
-	if (production) {
-		const sirv = (await import('sirv')).default
-		app.use(sirv(`${root}/dist/client`))
-	} else {
-    	const vite = await import('vite')
+	if (!production) {
+		const vite = await import('vite')
     	const viteDevMiddleware = (
       		await vite.createServer({
         		root,
@@ -147,7 +169,10 @@ async function demarrerServeur () {
 			})
     	).middlewares
     	app.use(viteDevMiddleware)
-  	}
+  	} else if (production && parseInt(process.env.REVERSE_PROXY) !== 1) {
+		const sirv = (await import('sirv')).default
+		app.use(sirv(`${root}/dist/client`))
+	}
 	
 	app.get('/', async function (req, res, next) {
 		let langue = 'fr'
@@ -167,7 +192,7 @@ async function demarrerServeur () {
 			return next()
 		}
 		const { body, statusCode, headers, earlyHints } = httpResponse
-		if (res.writeEarlyHints) {
+		if (earlyHints103 === true && res.writeEarlyHints) {
 			res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 		}
 		if (headers) {
@@ -202,7 +227,7 @@ async function demarrerServeur () {
 				return next()
 			}
 			const { body, statusCode, headers, earlyHints } = httpResponse
-			if (res.writeEarlyHints) {
+			if (earlyHints103 === true && res.writeEarlyHints) {
 				res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 			}
 			if (headers) {
@@ -244,7 +269,7 @@ async function demarrerServeur () {
 			return next()
 		}
 		const { body, statusCode, headers, earlyHints } = httpResponse
-		if (res.writeEarlyHints) {
+		if (earlyHints103 === true && res.writeEarlyHints) {
 			res.writeEarlyHints({ link: earlyHints.map((e) => e.earlyHintLink) })
 		}
 		if (headers) {
@@ -253,7 +278,7 @@ async function demarrerServeur () {
 		res.status(statusCode).send(body)
   	})
 
-	app.post('/api/creer-salle', function (req, res) {
+	app.post('/api/creer-salle', async function (req, res) {
 		if (req.session.identifiant === '' || req.session.identifiant === undefined) {
 			const identifiant = 'u' + Math.random().toString(16).slice(3)
 			req.session.identifiant = identifiant
@@ -264,94 +289,84 @@ async function demarrerServeur () {
 		const titre = req.body.titre
 		const salle = Math.random().toString(16).slice(7)
 		const date = dayjs().format()
-		db.exists('salles:' + salle, function (err, reponse) {
-			if (err) { res.send('erreur'); return false }
-			if (reponse === 0) {
-				const donnees = {}
-				donnees.indexQuestion = -1
-				donnees.statutQuestion = ''
-				donnees.premiereReponse = ''
-				donnees.reponses = []
-				donnees.textes = []
-				donnees.resultats = []
-				donnees.utilisateurs = []
-				donnees.bonus = []
-				db.hmset('salles:' + salle, 'identifiant', req.session.identifiant, 'titre', titre, 'statut', '', 'donnees', JSON.stringify(donnees), 'date', date, function (err) {
-					if (err) { res.send('erreur'); return false }
-					req.session.nom = ''
-					req.session.avatar = ''
-					if (req.session.langue === '' || req.session.langue === undefined) {
-						req.session.langue = 'fr'
-					}
-					req.session.role = 'animateur'
-					req.session.salles.push(salle)
-					req.session.cookie.expires = new Date(Date.now() + dureeSession)
-					res.json({ salle: salle })
-				})
-			} else {
-				res.send('existe_deja')
+		const reponse = await db.EXISTS('salles:' + salle)
+		if (reponse === null) { res.send('erreur'); return false }
+		if (reponse === 0) {
+			const donnees = {}
+			donnees.indexQuestion = -1
+			donnees.statutQuestion = ''
+			donnees.premiereReponse = ''
+			donnees.reponses = []
+			donnees.textes = []
+			donnees.resultats = []
+			donnees.utilisateurs = []
+			donnees.bonus = []
+			await db.HSET('salles:' + salle, ['identifiant', req.session.identifiant, 'titre', titre, 'statut', '', 'donnees', JSON.stringify(donnees), 'date', date])
+			req.session.nom = ''
+			req.session.avatar = ''
+			if (req.session.langue === '' || req.session.langue === undefined) {
+				req.session.langue = 'fr'
 			}
-		})
+			req.session.role = 'animateur'
+			req.session.salles.push(salle)
+			req.session.cookie.expires = new Date(Date.now() + dureeSession)
+			res.json({ salle: salle })
+		} else {
+			res.send('existe_deja')
+		}
 	})
 
-	app.post('/api/modifier-titre-salle', function (req, res) {
+	app.post('/api/modifier-titre-salle', async function (req, res) {
 		const identifiant = req.body.identifiant
 		if (req.session.identifiant && req.session.identifiant === identifiant) {
 			const salle = req.body.salle
-			db.exists('salles:' + salle, function (err, reponse) {
-				if (err) { res.send('erreur'); return false }
-				if (reponse === 1) {
-					const titre = req.body.titre
-					db.hset('salles:' + salle, 'titre', titre, function (err) {
-						if (err) { res.send('erreur'); return false }
-						res.send('titre_modifie')
-					})
-				} else {
-					res.send('erreur')
-				}
-			})
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { res.send('erreur'); return false }
+			if (reponse === 1) {
+				const titre = req.body.titre
+				await db.HSET('salles:' + salle, 'titre', titre)
+				res.send('titre_modifie')
+			} else {
+				res.send('erreur')
+			}
 		} else {
 			res.send('non_autorise')
 		}
 	})
 	
-	app.post('/api/modifier-statut-salle', function (req, res) {
+	app.post('/api/modifier-statut-salle', async function (req, res) {
 		const identifiant = req.body.identifiant
 		if (req.session.identifiant && req.session.identifiant === identifiant) {
 			const salle = req.body.salle
-			db.exists('salles:' + salle, function (err, reponse) {
-				if (err) { res.send('erreur'); return false }
-				if (reponse === 1) {
-					const statut = req.body.statut
-					db.hset('salles:' + salle, 'statut', statut, function (err) {
-						if (err) { res.send('erreur'); return false }
-						res.send('statut_modifie')
-					})
-				} else {
-					res.send('erreur')
-				}
-			})
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { res.send('erreur'); return false }
+			if (reponse === 1) {
+				const statut = req.body.statut
+				await db.HSET('salles:' + salle, 'statut', statut)
+				res.send('statut_modifie')
+			} else {
+				res.send('erreur')
+			}
 		} else {
 			res.send('non_autorise')
 		}
 	})
 
-	app.post('/api/recuperer-donnees-salle', function (req, res) {
+	app.post('/api/recuperer-donnees-salle', async function (req, res) {
 		const salle = req.body.salle
-		db.exists('salles:' + salle, function (err, reponse) {
-			if (err) { res.send('erreur'); return false }
-			if (reponse === 1) {
-				db.hgetall('salles:' + salle, function (err, resultat) {
-					if (err) { res.send('erreur'); return false }
-					const titre = resultat.titre
-					const statut = resultat.statut
-					const donnees = JSON.parse(resultat.donnees)
-					res.json({ titre: titre, statut: statut, donnees: donnees })
-				})
-			} else {
-				res.send('salle_inexistante')
-			}
-		})
+		const reponse = await db.EXISTS('salles:' + salle)
+		if (reponse === null) { res.send('erreur'); return false }
+		if (reponse === 1) {
+			let resultat = await db.HGETALL('salles:' + salle)
+			resultat = Object.assign({}, resultat)
+			if (resultat === null) { res.send('erreur'); return false }
+			const titre = resultat.titre
+			const statut = resultat.statut
+			const donnees = JSON.parse(resultat.donnees)
+			res.json({ titre: titre, statut: statut, donnees: donnees })
+		} else {
+			res.send('salle_inexistante')
+		}
 	})
 	
 	app.post('/api/modifier-informations', function (req, res) {
@@ -379,18 +394,16 @@ async function demarrerServeur () {
 				const extension = info.ext.toLowerCase()
 				const chemin = path.join(__dirname, '..', '/avatars/' + fichier.filename)
 				if (extension === '.jpg' || extension === '.jpeg') {
-					sharp(chemin).withMetadata().rotate().jpeg().resize(300, 320).toBuffer((err, buffer) => {
+					sharp(chemin).withMetadata().rotate().jpeg().resize(300, 320).toBuffer(async function (err, buffer) {
 						if (err) { res.send('erreur'); return false }
-						fs.writeFile(chemin, buffer, function () {
-							res.send(fichier.filename)
-						})
+						await fs.writeFile(chemin, buffer)
+						res.send(fichier.filename)
 					})
 				} else if (extension === '.png') {
-					sharp(chemin).withMetadata().resize(300, 320).toBuffer((err, buffer) => {
+					sharp(chemin).withMetadata().resize(300, 320).toBuffer(async function (err, buffer) {
 						if (err) { res.send('erreur'); return false }
-						fs.writeFile(chemin, buffer, function () {
-							res.send(fichier.filename)
-						})
+						await fs.writeFile(chemin, buffer)
+						res.send(fichier.filename)
 					})
 				} else {
 					res.send(fichier.filename)
@@ -406,7 +419,17 @@ async function demarrerServeur () {
 	const port = process.env.PORT || 3000
 	httpServer.listen(port)
 
-	const io = new Server(httpServer, { cookie: false })
+	const io = new Server(httpServer, {
+		// wsEngine: eiows.Server,
+		pingInterval: 95000,
+    	pingTimeout: 100000,
+    	maxHttpBufferSize: 1e8,
+		cookie: false,
+		perMessageDeflate: false
+	})
+	if (cluster === true) {
+		io.adapter(createAdapter())
+	}
 	const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
 	io.use(wrap(sessionMiddleware))
 	
@@ -416,14 +439,14 @@ async function demarrerServeur () {
 			const identifiant = donnees.identifiant
 			const nom = donnees.nom
 			const avatar = donnees.avatar
-			socket.identifiant = identifiant
-			socket.nom = nom
-			socket.avatar = avatar
+			socket.data.identifiant = identifiant
+			socket.data.nom = nom
+			socket.data.avatar = avatar
 			socket.join(salle)
 			const clients = await io.in(salle).fetchSockets()
 			let utilisateurs = []
 			for (let i = 0; i < clients.length; i++) {
-				utilisateurs.push({ identifiant: clients[i].identifiant, nom: clients[i].nom, avatar: clients[i].avatar })
+				utilisateurs.push({ identifiant: clients[i].data.identifiant, nom: clients[i].data.nom, avatar: clients[i].data.avatar })
 			}
 			utilisateurs = utilisateurs.filter((valeur, index, self) =>
 				index === self.findIndex((t) => (
@@ -438,22 +461,19 @@ async function demarrerServeur () {
 			socket.to(salle).emit('deconnexion', socket.request.session.identifiant)
 		})
 	
-		socket.on('salleouverte', function (donnees) {
+		socket.on('salleouverte', async function (donnees) {
 			if (donnees.hasOwnProperty('options') === true) {
-				db.exists('salles:' + donnees.salle, function (err, resultat) {
-					if (err) { socket.emit('erreur'); return false }
-					if (resultat === 1) {
-						db.hgetall('salles:' + donnees.salle, function (err, reponse) {
-							if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-							const donneesServeur = JSON.parse(reponse.donnees)
-							donneesServeur.options = donnees.options
-							db.hset('salles:' + donnees.salle, 'donnees', JSON.stringify(donneesServeur), function (err) {
-								if (err) { socket.emit('erreur'); return false }
-								socket.to(donnees.salle).emit('salleouverte', donnees)
-							})
-						})
-					}
-				})
+				const reponse = await db.EXISTS('salles:' + donnees.salle)
+				if (reponse === null) { socket.emit('erreur'); return false }
+				if (reponse === 1) {
+					let resultat = await db.HGETALL('salles:' + donnees.salle)
+					resultat = Object.assign({}, resultat)
+					if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+					const donneesServeur = JSON.parse(resultat.donnees)
+					donneesServeur.options = donnees.options
+					await db.HSET('salles:' + donnees.salle, 'donnees', JSON.stringify(donneesServeur))
+					socket.to(donnees.salle).emit('salleouverte', donnees)
+				}
 			} else {
 				socket.to(donnees.salle).emit('salleouverte', donnees)
 			}
@@ -463,121 +483,111 @@ async function demarrerServeur () {
 			socket.to(salle).emit('sallefermee')
 		})
 	
-		socket.on('utilisateurs', function (donnees) {
+		socket.on('utilisateurs', async function (donnees) {
 			const salle = donnees.salle
 			const utilisateurs = donnees.utilisateurs
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donneesReponse = JSON.parse(reponse.donnees)
-						donneesReponse.utilisateurs = utilisateurs
-						db.hset('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donneesReponse = JSON.parse(resultat.donnees)
+				donneesReponse.utilisateurs = utilisateurs
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
+			} else {
+				socket.emit('erreursalle')
+			}
 		})
 	
-		socket.on('informations', function (donnees) {
+		socket.on('informations', async function (donnees) {
 			const salle = donnees.salle
 			const identifiant = donnees.identifiant
 			const nom = donnees.nom
 			const avatar = donnees.avatar
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donneesReponse = JSON.parse(reponse.donnees)
-						donneesReponse.utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
-							if (utilisateur.identifiant === identifiant) {
-								donneesReponse.utilisateurs[indexUtilisateur].nom = nom
-								donneesReponse.utilisateurs[indexUtilisateur].avatar = avatar
-							}
-						})
-						db.hset('salles:' + salle, 'donnees', JSON.stringify(donneesReponse), function (err) {
-							if (err) { socket.emit('erreur'); return false }
-							socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
-							socket.identifiant = identifiant
-							socket.nom = nom
-							socket.avatar = avatar
-							socket.request.session.nom = nom
-							socket.request.session.avatar = avatar
-							socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-							socket.request.session.save()
-						})
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donneesReponse = JSON.parse(resultat.donnees)
+				donneesReponse.utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
+					if (utilisateur.identifiant === identifiant) {
+						donneesReponse.utilisateurs[indexUtilisateur].nom = nom
+						donneesReponse.utilisateurs[indexUtilisateur].avatar = avatar
+					}
+				})
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
+				socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
+				socket.identifiant = identifiant
+				socket.nom = nom
+				socket.avatar = avatar
+				socket.request.session.nom = nom
+				socket.request.session.avatar = avatar
+				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+				socket.request.session.save()
+			} else {
+				socket.emit('erreursalle')
+			}
 		})
 	
-		socket.on('question', function ({ salle, indexQuestion }) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						donnees.indexQuestion = indexQuestion
-						donnees.statutQuestion = 'question'
-						donnees.premiereReponse = ''
+		socket.on('question', async function ({ salle, indexQuestion }) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				donnees.indexQuestion = indexQuestion
+				donnees.statutQuestion = 'question'
+				donnees.premiereReponse = ''
+				donnees.reponses.push([])
+				donnees.resultats.push([])
+				if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites') {
+					donnees.textes.push([])
+				}
+				if (donnees.reponses.length < (indexQuestion + 1)) {
+					for (let i = 0; i < ((indexQuestion + 1) - donnees.reponses.length); i++) {
 						donnees.reponses.push([])
-						donnees.resultats.push([])
-						if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites') {
-							donnees.textes.push([])
-						}
-						if (donnees.reponses.length < (indexQuestion + 1)) {
-							for (let i = 0; i < ((indexQuestion + 1) - donnees.reponses.length); i++) {
-								donnees.reponses.push([])
-							}
-						}
-						if (donnees.resultats.length < (indexQuestion + 1)) {
-							for (let i = 0; i < ((indexQuestion + 1) - donnees.resultats.length); i++) {
-								donnees.resultats.push([])
-							}
-						}
-						if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites' && donnees.textes.length < (indexQuestion + 1)) {
-							for (let i = 0; i < ((indexQuestion + 1) - donnees.textes.length); i++) {
-								donnees.textes.push([])
-							}
-						}
-						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-							if (err) { socket.emit('erreur'); return false }
-							io.in(salle).emit('question', indexQuestion)
-							socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-							socket.request.session.save()
-						})
-					})
-				} else {
-					socket.emit('erreursalle')
+					}
 				}
-			})
+				if (donnees.resultats.length < (indexQuestion + 1)) {
+					for (let i = 0; i < ((indexQuestion + 1) - donnees.resultats.length); i++) {
+						donnees.resultats.push([])
+					}
+				}
+				if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites' && donnees.textes.length < (indexQuestion + 1)) {
+					for (let i = 0; i < ((indexQuestion + 1) - donnees.textes.length); i++) {
+						donnees.textes.push([])
+					}
+				}
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+				io.in(salle).emit('question', indexQuestion)
+				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+				socket.request.session.save()
+			} else {
+				socket.emit('erreursalle')
+			}
 		})
 	
-		socket.on('reponses', function (salle) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						donnees.statutQuestion = 'reponses'
-						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-							if (err) { socket.emit('erreur'); return false }
-							io.in(salle).emit('reponses')
-							socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-							socket.request.session.save()
-						})
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
+		socket.on('reponses', async function (salle) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				donnees.statutQuestion = 'reponses'
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+				io.in(salle).emit('reponses')
+				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+				socket.request.session.save()
+			} else {
+				socket.emit('erreursalle')
+			}
 		})
 	
 		socket.on('reponse', function (donnees) {
@@ -588,125 +598,110 @@ async function demarrerServeur () {
 			io.in(donnees.salle).emit('texte', donnees)
 		})
 	
-		socket.on('premierereponse', function ({ salle, identifiant, indexQuestion }) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						donnees.premiereReponse = identifiant
-						if (donnees.hasOwnProperty('reponses') && donnees.reponses[indexQuestion]) {
-							donnees.reponses[indexQuestion].push(identifiant)
-							db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-								if (err) { socket.emit('erreur'); return false }
-								io.in(salle).emit('premierereponse', identifiant)
-								socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-								socket.request.session.save()
-							})
-						}
-					})
-				} else {
-					socket.emit('erreursalle')
+		socket.on('premierereponse', async function ({ salle, identifiant, indexQuestion }) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				donnees.premiereReponse = identifiant
+				if (donnees.hasOwnProperty('reponses') && donnees.reponses[indexQuestion]) {
+					donnees.reponses[indexQuestion].push(identifiant)
+					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+					io.in(salle).emit('premierereponse', identifiant)
+					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+					socket.request.session.save()
 				}
-			})
+			} else {
+				socket.emit('erreursalle')
+			}
 		})
 
-		socket.on('texteenvoye', function ({ salle, identifiant, indexQuestion, texte }) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						if (donnees.hasOwnProperty('textes') && donnees.textes[indexQuestion]) {
-							donnees.textes[indexQuestion].push({ identifiant: identifiant, texte: texte })
-							db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-								if (err) { socket.emit('erreur'); return false }
-								io.in(salle).emit('texteenvoye', texte)
-								socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-								socket.request.session.save()
-							})
+		socket.on('texteenvoye', async function ({ salle, identifiant, indexQuestion, texte }) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				if (donnees.hasOwnProperty('textes') && donnees.textes[indexQuestion]) {
+					donnees.textes[indexQuestion].push({ identifiant: identifiant, texte: texte })
+					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+					io.in(salle).emit('texteenvoye', texte)
+					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+					socket.request.session.save()
+				}
+			} else {
+				socket.emit('erreursalle')
+			}
+		})
+	
+		socket.on('reponseannulee', async function ({ salle, identifiant }) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				donnees.premiereReponse = ''
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+				io.in(salle).emit('reponseannulee', identifiant)
+				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+				socket.request.session.save()
+			} else {
+				socket.emit('erreursalle')
+			}
+		})
+	
+		socket.on('reponsevalidee', async function ({ salle, identifiant, indexQuestion, points }) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				donnees.statutQuestion = ''
+				if (donnees.hasOwnProperty('resultats') && donnees.resultats[indexQuestion]) {
+					donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
+					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+					io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
+					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+					socket.request.session.save()
+				}
+			} else {
+				socket.emit('erreursalle')
+			}
+		})
+	
+		socket.on('score', async function ({ salle, identifiant, bonus }) {
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donnees = JSON.parse(resultat.donnees)
+				if (donnees.bonus.map(function (e) { return e.identifiant }).includes(identifiant) === true) {
+					donnees.bonus.forEach(function (u, index) {
+						if (u.identifiant === identifiant) {
+							donnees.bonus[index].points = parseInt(bonus)
 						}
 					})
 				} else {
-					socket.emit('erreursalle')
+					donnees.bonus.push({ identifiant: identifiant, points: parseInt(bonus) })
 				}
-			})
-		})
-	
-		socket.on('reponseannulee', function ({ salle, identifiant }) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						donnees.premiereReponse = ''
-						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-							if (err) { socket.emit('erreur'); return false }
-							io.in(salle).emit('reponseannulee', identifiant)
-							socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-							socket.request.session.save()
-						})
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
-		})
-	
-		socket.on('reponsevalidee', function ({ salle, identifiant, indexQuestion, points }) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						donnees.statutQuestion = ''
-						if (donnees.hasOwnProperty('resultats') && donnees.resultats[indexQuestion]) {
-							donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
-							db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-								if (err) { socket.emit('erreur'); return false }
-								io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
-								socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-								socket.request.session.save()
-							})
-						}
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
-		})
-	
-		socket.on('score', function ({ salle, identifiant, bonus }) {
-			db.exists('salles:' + salle, function (err, resultat) {
-				if (err) { socket.emit('erreur'); return false }
-				if (resultat === 1) {
-					db.hgetall('salles:' + salle, function (err, reponse) {
-						if (err || !reponse || !reponse.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
-						const donnees = JSON.parse(reponse.donnees)
-						if (donnees.bonus.map(function (e) { return e.identifiant }).includes(identifiant) === true) {
-							donnees.bonus.forEach(function (u, index) {
-								if (u.identifiant === identifiant) {
-									donnees.bonus[index].points = parseInt(bonus)
-								}
-							})
-						} else {
-							donnees.bonus.push({ identifiant: identifiant, points: parseInt(bonus) })
-						}
-						db.hset('salles:' + salle, 'donnees', JSON.stringify(donnees), function (err) {
-							if (err) { socket.emit('erreur'); return false }
-							io.in(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
-							socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
-							socket.request.session.save()
-						})
-					})
-				} else {
-					socket.emit('erreursalle')
-				}
-			})
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
+				io.in(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
+				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
+				socket.request.session.save()
+			} else {
+				socket.emit('erreursalle')
+			}
 		})
 	
 		socket.on('modifierlangue', function (langue) {
