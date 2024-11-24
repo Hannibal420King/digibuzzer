@@ -24,19 +24,6 @@ const cluster = parseInt(process.env.NODE_CLUSTER) === 1
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = `${__dirname}/..`
 
-planifierCollecteDechets()
-
-function planifierCollecteDechets () {
-	if (!global.gc) {
-		return false
-	}
-	const prochainAppel = 30 + (Math.random() * 15)
-	setTimeout(function () {
-		global.gc()
-		planifierCollecteDechets()
-	}, prochainAppel * 1000)
-}
-
 demarrerServeur()
 
 async function demarrerServeur () {
