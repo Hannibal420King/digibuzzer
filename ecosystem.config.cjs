@@ -2,10 +2,6 @@ module.exports = {
 	apps: [{
     	name: 'Digibuzzer',
     	script: 'server/index.js',
-		node_args: [
-			'--nouse-idle-notification',
-			'--expose-gc'
-		],
 		autorestart: true,
 		max_restarts: 10,
 		exec_interpreter: 'node',
