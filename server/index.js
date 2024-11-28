@@ -507,9 +507,9 @@ async function demarrerServeur () {
 				})
 				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
 				socket.to(salle).emit('informations', { identifiant: identifiant, nom: nom, avatar: avatar })
-				socket.identifiant = identifiant
-				socket.nom = nom
-				socket.avatar = avatar
+				socket.data.identifiant = identifiant
+				socket.data.nom = nom
+				socket.data.avatar = avatar
 				socket.request.session.nom = nom
 				socket.request.session.avatar = avatar
 				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
