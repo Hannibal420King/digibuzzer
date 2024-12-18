@@ -830,7 +830,11 @@ export default {
 					return utilisateur.identifiant !== this.identifiant
 				}.bind(this))
 				utilisateurs.forEach(function (utilisateur) {
-					utilisateur.connecte = true
+					if (utilisateur.nom !== '' && utilisateur.avatar !== '') {
+						utilisateur.connecte = true
+					} else {
+						utilisateur.connecte = false
+					}
 				})
 				this.utilisateurs = utilisateurs
 				if (this.donnees.utilisateurs.map(function (e) { return e.identifiant }).includes(donnees.utilisateur.identifiant) === false) {
@@ -946,6 +950,7 @@ export default {
 					if (utilisateur.identifiant === donnees.identifiant) {
 						utilisateurs[indexUtilisateur].nom = donnees.nom
 						utilisateurs[indexUtilisateur].avatar = donnees.avatar
+						utilisateurs[indexUtilisateur].connecte = true
 					}
 				})
 				this.utilisateurs = utilisateurs

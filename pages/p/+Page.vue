@@ -57,7 +57,7 @@
 			</Transition>
 		</div>
 
-		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations' || modale === 'connexion'">
+		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations'">
 			<div id="modale-parametres" class="modale" role="dialog">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
@@ -199,10 +199,9 @@ export default {
 
 		this.ecouterSocket()
 
-		if (this.nom !== '' && this.avatar !== '') {
-			this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-		} else {
-			this.modale = 'connexion'
+		this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+		if (this.nom === '' || this.avatar === '') {
+			this.modale = 'informations'
 			this.$nextTick(function () {
 				document.querySelector('#nom').focus()
 			})
@@ -384,11 +383,7 @@ export default {
 					avatar: this.avatarProvisoire
 				}).then(function () {
 					this.chargement = false
-					if (modale === 'connexion') {
-						this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
-					} else {
-						this.$socket.emit('informations', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
-					}
+					this.$socket.emit('informations', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					this.nom = this.nomProvisoire
 					this.avatar = this.avatarProvisoire
 					this.notification = this.$t('informationsModifiees')
