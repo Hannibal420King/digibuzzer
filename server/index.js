@@ -440,7 +440,7 @@ async function demarrerServeur () {
 					t.identifiant === valeur.identifiant && t.nom === valeur.nom && t.avatar === valeur.avatar
 				))
 			)
-			io.in(salle).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
+			io.to(salle).emit('connexion', { utilisateurs: utilisateurs, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
 		})
 	
 		socket.on('deconnexion', function (salle) {
@@ -551,7 +551,7 @@ async function demarrerServeur () {
 					}
 				}
 				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-				io.in(salle).emit('question', indexQuestion)
+				io.to(salle).emit('question', indexQuestion)
 				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 				socket.request.session.save()
 			} else {
@@ -569,7 +569,7 @@ async function demarrerServeur () {
 				const donnees = JSON.parse(resultat.donnees)
 				donnees.statutQuestion = 'reponses'
 				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-				io.in(salle).emit('reponses')
+				io.to(salle).emit('reponses')
 				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 				socket.request.session.save()
 			} else {
@@ -578,11 +578,11 @@ async function demarrerServeur () {
 		})
 	
 		socket.on('reponse', function (donnees) {
-			io.in(donnees.salle).emit('reponse', donnees)
+			io.to(donnees.salle).emit('reponse', donnees)
 		})
 
 		socket.on('texte', function (donnees) {
-			io.in(donnees.salle).emit('texte', donnees)
+			io.to(donnees.salle).emit('texte', donnees)
 		})
 	
 		socket.on('premierereponse', async function ({ salle, identifiant, indexQuestion }) {
@@ -597,7 +597,7 @@ async function demarrerServeur () {
 				if (donnees.hasOwnProperty('reponses') && donnees.reponses[indexQuestion]) {
 					donnees.reponses[indexQuestion].push(identifiant)
 					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-					io.in(salle).emit('premierereponse', identifiant)
+					io.to(salle).emit('premierereponse', identifiant)
 					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 					socket.request.session.save()
 				}
@@ -617,7 +617,7 @@ async function demarrerServeur () {
 				if (donnees.hasOwnProperty('textes') && donnees.textes[indexQuestion]) {
 					donnees.textes[indexQuestion].push({ identifiant: identifiant, texte: texte })
 					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-					io.in(salle).emit('texteenvoye', texte)
+					io.to(salle).emit('texteenvoye', texte)
 					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 					socket.request.session.save()
 				}
@@ -636,7 +636,7 @@ async function demarrerServeur () {
 				const donnees = JSON.parse(resultat.donnees)
 				donnees.premiereReponse = ''
 				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-				io.in(salle).emit('reponseannulee', identifiant)
+				io.to(salle).emit('reponseannulee', identifiant)
 				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 				socket.request.session.save()
 			} else {
@@ -656,7 +656,7 @@ async function demarrerServeur () {
 				if (donnees.hasOwnProperty('resultats') && donnees.resultats[indexQuestion]) {
 					donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
 					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-					io.in(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
+					io.to(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
 					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 					socket.request.session.save()
 				}
@@ -683,7 +683,7 @@ async function demarrerServeur () {
 					donnees.bonus.push({ identifiant: identifiant, points: parseInt(bonus) })
 				}
 				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-				io.in(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
+				io.to(salle).emit('score', { identifiant: identifiant, bonus: parseInt(bonus) })
 				socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 				socket.request.session.save()
 			} else {
