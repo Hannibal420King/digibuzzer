@@ -430,7 +430,7 @@ async function demarrerServeur () {
 			socket.data.nom = nom
 			socket.data.avatar = avatar
 			socket.join(salle)
-			const clients = await io.in(salle).fetchSockets()
+			const clients = await io.to(salle).fetchSockets()
 			let utilisateurs = []
 			for (let i = 0; i < clients.length; i++) {
 				utilisateurs.push({ identifiant: clients[i].data.identifiant, nom: clients[i].data.nom, avatar: clients[i].data.avatar })
