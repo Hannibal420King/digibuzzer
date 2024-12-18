@@ -200,14 +200,26 @@ export default {
 		this.ecouterSocket()
 
 		this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-		if (this.nom === '' || this.avatar === '') {
-			this.modale = 'informations'
-			this.$nextTick(function () {
-				document.querySelector('#nom').focus()
-			})
-		}
 
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
+		this.premiereReponse = this.donnees.premiereReponse
+		if (this.donnees.hasOwnProperty('options') === true) {
+			this.options = this.donnees.options
+		}
+		if (this.donnees.hasOwnProperty('textes') === true) {
+			this.textes = this.donnees.textes
+		}
+		this.reponses = this.donnees.reponses
+		this.resultats = this.donnees.resultats
+		this.definirScore()
+	},
+	async mounted () {
+		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
+
+		if (this.statut === '' && this.modale === '') {
+			this.afficherModaleInformations()
+		}
+
 		if (this.donnees.statutQuestion === 'question') {
 			this.modale = 'question'
 		} else if (this.donnees.statutQuestion === 'reponses') {
@@ -216,13 +228,7 @@ export default {
 				document.querySelector('#buzzer').focus()
 			})
 		}
-		this.premiereReponse = this.donnees.premiereReponse
-		if (this.donnees.hasOwnProperty('options') === true) {
-			this.options = this.donnees.options
-		}
-		if (this.donnees.hasOwnProperty('textes') === true) {
-			this.textes = this.donnees.textes
-		}
+
 		if (this.reponse && this.premiereReponse === this.identifiant) {
 			this.modale = 'reponse'
 			if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
@@ -238,16 +244,6 @@ export default {
 					document.querySelector('#modale-reponse textarea').focus()
 				})
 			}
-		}
-		this.reponses = this.donnees.reponses
-		this.resultats = this.donnees.resultats
-		this.definirScore()
-	},
-	async mounted () {
-		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-
-		if (this.statut === '' && this.modale === '') {
-			this.afficherModaleInformations()
 		}
 
 		this.audio = new Audio()
@@ -374,7 +370,6 @@ export default {
 		},
 		modifierInformations () {
 			if (this.progression === 0 && this.nomProvisoire !== '' && this.avatarProvisoire !== '' && (this.nomProvisoire !== this.nom || this.avatarProvisoire !== this.avatar)) {
-				const modale = this.modale
 				this.modale = ''
 				this.chargement = true
 				axios.post(this.hote + '/api/modifier-informations', {
