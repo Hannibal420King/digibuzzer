@@ -10,7 +10,8 @@
 						<span class="modifier" :title="$t('modifierTitre')"><i class="material-icons">edit</i></span>
 					</div>
 
-					<div id="langues">
+					<div id="boutons">
+						<span class="recharger" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
 						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
@@ -82,7 +83,7 @@
 						<span class="titre">{{ titre }}</span>
 					</div>
 
-					<div id="langues">
+					<div id="boutons">
 						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
@@ -121,7 +122,8 @@
 						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 
-					<div id="langues">
+					<div id="boutons">
+						<span class="recharger" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
 						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
@@ -461,6 +463,17 @@ export default {
 		}.bind(this), 300)
 
 		document.addEventListener('keydown', this.gererClavier, false)
+
+		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
+		document.addEventListener('visibilitychange', async function () {
+			if (this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+				setTimeout(function () {
+					this.rechargerDonnees('')
+				}.bind(this), 200)
+			} else if (!this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+				this.rechargerDonnees('')
+			}
+		}.bind(this))
 	},
 	beforeUnmount () {
 		document.removeEventListener('keydown', this.gererClavier, false)
@@ -811,6 +824,63 @@ export default {
 				this.message = this.$t('aucunResultat')
 			}
 		},
+		rechargerDonnees (notification) {
+			this.chargement = true
+			axios.post(this.hote + '/api/recuperer-donnees-salle', {
+				salle: this.salle
+			}).then(function (reponse) {
+				this.chargement = false
+				if (reponse.hasOwnProperty('data') && reponse.data !== 'erreur' && reponse.data !== 'salle_inexistante') {
+					this.titre = reponse.data.titre
+					this.statut = reponse.data.statut
+					this.donnees = reponse.data.donnees
+					this.indexQuestion = parseInt(this.donnees.indexQuestion)
+					this.statutQuestion = this.donnees.statutQuestion
+					if (this.statutQuestion === 'question') {
+						this.modale = 'question'
+						this.$nextTick(function () {
+							document.querySelector('#modale-question .bouton').focus()
+						})
+					}
+					this.premiereReponse = this.donnees.premiereReponse
+					if (this.donnees.hasOwnProperty('options') === true) {
+						this.options = this.donnees.options
+					}
+					if (this.donnees.hasOwnProperty('textes') === true) {
+						this.textes = this.donnees.textes
+					}
+					if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
+						this.modale = 'utilisateur'
+						if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
+							for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
+								if (this.textes[this.indexQuestion][i].identifiant === this.premiereReponse) {
+									this.texte = this.textes[this.indexQuestion][i].texte
+								}
+							}
+						}
+						this.$nextTick(function () {
+							document.querySelector('#points').focus()
+						})
+					}
+					this.reponses = this.donnees.reponses
+					this.resultats = this.donnees.resultats
+					if (this.statut === 'ferme') {
+						this.definirDonneesUtilisateurs()
+					}
+					if (notification !== '') {
+						this.notification = this.$t('donneesRechargees')
+					}
+					this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+				} else if (reponse.data === 'salle_inexistante') {
+					window.location.href = '/'
+				} else {
+					this.message = this.$t('erreurCommunicationServeur')
+				}
+			}.bind(this)).catch(function () {
+				this.chargement = false
+				this.message = this.$t('erreurCommunicationServeur')
+			}.bind(this))
+		},
 		gererClavier (event) {
 			if (event.key === 'Escape' && this.message !== '') {
 				this.message = ''
@@ -981,13 +1051,17 @@ export default {
 	cursor: pointer;
 }
 
-#langues {
+#boutons {
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
 	font-size: 24px;
 	margin-left: 20px;
 	cursor: pointer;
+}
+
+#boutons .recharger {
+	margin-right: 20px;
 }
 
 #titre span.titre {
