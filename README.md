@@ -3,7 +3,7 @@
 Digibuzzer est une application en ligne simple pour créer des salles de jeu virtuelles. 
 
 Elle est publiée sous licence GNU AGPLv3.
-Sauf les fontes Roboto Slab et Material Icons (Apache License Version 2.0) et la fonte HKGrotesk (Sil Open Font Licence 1.1)
+Sauf les fontes Roboto Slab et Material Icons (Apache License Version 2.0) et la fonte Mona Sans Expanded (Sil Open Font Licence 1.1)
 
 ### Préparation et installation des dépendances
 ```
