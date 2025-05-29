@@ -28,7 +28,7 @@ pm2 start ecosystem.config.cjs --env production
 
 ### Variables d'environnement pour la mise en production (fichier .env à créer à la racine du dossier)
 ```
-DOMAIN (protocole + domaine. ex : https://digibuzzer.app)
+DOMAIN (protocole + domaine. ex : https://digibuzzer.app / seulement utilisée en production)
 PORT (port du serveur local / 3000 par défaut)
 REVERSE_PROXY (utilisation d'un reverse proxy / 0 ou 1 / 0 par défaut)
 NODE_CLUSTER (utilisation de node.js en cluster / 0 ou 1 / 0 par défaut)
