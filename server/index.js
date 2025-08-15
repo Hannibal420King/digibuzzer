@@ -18,10 +18,13 @@ import cron from 'node-cron'
 import { fileURLToPath } from 'url'
 import RedisStore from 'connect-redis'
 import session from 'express-session'
-import { renderPage } from 'vike/server'
+import { renderPage, createDevMiddleware } from 'vike/server'
 
 const production = process.env.NODE_ENV === 'production'
-const cluster = parseInt(process.env.NODE_CLUSTER) === 1
+let cluster = false
+if (production) {
+	cluster = parseInt(process.env.NODE_CLUSTER) === 1
+}
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = `${__dirname}/..`
 
@@ -149,14 +152,10 @@ async function demarrerServeur () {
 	}
 
 	if (!production) {
-		const vite = await import('vite')
-    	const viteDevMiddleware = (
-      		await vite.createServer({
-        		root,
-        		server: { middlewareMode: true }
-			})
-    	).middlewares
-    	app.use(viteDevMiddleware)
+		const { devMiddleware } = (
+      		await createDevMiddleware({ root })
+    	)
+    	app.use(devMiddleware)
   	} else if (production && parseInt(process.env.REVERSE_PROXY) !== 1) {
 		const sirv = (await import('sirv')).default
 		app.use(sirv(`${root}/dist/client`))
