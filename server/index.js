@@ -5,6 +5,7 @@ import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { createAdapter } from '@socket.io/cluster-adapter'
+import eiows from 'eiows'
 import compression from 'compression'
 import cors from 'cors'
 import { createClient } from 'redis'
@@ -407,7 +408,7 @@ async function demarrerServeur () {
 	httpServer.listen(port)
 
 	const io = new Server(httpServer, {
-		// wsEngine: eiows.Server,
+		wsEngine: eiows.Server,
 		pingInterval: 95000,
     	pingTimeout: 100000,
     	maxHttpBufferSize: 1e8,
