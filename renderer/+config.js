@@ -1,5 +1,5 @@
 export default {
-    passToClient: ['pageProps', 'urlPathname'],
+    passToClient: ['pageProps'],
     hooksTimeout: {
         data: {
             warning: 10 * 1000,
