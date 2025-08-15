@@ -50,7 +50,7 @@ async function demarrerServeur () {
 		db = await createClient({
 			url: 'redis://default:' + process.env.DB_PWD  + '@' + process.env.DB_HOST + ':' + db_port
 		}).on('error', function (err) {
-			console.log('redis: ', 'redis://default:' + process.env.DB_PWD  + '@' + process.env.DB_HOST + ':' + db_port)
+			console.log('redis: ', err)
 		}).connect()
 	} else {
 		db = await createClient({
