@@ -1,6 +1,6 @@
 {
   "name": "digibuzzer",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "homepage": "https://digibuzzer.app",
   "repository": {
     "type": "git",
@@ -50,7 +50,7 @@
     "socket.io-client": "^4.8.1",
     "vike": "^0.4.230",
     "vite": "^6.0.0",
-    "vue": "^3.5.4",
+    "vue": "^3.5.13",
     "vue-i18n": "^10.0.0"
   },
   "devDependencies": {
