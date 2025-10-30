@@ -218,6 +218,7 @@
 					<div class="contenu">
 						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
 						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter="modifierLangue('de')">DE</span>
 						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
 					</div>
 				</div>
