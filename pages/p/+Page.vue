@@ -1,5 +1,5 @@
 <template>
-	<div id="page">
+	<div id="page" v-if="!utilisateurBanni">
 		<div id="salle">
 			<header>
 				<div id="conteneur-header">
@@ -128,6 +128,20 @@
 
 		<ChargementPage v-if="chargementPage" />
 	</div>
+	<div id="page" v-else>
+		<div id="conteneur" class="salle-fermee banni">
+			<div class="section">
+				<div class="information">
+					{{ $t('utilisateurBanni') }}
+				</div>
+				<div class="points">
+					<span class="point" />
+					<span class="point" />
+					<span class="point" />
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -174,6 +188,7 @@ export default {
 			audioInitialise: false,
 			verrouVeilleAPI: false,
 			verrouVeille: '',
+			utilisateurBanni: false,
 			hote: this.$pageContext.pageProps.hote,
 			identifiant: this.$pageContext.pageProps.identifiant,
 			nom: this.$pageContext.pageProps.nom,
@@ -211,6 +226,9 @@ export default {
 		}
 		this.reponses = this.donnees.reponses
 		this.resultats = this.donnees.resultats
+		if (this.donnees.hasOwnProperty('utilisateursBannis') === true && this.donnees.utilisateursBannis.includes(this.identifiant)) {
+			this.utilisateurBanni = true
+		}
 		this.definirScore()
 	},
 	async mounted () {
@@ -335,7 +353,7 @@ export default {
 			}
 		},
 		afficherModaleInformations () {
-			if (this.modale !== 'question' && this.modale !== 'reponse') {
+			if (!this.utilisateurBanni && this.modale !== 'question' && this.modale !== 'reponse') {
 				this.nomProvisoire = this.nom
 				this.avatarProvisoire = this.avatar
 				this.modale = 'informations'
@@ -512,6 +530,9 @@ export default {
 					}
 					this.reponses = this.donnees.reponses
 					this.resultats = this.donnees.resultats
+					if (this.donnees.hasOwnProperty('utilisateursBannis') === true && this.donnees.utilisateursBannis.includes(this.identifiant)) {
+						this.utilisateurBanni = true
+					}
 					this.definirScore()
 					if (notification !== '') {
 						this.notification = this.$t('donneesRechargees')
@@ -532,6 +553,8 @@ export default {
 				this.message = ''
 			} else if (event.key === 'Escape' && (this.modale === 'parametres' || this.modale === 'informations')) {
 				this.fermerModale()
+			} else if (event.key === ' ' && this.modale === '' && this.statut === 'ouvert') {
+				this.envoyerReponse()
 			}
 		},
 		gererFocus () {
@@ -656,6 +679,18 @@ export default {
 				this.definirScore()
 			}.bind(this))
 
+			this.$socket.on('utilisateurbanni', function (identifiant) {
+				if (this.identifiant === identifiant) {
+					this.utilisateurBanni = true
+				}
+			}.bind(this))
+
+			this.$socket.on('utilisateurautorise', function (identifiant) {
+				if (this.identifiant === identifiant) {
+					this.utilisateurBanni = false
+				}
+			}.bind(this))
+
 			this.$socket.on('erreur', function () {
 				this.message = this.$t('erreurCommunicationServeur')
 			}.bind(this))
@@ -707,6 +742,11 @@ export default {
 	justify-content: center;
 	flex-wrap: wrap;
 	align-items: center;
+}
+
+#conteneur.salle-fermee.banni {
+	width: 100%;
+	height: 100%;
 }
 
 #conteneur.salle-fermee .information {

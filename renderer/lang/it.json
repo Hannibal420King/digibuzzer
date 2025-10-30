@@ -81,5 +81,8 @@
 	"votreReponse": "La vostra risposta…",
 	"envoyer": "Invia",
 	"attenteTexte": "In attesa di risposta scritta…",
-    "completerChampTitre": "Completa il campo «&nbsp;Titolo&nbsp;»."
+    "completerChampTitre": "Completa il campo «&nbsp;Titolo&nbsp;».",
+	"listeParticipantsBannis": "Partecipanti bannati",
+	"utilisateurBanni": "Sei stato espulso da questa sala.",
+	"banni": "bannato"
 }

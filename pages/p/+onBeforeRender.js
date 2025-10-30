@@ -13,7 +13,7 @@ async function onBeforeRender (pageContext) {
 		erreur = true
 		pageProps = { erreur }
 	})
-	if (!reponse || !reponse.hasOwnProperty('data') || (reponse.data && reponse.data === 'erreur')) {
+	if (!reponse || !reponse.hasOwnProperty('data') || (reponse.data && reponse.data === 'erreur') || (reponse.data && reponse.data === 'salle_inexistante')) {
 		erreur = true
 		pageProps = { erreur }
 	} else {

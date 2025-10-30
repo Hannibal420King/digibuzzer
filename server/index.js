@@ -486,6 +486,30 @@ async function demarrerServeur () {
 				socket.emit('erreursalle')
 			}
 		})
+
+		socket.on('utilisateursbannis', async function (donnees) {
+			const salle = donnees.salle
+			const utilisateursBannis = donnees.utilisateursBannis
+			const identifiant = donnees.identifiant
+			const type = donnees.type
+			const reponse = await db.EXISTS('salles:' + salle)
+			if (reponse === null) { socket.emit('erreur'); return false }
+			if (reponse === 1) {
+				let resultat = await db.HGETALL('salles:' + salle)
+				resultat = Object.assign({}, resultat)
+				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
+				const donneesReponse = JSON.parse(resultat.donnees)
+				donneesReponse.utilisateursBannis = utilisateursBannis
+				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
+				if (type === 'banni') {
+					socket.to(salle).emit('utilisateurbanni', identifiant)
+				} else {
+					socket.to(salle).emit('utilisateurautorise', identifiant)
+				}
+			} else {
+				socket.emit('erreursalle')
+			}
+		})
 	
 		socket.on('informations', async function (donnees) {
 			const salle = donnees.salle

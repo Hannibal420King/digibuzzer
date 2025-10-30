@@ -81,5 +81,8 @@
 	"votreReponse": "Your answer…",
 	"envoyer": "Send",
 	"attenteTexte": "Awaiting written reply…",
-	"completerChampTitre": "Please fill in the field \"Title\"."
+	"completerChampTitre": "Please fill in the field \"Title\".",
+	"listeParticipantsBannis": "Banned participants",
+	"utilisateurBanni": "You have been banned from this room.",
+	"banni": "banned"
 }

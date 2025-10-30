@@ -58,12 +58,21 @@
 				<div class="section">
 					<h3>{{ $t('listeParticipants') }}</h3>
 					<div class="utilisateurs" v-if="utilisateursConnectes.length > 0">
-						<div class="utilisateur" v-for="(utilisateur, index) in utilisateursConnectes" :key="'utilisateur_' + index">
+						<div class="utilisateur" v-for="(utilisateur, index) in utilisateursConnectes" :key="'utilisateur_connecte_' + index">
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 						</div>
 					</div>
 					<span class="vide" v-else>{{ $t('aucunParticipant') }}</span>
+					<h3 v-if="utilisateursBannis.length > 0">{{ $t('listeParticipantsBannis') }}</h3>
+					<div class="utilisateurs" v-if="utilisateursBannis.length > 0">
+						<div class="utilisateur banni" v-for="(utilisateur, index) in utilisateursBannis" :key="'utilisateur_banni_' + index">
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="autoriser(utilisateur.identifiant)" @keydown.enter="autoriser(utilisateur.identifiant)"><i class="material-icons">check_circle</i></span>
+							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
+							<span class="nom">{{ utilisateur.nom }}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -100,7 +109,7 @@
 				<div class="section">
 					<h3>{{ $t('listeParticipants') }}</h3>
 					<div class="utilisateurs" v-if="donneesUtilisateurs.length > 0">
-						<div class="utilisateur" v-for="(utilisateur, index) in donneesUtilisateurs" :key="'utilisateur_' + index">
+						<div class="utilisateur" :class="{'banni': utilisateur.banni}" v-for="(utilisateur, index) in donneesUtilisateurs" :key="'utilisateur_' + index">
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">{{ utilisateur.score }}</span>
@@ -133,7 +142,8 @@
 				<div class="section">
 					<h3>{{ $t('listeParticipants') }}</h3>
 					<div class="utilisateurs" v-if="utilisateursConnectes.length > 0 && !classement">
-						<div class="utilisateur" :class="{'desactive': statutQuestion === 'reponses' && reponses[indexQuestion].includes(utilisateur.identifiant)}" v-for="(utilisateur, index) in utilisateursConnectes" :key="'utilisateur_' + index">
+						<div class="utilisateur" :class="{'desactive': statutQuestion === 'reponses' && reponses[indexQuestion].includes(utilisateur.identifiant)}" v-for="(utilisateur, index) in utilisateursConnectes" :key="'utilisateur_connecte_' + index">
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">
@@ -143,7 +153,8 @@
 						</div>
 					</div>
 					<div class="utilisateurs" v-else-if="utilisateursClasses.length > 0 && classement">
-						<div class="utilisateur" :class="{'desactive': statutQuestion === 'reponses' && reponses[indexQuestion].includes(utilisateur.identifiant)}" v-for="(utilisateur, index) in utilisateursClasses" :key="'utilisateur_' + index">
+						<div class="utilisateur" :class="{'desactive': statutQuestion === 'reponses' && reponses[indexQuestion].includes(utilisateur.identifiant)}" v-for="(utilisateur, index) in utilisateursClasses" :key="'utilisateur_connecte_' + index">
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">
@@ -153,6 +164,19 @@
 						</div>
 					</div>
 					<span class="vide" v-else>{{ $t('aucunParticipant') }}</span>
+					<h3 class="bannis" v-if="utilisateursBannis.length > 0">
+						<span>{{ $t('listeParticipantsBannis') }}</span>
+						<span class="afficher-bannis" :tabindex="modale === '' && message === '' ? 0 : -1" @click="utilisateursBannisVisibles = !utilisateursBannisVisibles" @keydown.enter="utilisateursBannisVisibles = !utilisateursBannisVisibles" v-if="utilisateursBannisVisibles"><i class="material-icons">unfold_less</i></span>
+						<span class="afficher-bannis" :tabindex="modale === '' && message === '' ? 0 : -1" @click="utilisateursBannisVisibles = !utilisateursBannisVisibles" @keydown.enter="utilisateursBannisVisibles = !utilisateursBannisVisibles" v-else><i class="material-icons">unfold_more</i></span>
+					</h3>
+					<div class="utilisateurs" v-if="utilisateursBannis.length > 0 && utilisateursBannisVisibles">
+						<div class="utilisateur banni" v-for="(utilisateur, index) in utilisateursBannis" :key="'utilisateur_banni_' + index">
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="autoriser(utilisateur.identifiant)" @keydown.enter="autoriser(utilisateur.identifiant)"><i class="material-icons">check_circle</i></span>
+							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
+							<span class="nom">{{ utilisateur.nom }}</span>
+							<span class="score">{{ definirScore(utilisateur.identifiant) }}</span>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -340,6 +364,7 @@ export default {
 			codeqr: '',
 			domaine: '',
 			donneesUtilisateurs: [],
+			utilisateursBannisVisibles: true,
 			elementPrecedent: null,
 			hote: this.$pageContext.pageProps.hote,
 			identifiant: this.$pageContext.pageProps.identifiant,
@@ -358,7 +383,16 @@ export default {
 		utilisateursConnectes () {
 			const utilisateurs = []
 			this.utilisateurs.forEach(function (utilisateur) {
-				if (utilisateur.connecte) {
+				if (utilisateur.connecte && !utilisateur.banni) {
+					utilisateurs.push(utilisateur)
+				}
+			})
+			return utilisateurs
+		},
+		utilisateursBannis () {
+			const utilisateurs = []
+			this.utilisateurs.forEach(function (utilisateur) {
+				if (utilisateur.connecte && utilisateur.banni) {
 					utilisateurs.push(utilisateur)
 				}
 			})
@@ -387,6 +421,9 @@ export default {
 			utilisateurs.forEach(function (utilisateur, indexUtilisateur) {
 				if (!utilisateur.score) {
 					utilisateurs[indexUtilisateur].score = 0
+				}
+				if (utilisateur.banni) {
+					utilisateurs.splice(indexUtilisateur, 1)
 				}
 			})
 			utilisateurs.sort(function (a, b) {
@@ -663,22 +700,6 @@ export default {
 				}.bind(this))
 			}
 		},
-		afficherModifierScore (identifiant) {
-			this.elementPrecedent = (document.activeElement || document.body)
-			this.donneesScore.score = this.definirScore(identifiant)
-			this.donneesScore.identifiant = identifiant
-			this.modale = 'score'
-			this.$nextTick(function () {
-				document.querySelector('#modale-score input').focus()
-			})
-		},
-		modifierScore () {
-			this.chargement = true
-			const bonus = this.donneesScore.score - this.definirScoreSansBonus(this.donneesScore.identifiant)
-			this.$socket.emit('score', { salle: this.salle, identifiant: this.donneesScore.identifiant, bonus: bonus })
-			this.fermerModale()
-			this.donneesScore = {}
-		},
 		modifierParametre (id) {
 			document.querySelector('#' + id).click()
 		},
@@ -727,6 +748,48 @@ export default {
 			}
 			this.modale = ''
 		},
+		afficherModifierScore (identifiant) {
+			this.elementPrecedent = (document.activeElement || document.body)
+			this.donneesScore.score = this.definirScore(identifiant)
+			this.donneesScore.identifiant = identifiant
+			this.modale = 'score'
+			this.$nextTick(function () {
+				document.querySelector('#modale-score input').focus()
+			})
+		},
+		modifierScore () {
+			this.chargement = true
+			const bonus = this.donneesScore.score - this.definirScoreSansBonus(this.donneesScore.identifiant)
+			this.$socket.emit('score', { salle: this.salle, identifiant: this.donneesScore.identifiant, bonus: bonus })
+			this.fermerModale()
+			this.donneesScore = {}
+		},
+		bannir (identifiant) {
+			if (!this.donnees.utilisateursBannis) {
+				this.donnees.utilisateursBannis = []
+			}
+			if (!this.donnees.utilisateursBannis.includes(identifiant)) {
+				this.donnees.utilisateursBannis.push(identifiant)
+				this.utilisateurs.forEach(function (utilisateur) {
+					if (utilisateur.identifiant === identifiant) {
+						utilisateur.banni = true
+					}
+				}.bind(this))
+				this.$socket.emit('utilisateursbannis', { salle: this.salle, utilisateursBannis: this.donnees.utilisateursBannis, identifiant: identifiant, type: 'banni' })
+			}
+		},
+		autoriser (identifiant) {
+			if (this.donnees.utilisateursBannis.includes(identifiant)) {
+				const index = this.donnees.utilisateursBannis.indexOf(identifiant)
+				this.donnees.utilisateursBannis.splice(index, 1)
+				this.utilisateurs.forEach(function (utilisateur) {
+					if (utilisateur.identifiant === identifiant) {
+						utilisateur.banni = false
+					}
+				}.bind(this))
+				this.$socket.emit('utilisateursbannis', { salle: this.salle, utilisateursBannis: this.donnees.utilisateursBannis, identifiant: identifiant, type: 'autorise' })
+			}
+		},
 		classer () {
 			this.classement = !this.classement
 			if (this.classement === true) {
@@ -736,13 +799,15 @@ export default {
 			}
 		},
 		valider () {
-			this.chargement = true
-			this.$socket.emit('reponsevalidee', { salle: this.salle, identifiant: this.premiereReponse, points: this.points, indexQuestion: this.indexQuestion })
-			this.modale = ''
-			this.premiereReponse = ''
-			this.$nextTick(function () {
-				document.querySelector('footer .bouton:nth-child(2)').focus()
-			})
+			if (isNaN(this.points) === false && this.points > 0) {
+				this.chargement = true
+				this.$socket.emit('reponsevalidee', { salle: this.salle, identifiant: this.premiereReponse, points: this.points, indexQuestion: this.indexQuestion })
+				this.modale = ''
+				this.premiereReponse = ''
+				this.$nextTick(function () {
+					document.querySelector('footer .bouton:nth-child(2)').focus()
+				})
+			}
 		},
 		annuler () {
 			this.chargement = true
@@ -795,7 +860,11 @@ export default {
 				}
 				texte += this.$t('bonus') + '\n'
 				this.donneesUtilisateurs.forEach(function (utilisateur) {
-					texte += utilisateur.nom + ',' + utilisateur.score + ','
+					if (utilisateur.banni) {
+						texte += utilisateur.nom + ' (' + this.$t('banni') + ') ' + ',' + utilisateur.score + ','
+					} else {
+						texte += utilisateur.nom + ',' + utilisateur.score + ','
+					}
 					for (let i = 0; i < totalQuestions; i++) {
 						if (this.resultats[i].map(function (e) { return e.identifiant }).includes(utilisateur.identifiant) === true) {
 							this.resultats[i].forEach(function (u) {
@@ -896,6 +965,9 @@ export default {
 		},
 		ecouterSocket () {
 			this.$socket.on('connexion', function (donnees) {
+				if (!this.donnees.utilisateursBannis) {
+					this.donnees.utilisateursBannis = []
+				}
 				const utilisateurs = donnees.utilisateurs.filter(function (utilisateur) {
 					return utilisateur.identifiant !== this.identifiant
 				}.bind(this))
@@ -905,16 +977,26 @@ export default {
 					} else {
 						utilisateur.connecte = false
 					}
-				})
+					if (this.donnees.utilisateursBannis.includes(utilisateur.identifiant)) {
+						utilisateur.banni = true
+					} else {
+						utilisateur.banni = false
+					}
+				}.bind(this))
 				this.utilisateurs = utilisateurs
 				if (this.donnees.utilisateurs.map(function (e) { return e.identifiant }).includes(donnees.utilisateur.identifiant) === false) {
-					this.donnees.utilisateurs.push({ identifiant: donnees.utilisateur.identifiant, nom: donnees.utilisateur.nom, avatar: donnees.utilisateur.avatar })
+					if (this.donnees.utilisateursBannis.includes(donnees.utilisateur.identifiant)) {
+						this.donnees.utilisateurs.push({ identifiant: donnees.utilisateur.identifiant, nom: donnees.utilisateur.nom, avatar: donnees.utilisateur.avatar, banni: true })
+					} else {
+						this.donnees.utilisateurs.push({ identifiant: donnees.utilisateur.identifiant, nom: donnees.utilisateur.nom, avatar: donnees.utilisateur.avatar, banni: false })
+					}
 				}
 				this.donnees.utilisateurs.forEach(function (utilisateur, index) {
 					utilisateurs.forEach(function (u) {
 						if (utilisateur.identifiant === u.identifiant) {
 							this.donnees.utilisateurs[index].nom = u.nom
 							this.donnees.utilisateurs[index].avatar = u.avatar
+							this.donnees.utilisateurs[index].banni = u.banni
 						}
 					}.bind(this))
 				}.bind(this))
@@ -1210,6 +1292,7 @@ export default {
 }
 
 .utilisateurs .utilisateur {
+	position: relative;
 	padding: 10px;
 	border: 1px solid #ddd;
 	border-radius: 7px;
@@ -1260,8 +1343,41 @@ export default {
 	border-radius: 4px;
 }
 
+.utilisateurs .utilisateur span.bannir {
+	display: none;
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	line-height: 1;
+	color: #aaa;
+	font-size: 24px;
+	cursor: pointer;
+}
+
+.utilisateurs .utilisateur:hover span.bannir,
 .utilisateurs .utilisateur span.score:hover .modifier {
 	display: block;
+}
+
+.utilisateurs .utilisateur.banni {
+	opacity: 0.5;
+}
+
+.vide + h3 {
+	margin-top: 40px;
+}
+
+h3.bannis {
+	display: flex;
+	align-items: center;
+}
+
+span.afficher-bannis {
+	font-size: 24px;
+	color: #aaa;
+	line-height: 1;
+	margin-left: 10px;
+	cursor: pointer;
 }
 
 #modale-confirmation {
