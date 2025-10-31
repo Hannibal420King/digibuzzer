@@ -50,6 +50,7 @@ https://digibuzzer.app
 
 ### Remerciements et crédits
 Traduction en italien par Paolo Mauri (https://codeberg.org/maupao)
+
 Traduction en allemand par kate (https://translate.codeberg.org/user/kate/), Dirk (https://translate.codeberg.org/user/Dirk/), Alexander Weller (https://translate.codeberg.org/user/weller@kreidezeit.kiwi/) et ThetaDev (https://translate.codeberg.org/user/ThetaDev/)
 
 ### Soutien
