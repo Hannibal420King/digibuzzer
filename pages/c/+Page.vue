@@ -1368,6 +1368,10 @@ export default {
 	margin-top: 40px;
 }
 
+.utilisateurs + h3 {
+	margin-top: 25px;
+}
+
 h3.bannis {
 	display: flex;
 	align-items: center;
