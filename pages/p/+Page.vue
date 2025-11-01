@@ -190,6 +190,7 @@ export default {
 			verrouVeilleAPI: false,
 			verrouVeille: '',
 			utilisateurBanni: false,
+			elementPrecedent: null,
 			hote: this.$pageContext.pageProps.hote,
 			identifiant: this.$pageContext.pageProps.identifiant,
 			nom: this.$pageContext.pageProps.nom,
