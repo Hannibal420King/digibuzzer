@@ -16,7 +16,7 @@ import sharp from 'sharp'
 import dayjs from 'dayjs'
 import cron from 'node-cron'
 import { fileURLToPath } from 'url'
-import RedisStore from 'connect-redis'
+import { RedisStore } from 'connect-redis'
 import session from 'express-session'
 import { renderPage, createDevMiddleware } from 'vike/server'
 
