@@ -53,7 +53,7 @@
 					<span class="titre">{{ $t('mentionsLegales') }}</span>
 					<span class="fermer" role="button" tabindex="0" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
-				<div class="conteneur" tabindex="-1">
+				<div class="conteneur">
 					<div class="contenu">
 						<p>{{ $t('mentionsLegales1') }}</p>
 						<label>{{ $t('administrationEtDeveloppement') }}</label>

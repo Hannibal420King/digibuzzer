@@ -5,9 +5,9 @@
 				<div id="conteneur-header">
 					<a id="logo" :href="hote" />
 
-					<div id="titre" class="edition" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModaleTitre" @keydown.enter="afficherModaleTitre">
+					<div id="titre" class="edition">
 						<span class="titre">{{ titre }}</span>
-						<span class="modifier" :title="$t('modifierTitre')"><i class="material-icons">edit</i></span>
+						<span class="modifier" :title="$t('modifierTitre')" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModaleTitre" @keydown.enter="afficherModaleTitre"><i class="material-icons">edit</i></span>
 					</div>
 
 					<div id="boutons">
@@ -1130,10 +1130,6 @@ export default {
 </script>
 
 <style scoped>
-#titre.edition {
-	cursor: pointer;
-}
-
 #boutons {
 	display: flex;
 	justify-content: flex-end;
@@ -1159,6 +1155,7 @@ export default {
 	display: inline-block;
 	margin-left: 5px;
 	visibility: hidden;
+	cursor: pointer;
 }
 
 #titre:hover span.modifier {

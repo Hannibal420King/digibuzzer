@@ -707,7 +707,7 @@ export default {
 
 <style scoped>
 #titre {
-	width: calc(100% - 132px)!important;
+	flex-grow: 1;
 }
 
 #titre span {
@@ -912,7 +912,7 @@ export default {
 	font-size: 48px;
 	font-weight: 400;
 	line-height: 1;
-	margin: 0;
+	margin: 0 0 10px 0;
 }
 
 .modale .avatars span img {
