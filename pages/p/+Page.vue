@@ -10,12 +10,12 @@
 					</div>
 
 					<div id="parametres" v-if="avatar === ''">
-						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><i class="material-icons">settings</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><i class="material-icons">settings</i></span>
 					</div>
 					<div id="parametres" v-else>
-						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
 					</div>
 				</div>
 			</header>
@@ -24,7 +24,7 @@
 				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'">
 					<div id="conteneur-buzzer">
 						<div id="base">
-							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="envoyerReponse" @keydown.enter="envoyerReponse" />
+							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" @click="envoyerReponse" @keydown.enter="envoyerReponse" />
 						</div>
 					</div>
 				</div>
@@ -57,8 +57,8 @@
 			</Transition>
 		</div>
 
-		<div class="conteneur-modale" v-if="modale === 'parametres' || modale === 'informations'">
-			<div id="modale-parametres" class="modale" role="dialog">
+		<div class="conteneur-modale" v-if="modaleInformations || modale === 'parametres' || modale === 'question' || modale === 'reponse'">
+			<div id="modale-parametres" class="modale" role="dialog" v-if="modale === 'parametres' || modaleInformations">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
 					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
@@ -94,10 +94,8 @@
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="conteneur-modale" v-else-if="modale === 'question'">
-			<div id="modale-question" class="modale" role="dialog">
+			<div id="modale-question" class="modale" role="dialog" v-else-if="modale === 'question'">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
@@ -105,10 +103,8 @@
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<div class="conteneur-modale" v-else-if="modale === 'reponse'">
-			<div id="modale-reponse" class="modale" role="dialog">
+			<div id="modale-reponse" class="modale" role="dialog" v-else-if="modale === 'reponse'">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="icone"><i class="material-icons">{{ icone }}</i></span>
@@ -168,6 +164,7 @@ export default {
 			notification: '',
 			mobile: false,
 			modale: '',
+			modaleInformations: false,
 			nomProvisoire: '',
 			avatarProvisoire: '',
 			avatars: ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png', 'avatar6.png', 'avatar7.png', 'avatar8.png'],
@@ -235,8 +232,7 @@ export default {
 	},
 	async mounted () {
 		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-
-		if (this.statut === '' && this.modale === '') {
+		if (this.statut === '' || this.nom === '' || this.avatar === '') {
 			this.afficherModaleInformations()
 		}
 
@@ -355,10 +351,10 @@ export default {
 			}
 		},
 		afficherModaleInformations () {
-			if (!this.utilisateurBanni && this.modale !== 'question' && this.modale !== 'reponse') {
+			if (!this.utilisateurBanni) {
 				this.nomProvisoire = this.nom
 				this.avatarProvisoire = this.avatar
-				this.modale = 'informations'
+				this.modaleInformations = true
 				this.$nextTick(function () {
 					document.querySelector('#nom').focus()
 				})
@@ -390,7 +386,11 @@ export default {
 		},
 		modifierInformations () {
 			if (this.progression === 0 && this.nomProvisoire !== '' && this.avatarProvisoire !== '' && (this.nomProvisoire !== this.nom || this.avatarProvisoire !== this.avatar)) {
-				this.modale = ''
+				if (this.modale === 'parametres') {
+					this.modale = ''
+				} else {
+					this.modaleInformations = false
+				}
 				this.chargement = true
 				axios.post(this.hote + '/api/modifier-informations', {
 					identifiant: this.identifiant,
@@ -407,8 +407,10 @@ export default {
 					this.chargement = false
 					this.message = this.$t('erreurCommunicationServeur')
 				}.bind(this))
-			} else if (this.progression === 0 && this.nomProvisoire !== '' && this.nomProvisoire === this.nom && this.avatarProvisoire !== '' && this.avatarProvisoire === this.avatar) {
+			} else if (this.progression === 0 && this.nomProvisoire !== '' && this.nomProvisoire === this.nom && this.avatarProvisoire !== '' && this.avatarProvisoire === this.avatar && this.modale === 'parametres') {
 				this.modale = ''
+			} else if (this.progression === 0 && this.nomProvisoire !== '' && this.nomProvisoire === this.nom && this.avatarProvisoire !== '' && this.avatarProvisoire === this.avatar && this.modaleInformations) {
+				this.modaleInformations = false
 			}
 		},
 		modifierAvatar (avatar) {
@@ -553,7 +555,7 @@ export default {
 		gererClavier (event) {
 			if (event.key === 'Escape' && this.message !== '') {
 				this.message = ''
-			} else if (event.key === 'Escape' && (this.modale === 'parametres' || this.modale === 'informations')) {
+			} else if (event.key === 'Escape' && this.modale === 'parametres') {
 				this.fermerModale()
 			} else if (event.key === ' ' && this.modale === '' && this.statut === 'ouvert') {
 				this.envoyerReponse()
