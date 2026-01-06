@@ -219,13 +219,13 @@ main {
 }
 
 #salle #titre {
+	display: flex;
+	align-items: center;
 	font-family: 'Roboto Slab';
 	font-size: 18px;
-    line-height: 40px;
     text-align: center;
 	margin-left: 20px;
 	margin-right: 0;
-	display: flex;
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	flex-grow: 1;
