@@ -1143,6 +1143,11 @@ export default {
 	margin-right: 20px;
 }
 
+#titre span,
+#boutons span {
+	line-height: 1;
+}
+
 #titre span.titre {
 	display: inline-block;
 	max-width: calc(100% - 23px);
