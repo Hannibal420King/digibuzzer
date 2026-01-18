@@ -229,7 +229,7 @@ async function demarrerServeur () {
 			const identifiant = 'u' + Math.random().toString(16).slice(3)
 			req.session.identifiant = identifiant
 			req.session.nom = ''
-			req.session.avatar = ''
+			req.session.avatar = 'avatar1.png'
 			req.session.langue = 'fr'
 			req.session.role = 'joueur'
 			req.session.salles = []
