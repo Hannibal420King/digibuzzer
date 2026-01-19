@@ -54,6 +54,8 @@ Traduction en italien par Paolo Mauri (https://codeberg.org/maupao)
 
 Traduction en allemand par kate (https://translate.codeberg.org/user/kate/), Dirk (https://translate.codeberg.org/user/Dirk/), Alexander Weller (https://translate.codeberg.org/user/weller@kreidezeit.kiwi/) et ThetaDev (https://translate.codeberg.org/user/ThetaDev/)
 
+Traduction en espagnol par fersdt (https://translate.codeberg.org/user/fersdt/)
+
 ### Soutien
 Open Collective : https://opencollective.com/ladigitale
 

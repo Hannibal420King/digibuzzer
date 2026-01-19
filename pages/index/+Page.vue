@@ -3,6 +3,7 @@
 		<div id="accueil" :style="{'background-image': 'url(/img/fond.png)'}">
 			<div id="langues">
 				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter="modifierLangue('es')">ES</span>
 				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
 				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter="modifierLangue('de')">DE</span>
 				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
