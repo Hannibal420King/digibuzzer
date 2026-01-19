@@ -20,7 +20,7 @@
 					</div>
 				</div>
 				<div id="credits">
-					<p><span class="mentions-legales" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirModaleMentionsLegales" @keydown.enter="ouvrirModaleMentionsLegales">{{ $t('mentionsLegales') }}</span> - <a href="https://opencollective.com/ladigitale" target="_blank">{{ $t('soutien') }} ❤️.</a></p>
+					<p><a :href="mentionsLegales" target="_blank" rel="noreferrer" v-if="mentionsLegales !== ''">{{ $t('mentionsLegales') }}</a> - <a href="https://opencollective.com/ladigitale" target="_blank">{{ $t('soutien') }} ❤️.</a></p>
 					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <span class="hub" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirHub" @keydown.enter="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></span></p>
 				</div>
 			</div>
@@ -42,30 +42,6 @@
 								<div class="chargement" />
 							</div>
 						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="conteneur-modale" v-else-if="modale === 'mentions-legales'">
-			<div id="mentions-legales" class="modale" role="dialog">
-				<header>
-					<span class="titre">{{ $t('mentionsLegales') }}</span>
-					<span class="fermer" role="button" tabindex="0" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
-				</header>
-				<div class="conteneur">
-					<div class="contenu">
-						<p>{{ $t('mentionsLegales1') }}</p>
-						<label>{{ $t('administrationEtDeveloppement') }}</label>
-						<p>La Digitale - Emmanuel ZIMMERT</p>
-						<label>{{ $t('contact') }}</label>
-						<p>{{ $t('courriel') }} ez@ladigitale.dev – {{ $t('siteWeb') }} https://ladigitale.dev</p>
-						<p>{{ $t('mentionsLegales2') }}</p>
-						<label>{{ $t('politiqueConfidentialite') }}</label>
-						<p>{{ $t('mentionsLegales3') }}</p>
-						<p>{{ $t('mentionsLegales4') }}</p>
-						<label>{{ $t('hebergement') }}</label>
-						<p>{{ $t('mentionsLegales5') }}</p>
 					</div>
 				</div>
 			</div>
@@ -115,7 +91,8 @@ export default {
 			hote: this.$pageContext.pageProps.hote,
 			langues: this.$pageContext.pageProps.langues,
 			langue: this.$pageContext.pageProps.langue,
-			version: app_version
+			version: app_version,
+			mentionsLegales: import.meta.env.VITE_LEGAL_TERMS_LINK || ''
 		}
 	},
 	created () {
@@ -142,17 +119,6 @@ export default {
 		document.removeEventListener('keydown', this.gererClavier, false)
 	},
 	methods: {
-		ouvrirModaleMentionsLegales () {
-			this.elementPrecedent = (document.activeElement || document.body)
-			this.modale = 'mentions-legales'
-			this.$nextTick(function () {
-				document.querySelector('#mentions-legales .fermer').focus()
-			})
-		},
-		fermerModale () {
-			this.modale = ''
-			this.gererFocus()
-		},
 		ouvrirModaleCreer () {
 			this.elementPrecedent = (document.activeElement || document.body)
 			this.modale = 'creer'
@@ -217,9 +183,6 @@ export default {
 				this.message = ''
 			} else if (event.key === 'Escape' && this.modale === 'creer') {
 				this.fermerModaleCreer()
-			} else if (event.key === 'Escape' && this.modale !== '') {
-				this.modale = ''
-				this.gererFocus()
 			} else if (event.key === 'Escape' && this.hub) {
 				this.hub = false
 				this.gererFocus()
@@ -376,10 +339,6 @@ export default {
 	margin: 0 5px;
 }
 
-#credits .mentions-legales {
-	cursor: pointer;
-}
-
 #credits .hub {
 	font-size: 0;
 	cursor: pointer;
@@ -415,12 +374,6 @@ export default {
 	top: 15px;
 	right: 15px;
 	cursor: pointer;
-}
-
-#mentions-legales {
-	max-width: 700px;
-	height: 500px;
-	max-height: 90%;
 }
 
 .modale p.connexion {
