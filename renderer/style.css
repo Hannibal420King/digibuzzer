@@ -438,11 +438,11 @@ main {
 }
 
 .modale header .fermer {
-	vertical-align: top;
-	cursor: pointer;
 	font-size: 24px;
-	user-select: none;
 	margin-right: 15px;
+	line-height: 1;
+	user-select: none;
+	cursor: pointer;
 }
 
 .modale .conteneur {
