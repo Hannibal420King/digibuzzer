@@ -52,6 +52,36 @@
 								<span class="coche" />
 							</label>
 						</div>
+						<div class="parametre">
+							<h3>{{ $t('pointsBonneReponse') }}</h3>
+							<input type="number" name="points-bonne-reponse" :value="options.points" :min="1" @change="modifierParametres('points', $event.target.value)">
+						</div>
+						<div class="parametre">
+							<h3>{{ $t('activerPointsRetranches') }}</h3>
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('points-retranches-oui')">{{ $t('oui') }}
+								<input id="points-retranches-oui" type="radio" name="points-retranches" :checked="options.pointsRetranchesActives === true" @change="modifierParametres('pointsRetranchesActives', true)">
+								<span class="coche" />
+							</label>
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('points-retranches-non')">{{ $t('non') }}
+								<input id="points-retranches-non" type="radio" name="points-retranches" :checked="options.pointsRetranchesActives === false" @change="modifierParametres('pointsRetranchesActives', false)">
+								<span class="coche" />
+							</label>
+						</div>
+						<div class="parametre" v-if="options.pointsRetranchesActives">
+							<h3>{{ $t('pointsMauvaiseReponse') }}</h3>
+							<input type="number" name="points-mauvaise-reponse" :value="options.pointsRetranches" :min="1" @change="modifierParametres('pointsRetranches', $event.target.value)">
+						</div>
+						<div class="parametre" v-if="options.pointsRetranchesActives">
+							<h3>{{ $t('autoriserScoreNegatif') }}</h3>
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('score-negatif-oui')">{{ $t('oui') }}
+								<input id="score-negatif-oui" type="radio" name="points-retranches" :checked="options.scoreNegatif === true" @change="modifierParametres('scoreNegatif', true)">
+								<span class="coche" />
+							</label>
+							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('score-negatif-non')">{{ $t('non') }}
+								<input id="score-negatif-non" type="radio" name="points-retranches" :checked="options.scoreNegatif === false" @change="modifierParametres('scoreNegatif', false)">
+								<span class="coche" />
+							</label>
+						</div>
 					</div>
 				</div>
 
@@ -259,9 +289,14 @@
 							<label for="points">{{ $t('pointsBonneReponse') }}</label>
 							<input id="points" type="number" v-model="points">
 						</div>
+						<div class="points" v-if="options.pointsRetranchesActives">
+							<label for="points">{{ $t('pointsMauvaiseReponse') }}</label>
+							<input id="points" type="number" v-model="pointsRetranches">
+						</div>
 						<div class="actions">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="annuler" @keydown.enter="annuler">{{ $t('mauvaiseReponse') }}</span>
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="valider" @keydown.enter="valider">{{ $t('bonneReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="valider('mauvaise-reponse')" @keydown.enter="valider('mauvaise-reponse')" v-if="options.pointsRetranchesActives">{{ $t('mauvaiseReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="annuler" @keydown.enter="annuler" v-else>{{ $t('mauvaiseReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="valider('bonne-reponse')" @keydown.enter="valider('bonne-reponse')">{{ $t('bonneReponse') }}</span>
 						</div>
 					</div>
 				</div>
@@ -351,12 +386,18 @@ export default {
 			utilisateurs: [],
 			options: {
 				reponses: 'orales',
-				buzzer: 'immediate'
+				buzzer: 'immediate',
+				points: 1000,
+				pointsRetranchesActives: false,
+				pointsRetranches: 500,
+				scoreNegatif: false
+				
 			},
 			indexQuestion: -1,
 			statutQuestion: '',
 			premiereReponse: '',
 			points: 1000,
+			pointsRetranches: 500,
 			reponses: [],
 			resultats: [],
 			textes: [],
@@ -467,10 +508,28 @@ export default {
 			})
 		}
 		this.premiereReponse = this.donnees.premiereReponse
-		if (this.donnees.hasOwnProperty('options') === true) {
+		if (this.donnees.hasOwnProperty('options')) {
 			this.options = this.donnees.options
+			if (this.donnees.options.hasOwnProperty('points')) {
+				this.points = this.donnees.options.points
+			}
+			if (this.donnees.options.hasOwnProperty('pointsRetranches')) {
+				this.pointsRetranches = this.donnees.options.pointsRetranches
+			}
+			if (!this.options.hasOwnProperty('points')) {
+				this.options.points = 1000
+			}
+			if (!this.options.hasOwnProperty('pointsRetranches')) {
+				this.options.pointsRetranches = 500
+			}
+			if (!this.options.hasOwnProperty('pointsRetranchesActives')) {
+				this.options.pointsRetranchesActives = false
+			}
+			if (!this.options.hasOwnProperty('scoreNegatif')) {
+				this.options.scoreNegatif = false
+			}
 		}
-		if (this.donnees.hasOwnProperty('textes') === true) {
+		if (this.donnees.hasOwnProperty('textes')) {
 			this.textes = this.donnees.textes
 		}
 		if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
@@ -548,6 +607,9 @@ export default {
 					}
 				})
 			}
+			if (this.options.scoreNegatif === false && score < 0) {
+				score = 0
+			}
 			return score
 		},
 		definirScoreSansBonus (identifiant) {
@@ -559,6 +621,9 @@ export default {
 					}
 				})
 			})
+			if (this.options.scoreNegatif === false && score < 0) {
+				score = 0
+			}
 			return score
 		},
 		definirAvatar () {
@@ -598,6 +663,9 @@ export default {
 							score = score + bonus.points
 						}
 					})
+				}
+				if (this.options.scoreNegatif === false && score < 0) {
+					score = 0
 				}
 				utilisateurs[indexUtilisateur].score = score
 			}.bind(this))
@@ -707,6 +775,13 @@ export default {
 		},
 		modifierParametres (type, valeur) {
 			this.options[type] = valeur
+			if (type === 'points') {
+				this.points = valeur
+			} else if (type === 'pointsRetranchesActives') {
+				this.pointsRetranchesActives = valeur
+			} else if (type === 'pointsRetranches') {
+				this.pointsRetranches = valeur
+			}
 		},
 		lancer () {
 			this.chargement = true
@@ -800,10 +875,19 @@ export default {
 				this.notification = this.$t('classementScoreDesactive')
 			}
 		},
-		valider () {
-			if (isNaN(this.points) === false && this.points > 0) {
+		valider (type) {
+			let points = 0
+			if (type === 'bonne-reponse' && isNaN(this.points) === false && this.points > 0) {
+				points = this.points
+			} else if (type === 'mauvaise-reponse' && isNaN(this.pointsRetranches) === false && this.pointsRetranches > 0) {
+				points = this.pointsRetranches
+			}
+			if (points > 0) {
 				this.chargement = true
-				this.$socket.emit('reponsevalidee', { salle: this.salle, identifiant: this.premiereReponse, points: this.points, indexQuestion: this.indexQuestion })
+				if (type === 'mauvaise-reponse') {
+					points = -points
+				}
+				this.$socket.emit('reponsecomptabilisee', { salle: this.salle, identifiant: this.premiereReponse, type: type, points: points, indexQuestion: this.indexQuestion })
 				this.modale = ''
 				this.premiereReponse = ''
 				this.$nextTick(function () {
@@ -914,10 +998,10 @@ export default {
 						})
 					}
 					this.premiereReponse = this.donnees.premiereReponse
-					if (this.donnees.hasOwnProperty('options') === true) {
+					if (this.donnees.hasOwnProperty('options')) {
 						this.options = this.donnees.options
 					}
-					if (this.donnees.hasOwnProperty('textes') === true) {
+					if (this.donnees.hasOwnProperty('textes')) {
 						this.textes = this.donnees.textes
 					}
 					if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
@@ -1070,9 +1154,11 @@ export default {
 				this.chargement = false
 			}.bind(this))
 
-			this.$socket.on('reponsevalidee', function (donnees) {
+			this.$socket.on('reponsecomptabilisee', function (donnees) {
 				this.chargement = false
-				this.statutQuestion = ''
+				if (donnees.type === 'bonne-reponse') {
+					this.statutQuestion = ''
+				}
 				if (this.resultats[donnees.indexQuestion].map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
 					this.resultats[donnees.indexQuestion].forEach(function (resultat, indexResultat) {
 						if (resultat.identifiant === donnees.identifiant) {
@@ -1287,6 +1373,12 @@ export default {
 	height: 10px;
 	border-radius: 50%;
 	background: #fff;
+}
+
+#section-parametres input[type="number"] {
+	width: 100px!important;
+	padding: 5px 10px!important;
+	margin: 0 0 15px 0!important;
 }
 
 .utilisateurs {

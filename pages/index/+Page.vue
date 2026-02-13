@@ -295,7 +295,7 @@ export default {
 
 #actions .bouton {
 	display: inline-block;
-	width: 250px;
+	width: 255px;
     line-height: 1;
     font-size: 1em;
     font-weight: 700;
@@ -312,10 +312,6 @@ export default {
 #actions .bouton:hover {
 	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 	background: #fff;
-}
-
-#actions .bouton:last-child {
-	margin-right: 0;
 }
 
 #credits {
@@ -397,8 +393,7 @@ export default {
 
 	#actions .bouton {
 		font-size: 0.75em!important;
-		width: 130px;
-		padding: 1em 0.5em;
+		width: 230px;
 	}
 }
 
@@ -408,7 +403,7 @@ export default {
 	}
 
 	#actions .bouton {
-		width: 145px;
+		width: 230px;
 	}
 }
 
@@ -468,17 +463,6 @@ export default {
 	#credits p {
 		font-size: 0.85em!important;
 		margin-bottom: 0.85em!important;
-	}
-}
-
-@media screen and (max-width: 1023px) {
-	#actions .bouton {
-		width: 45%;
-		margin-bottom: 1em;
-	}
-
-	#actions .bouton:nth-child(2n) {
-		margin-right: 0;
 	}
 }
 

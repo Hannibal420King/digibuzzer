@@ -225,15 +225,20 @@ async function demarrerServeur () {
   	})
 
 	app.get('/p/:salle', async function (req, res, next) {
-		if (req.session.identifiant === '' || req.session.identifiant === undefined) {
+		const salle = req.params.salle
+		if (req.session.identifiant === '' || req.session.identifiant === undefined || !req.session.hasOwnProperty('salle') || req.session.salle !== salle) {
 			const identifiant = 'u' + Math.random().toString(16).slice(3)
 			req.session.identifiant = identifiant
 			req.session.nom = ''
 			req.session.avatar = 'avatar1.png'
 			req.session.langue = 'fr'
 			req.session.role = 'joueur'
+			req.session.salle = salle
 			req.session.salles = []
 			req.session.cookie.expires = new Date(Date.now() + dureeSession)
+		}
+		if (!req.session.hasOwnProperty('salle')) {
+			req.session.salle = salle
 		}
 		if (!req.session.hasOwnProperty('salles')) {
 			req.session.salles = []
@@ -247,8 +252,7 @@ async function demarrerServeur () {
 			nom: req.session.nom,
 			avatar: req.session.avatar,
 			langue: req.session.langue,
-			role: req.session.role,
-			salles: req.session.salles
+			role: req.session.role
 		}
 		const pageContext = await renderPage(pageContextInit)
 		const { httpResponse } = pageContext
@@ -295,6 +299,7 @@ async function demarrerServeur () {
 				req.session.langue = 'fr'
 			}
 			req.session.role = 'animateur'
+			req.session.salle = ''
 			req.session.salles.push(salle)
 			req.session.cookie.expires = new Date(Date.now() + dureeSession)
 			res.json({ salle: salle })
@@ -449,7 +454,7 @@ async function demarrerServeur () {
 		})
 	
 		socket.on('salleouverte', async function (donnees) {
-			if (donnees.hasOwnProperty('options') === true) {
+			if (donnees.hasOwnProperty('options')) {
 				const reponse = await db.EXISTS('salles:' + donnees.salle)
 				if (reponse === null) { socket.emit('erreur'); return false }
 				if (reponse === 1) {
@@ -668,7 +673,7 @@ async function demarrerServeur () {
 			}
 		})
 	
-		socket.on('reponsevalidee', async function ({ salle, identifiant, indexQuestion, points }) {
+		socket.on('reponsecomptabilisee', async function ({ salle, identifiant, type, points, indexQuestion }) {
 			const reponse = await db.EXISTS('salles:' + salle)
 			if (reponse === null) { socket.emit('erreur'); return false }
 			if (reponse === 1) {
@@ -676,11 +681,15 @@ async function demarrerServeur () {
 				resultat = Object.assign({}, resultat)
 				if (resultat === null || !resultat.hasOwnProperty('donnees')) { socket.emit('erreur'); return false }
 				const donnees = JSON.parse(resultat.donnees)
-				donnees.statutQuestion = ''
+				if (type === 'bonne-reponse') {
+					donnees.statutQuestion = ''
+				} else {
+					donnees.premiereReponse = ''
+				}
 				if (donnees.hasOwnProperty('resultats') && donnees.resultats[indexQuestion]) {
 					donnees.resultats[indexQuestion].push({ identifiant: identifiant, points: parseInt(points) })
 					await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donnees))
-					io.to(salle).emit('reponsevalidee', { identifiant: identifiant, points: parseInt(points), indexQuestion: indexQuestion })
+					io.to(salle).emit('reponsecomptabilisee', { identifiant: identifiant, type: type, points: parseInt(points), indexQuestion: indexQuestion })
 					socket.request.session.cookie.expires = new Date(Date.now() + dureeSession)
 					socket.request.session.save()
 				}

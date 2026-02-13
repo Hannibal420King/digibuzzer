@@ -74,14 +74,14 @@
 							<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
 						</div>
 						<label for="nom">{{ $t('nomOuPseudo') }}</label>
-						<input id="nom" type="text" v-model="nomProvisoire" :disabled="nom !== '' && statut !== ''">
+						<input id="nom" type="text" v-model="nomProvisoire" :disabled="nom !== '' && avatar !== '' && statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
-							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': avatar !== '' && statut !== '' }" @click="modifierAvatar(item)" @keydown.enter="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
+							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire, 'inactif': nom !== '' && avatar !== '' && statut !== '' }" @click="modifierAvatar(item)" @keydown.enter="modifierAvatar(item)" :key="'avatar_' + index"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
 							<label for="televerser" class="avatar ajouter" role="button" :tabindex="message === '' ? 0 : -1" @keydown.enter="afficherSelectionAvatar" :title="$t('televerserFichier')" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
-							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
-							<span class="avatar fichier" v-if="avatar !== '' && statut !== ''" />
+							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': nom !== '' && avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
+							<span class="avatar fichier" v-if="nom !== '' && avatar !== '' && statut !== ''" />
 						</div>
 						<div class="televerser" v-else>
 							<div class="conteneur-chargement" v-if="progression > 0">
@@ -171,7 +171,11 @@ export default {
 			avatars: ['avatar1.png', 'avatar2.png', 'avatar3.png', 'avatar4.png', 'avatar5.png', 'avatar6.png', 'avatar7.png', 'avatar8.png'],
 			options: {
 				reponses: 'orales',
-				buzzer: 'immediate'
+				buzzer: 'immediate',
+				points: 1000,
+				pointsRetranchesActives: false,
+				pointsRetranches: 500,
+				scoreNegatif: false
 			},
 			progression: 0,
 			score: 0,
@@ -218,10 +222,13 @@ export default {
 
 		this.indexQuestion = parseInt(this.donnees.indexQuestion)
 		this.premiereReponse = this.donnees.premiereReponse
-		if (this.donnees.hasOwnProperty('options') === true) {
+		if (this.donnees.hasOwnProperty('options')) {
 			this.options = this.donnees.options
+			if (!this.options.hasOwnProperty('scoreNegatif')) {
+				this.options.scoreNegatif = false
+			}
 		}
-		if (this.donnees.hasOwnProperty('textes') === true) {
+		if (this.donnees.hasOwnProperty('textes')) {
 			this.textes = this.donnees.textes
 		}
 		this.reponses = this.donnees.reponses
@@ -415,7 +422,7 @@ export default {
 			}
 		},
 		modifierAvatar (avatar) {
-			if (this.statut === '' || this.avatar === '') {
+			if (this.statut === '' || this.nom === '' || this.avatar === '') {
 				this.avatarProvisoire = avatar
 			}
 		},
@@ -490,6 +497,9 @@ export default {
 					}
 				}.bind(this))
 			}
+			if (this.options.scoreNegatif === false && score < 0) {
+				score = 0
+			}
 			this.score = score
 		},
 		rechargerDonnees (notification) {
@@ -511,10 +521,10 @@ export default {
 						this.reponse = true
 					}
 					this.premiereReponse = this.donnees.premiereReponse
-					if (this.donnees.hasOwnProperty('options') === true) {
+					if (this.donnees.hasOwnProperty('options')) {
 						this.options = this.donnees.options
 					}
-					if (this.donnees.hasOwnProperty('textes') === true) {
+					if (this.donnees.hasOwnProperty('textes')) {
 						this.textes = this.donnees.textes
 					}
 					if (this.reponse && this.premiereReponse === this.identifiant) {
@@ -649,10 +659,17 @@ export default {
 				}
 			}.bind(this))
 
-			this.$socket.on('reponsevalidee', function (donnees) {
+			this.$socket.on('reponsecomptabilisee', function (donnees) {
+				if (donnees.type === 'mauvaise-reponse') {
+					this.premiereReponse = ''
+				}
 				if (donnees.identifiant === this.identifiant) {
 					this.icone = 'thumb_up_alt'
 					this.audio.src = '/fx/correct.mp3'
+					if (donnees.type === 'mauvaise-reponse') {
+						this.icone = 'clear'
+						this.audio.src = '/fx/incorrect.mp3'
+					}
 					this.audio.play()
 					setTimeout(function () {
 						this.modale = ''
