@@ -73,5 +73,8 @@
     "completerChampTitre": "Completa il campo «&nbsp;Titolo&nbsp;».",
 	"listeParticipantsBannis": "Partecipanti bannati",
 	"utilisateurBanni": "Sei stato espulso da questa sala.",
-	"banni": "bannato"
+	"banni": "bannato",
+	"pointsMauvaiseReponse": "Punti sottratti per una risposta errata",
+	"activerPointsRetranches": "Sottrarre punti per una risposta errata",
+	"autoriserScoreNegatif": "Consentire un punteggio negativo"
 }

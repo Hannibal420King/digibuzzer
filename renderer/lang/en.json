@@ -73,5 +73,8 @@
 	"completerChampTitre": "Please fill in the field \"Title\".",
 	"listeParticipantsBannis": "Banned participants",
 	"utilisateurBanni": "You have been banned from this room.",
-	"banni": "banned"
+	"banni": "banned",
+	"pointsMauvaiseReponse": "Points deducted for incorrect answer",
+	"activerPointsRetranches": "Remove points for incorrect answers",
+	"autoriserScoreNegatif": "Allow negative scores"
 }

@@ -73,5 +73,8 @@
 	"completerChampTitre": "Veuillez compléter le champ «&nbsp;Titre&nbsp;».",
 	"listeParticipantsBannis": "Participants bannis",
 	"utilisateurBanni": "Vous avez été banni de cette salle.",
-	"banni": "banni"
+	"banni": "banni",
+	"pointsMauvaiseReponse": "Points retranchés pour une mauvaise réponse",
+	"activerPointsRetranches": "Retirer des points pour une mauvaise réponse",
+	"autoriserScoreNegatif": "Autoriser un score négatif"
 }
