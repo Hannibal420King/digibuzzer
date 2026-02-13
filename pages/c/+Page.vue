@@ -1000,11 +1000,25 @@ export default {
 					this.premiereReponse = this.donnees.premiereReponse
 					if (this.donnees.hasOwnProperty('options')) {
 						this.options = this.donnees.options
+						if (!this.options.hasOwnProperty('points')) {
+							this.options.points = 1000
+						}
+						if (!this.options.hasOwnProperty('pointsRetranches')) {
+							this.options.pointsRetranches = 500
+						}
+						if (!this.options.hasOwnProperty('pointsRetranchesActives')) {
+							this.options.pointsRetranchesActives = false
+						}
+						if (!this.options.hasOwnProperty('scoreNegatif')) {
+							this.options.scoreNegatif = false
+						}
 					}
 					if (this.donnees.hasOwnProperty('textes')) {
 						this.textes = this.donnees.textes
 					}
 					if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
+						this.points = this.options.points
+						this.pointsRetranches = this.options.pointsRetranches
 						this.modale = 'utilisateur'
 						if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
 							for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
@@ -1127,6 +1141,8 @@ export default {
 				if (reponse.salle === this.salle && this.premiereReponse === '') {
 					this.elementPrecedent = (document.activeElement || document.body)
 					this.premiereReponse = reponse.identifiant
+					this.points = this.options.points
+					this.pointsRetranches = this.options.pointsRetranches
 					this.modale = 'utilisateur'
 					this.$socket.emit('premierereponse', { salle: this.salle, identifiant: reponse.identifiant, indexQuestion: this.indexQuestion })
 					this.$nextTick(function () {
