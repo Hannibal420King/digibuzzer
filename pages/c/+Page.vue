@@ -74,11 +74,11 @@
 						<div class="parametre" v-if="options.pointsRetranchesActives">
 							<h3>{{ $t('autoriserScoreNegatif') }}</h3>
 							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('score-negatif-oui')">{{ $t('oui') }}
-								<input id="score-negatif-oui" type="radio" name="points-retranches" :checked="options.scoreNegatif === true" @change="modifierParametres('scoreNegatif', true)">
+								<input id="score-negatif-oui" type="radio" name="score-negatif" :checked="options.scoreNegatif === true" @change="modifierParametres('scoreNegatif', true)">
 								<span class="coche" />
 							</label>
 							<label class="bouton-radio" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('score-negatif-non')">{{ $t('non') }}
-								<input id="score-negatif-non" type="radio" name="points-retranches" :checked="options.scoreNegatif === false" @change="modifierParametres('scoreNegatif', false)">
+								<input id="score-negatif-non" type="radio" name="score-negatif" :checked="options.scoreNegatif === false" @change="modifierParametres('scoreNegatif', false)">
 								<span class="coche" />
 							</label>
 						</div>
