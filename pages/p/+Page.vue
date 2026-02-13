@@ -523,6 +523,9 @@ export default {
 					this.premiereReponse = this.donnees.premiereReponse
 					if (this.donnees.hasOwnProperty('options')) {
 						this.options = this.donnees.options
+						if (!this.options.hasOwnProperty('scoreNegatif')) {
+							this.options.scoreNegatif = false
+						}
 					}
 					if (this.donnees.hasOwnProperty('textes')) {
 						this.textes = this.donnees.textes
