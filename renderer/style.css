@@ -215,7 +215,7 @@ main {
     display: inline-block;
     border-radius: 50%;
     margin: 8px 0;
-    vertical-align: middle;
+    flex-shrink: 0;
 }
 
 #salle #titre {
@@ -224,11 +224,12 @@ main {
 	font-family: 'Roboto Slab';
 	font-size: 18px;
     text-align: center;
-	margin-left: 20px;
+	margin-left: 15px;
 	margin-right: 0;
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	flex-grow: 1;
+	overflow: hidden;
 }
 
 #salle #titre:before {
