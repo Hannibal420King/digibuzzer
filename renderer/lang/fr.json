@@ -76,5 +76,12 @@
 	"banni": "banni",
 	"pointsMauvaiseReponse": "Points retranchés pour une mauvaise réponse",
 	"activerPointsRetranches": "Retirer des points pour une mauvaise réponse",
-	"autoriserScoreNegatif": "Autoriser un score négatif"
+	"autoriserScoreNegatif": "Autoriser un score négatif",
+	"bannirParticipant": "Bannir ce participant",
+	"autoriserParticipant": "Autoriser ce participant",
+	"afficherListe": "Afficher la liste",
+	"masquerListe": "Masquer la liste",
+	"afficherHub": "Afficher le hub d'applications",
+	"appuyerBuzzer": "Appuyer sur le buzzer",
+	"selectionnerAvatar": "Sélectionner cet avatar"
 }

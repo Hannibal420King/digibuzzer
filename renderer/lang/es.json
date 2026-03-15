@@ -76,5 +76,12 @@
     "completerChampTitre": "Rellene el campo «Título».",
 	"pointsMauvaiseReponse": "Puntos restados por una respuesta incorrecta",
 	"activerPointsRetranches": "Restar puntos por una respuesta incorrecta",
-	"autoriserScoreNegatif": "Permitir una puntuación negativa"
+	"autoriserScoreNegatif": "Permitir una puntuación negativa",
+	"bannirParticipant": "Banear a este participante",
+	"autoriserParticipant": "Autorizar a este participante",
+	"afficherListe": "Mostrar la lista",
+	"masquerListe": "Ocultar la lista",
+	"afficherHub": "Mostrar el centro de aplicaciones",
+	"appuyerBuzzer": "Pulsar el buzzer",
+	"selectionnerAvatar": "Seleccionar este avatar"
 }

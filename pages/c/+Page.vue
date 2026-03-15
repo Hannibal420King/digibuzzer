@@ -7,12 +7,12 @@
 
 					<div id="titre" class="edition">
 						<span class="titre">{{ titre }}</span>
-						<span class="modifier" :title="$t('modifierTitre')" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModaleTitre" @keydown.enter="afficherModaleTitre"><i class="material-icons">edit</i></span>
+						<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierTitre')" :aria-label="$t('modifierTitre')" @click="afficherModaleTitre" @keydown.enter="afficherModaleTitre"><i class="material-icons">edit</i></span>
 					</div>
 
 					<div id="boutons">
-						<span class="recharger" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
+						<span class="recharger" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" :aria-label="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -22,8 +22,8 @@
 					<div class="informations">
 						<span>{{ $t('lienParticipants') }}</span>
 						<span class="lien">{{ hote.replace('http://', '').replace('https://', '') + '/p/' + salle }}</span>
-						<span id="copier" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('copierLien')" @keydown.enter="copierLien"><i class="material-icons">content_copy</i></span>
-						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
+						<span id="copier" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('copierLien')" :aria-label="$t('copierLien')" @keydown.enter="copierLien"><i class="material-icons">content_copy</i></span>
+						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" :aria-label="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 				</div>
 
@@ -89,7 +89,7 @@
 					<h3>{{ $t('listeParticipants') }}</h3>
 					<div class="utilisateurs" v-if="utilisateursConnectes.length > 0">
 						<div class="utilisateur" v-for="(utilisateur, index) in utilisateursConnectes" :key="'utilisateur_connecte_' + index">
-							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('bannirParticipant')" :aria-label="$t('bannirParticipant')" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 						</div>
@@ -98,7 +98,7 @@
 					<h3 v-if="utilisateursBannis.length > 0">{{ $t('listeParticipantsBannis') }}</h3>
 					<div class="utilisateurs" v-if="utilisateursBannis.length > 0">
 						<div class="utilisateur banni" v-for="(utilisateur, index) in utilisateursBannis" :key="'utilisateur_banni_' + index">
-							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="autoriser(utilisateur.identifiant)" @keydown.enter="autoriser(utilisateur.identifiant)"><i class="material-icons">check_circle</i></span>
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('autoriserParticipant')" :aria-label="$t('autoriserParticipant')" @click="autoriser(utilisateur.identifiant)" @keydown.enter="autoriser(utilisateur.identifiant)"><i class="material-icons">check_circle</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 						</div>
@@ -123,7 +123,7 @@
 					</div>
 
 					<div id="boutons">
-						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
+						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" :aria-label="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -132,7 +132,7 @@
 				<div class="section">
 					<div class="informations">
 						<span>{{ $t('telechargerResultats') }}</span>
-						<span class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('telecharger')" @click="exporter" @keydown.enter="exporter"><i class="material-icons">get_app</i></span>
+						<span class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('telecharger')" :aria-label="$t('telecharger')" @click="exporter" @keydown.enter="exporter"><i class="material-icons">get_app</i></span>
 					</div>
 				</div>
 
@@ -157,13 +157,13 @@
 
 					<div id="titre">
 						<span class="titre">{{ titre }}</span>
-						<span id="copier" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('copierLien')" @keydown.enter="copierLien"><i class="material-icons">content_copy</i></span>
-						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
+						<span id="copier" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('copierLien')" :aria-label="$t('copierLien')" @keydown.enter="copierLien"><i class="material-icons">content_copy</i></span>
+						<span id="afficher" class="icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherCodeQR')" :aria-label="$t('afficherCodeQR')" @click="afficherCodeQR" @keydown.enter="afficherCodeQR"><i class="material-icons">qr_code</i></span>
 					</div>
 
 					<div id="boutons">
-						<span class="recharger" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
+						<span class="recharger" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span class="langues" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierLangue')" :aria-label="$t('modifierLangue')" @click="afficherModaleLangues" @keydown.enter="afficherModaleLangues"><i class="material-icons">language</i></span>
 					</div>
 				</div>
 			</header>
@@ -173,35 +173,35 @@
 					<h3>{{ $t('listeParticipants') }}</h3>
 					<div class="utilisateurs" v-if="utilisateursConnectes.length > 0 && !classement">
 						<div class="utilisateur" :class="{'desactive': statutQuestion === 'reponses' && reponses[indexQuestion].includes(utilisateur.identifiant)}" v-for="(utilisateur, index) in utilisateursConnectes" :key="'utilisateur_connecte_' + index">
-							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('bannirParticipant')" :aria-label="$t('bannirParticipant')" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">
-								<span :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)">{{ definirScore(utilisateur.identifiant) }}</span>
-								<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
+								<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" :aria-label="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)">{{ definirScore(utilisateur.identifiant) }}</span>
+								<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" :aria-label="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
 							</span>
 						</div>
 					</div>
 					<div class="utilisateurs" v-else-if="utilisateursClasses.length > 0 && classement">
 						<div class="utilisateur" :class="{'desactive': statutQuestion === 'reponses' && reponses[indexQuestion].includes(utilisateur.identifiant)}" v-for="(utilisateur, index) in utilisateursClasses" :key="'utilisateur_connecte_' + index">
-							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('bannirParticipant')" :aria-label="$t('bannirParticipant')" @click="bannir(utilisateur.identifiant)" @keydown.enter="bannir(utilisateur.identifiant)"><i class="material-icons">block</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">
-								<span :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)">{{ utilisateur.score }}</span>
-								<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
+								<span role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" :aria-label="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)">{{ utilisateur.score }}</span>
+								<span class="modifier" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('modifierScore')" :aria-label="$t('modifierScore')" @click="afficherModifierScore(utilisateur.identifiant)" @keydown.enter="afficherModifierScore(utilisateur.identifiant)"><i class="material-icons">edit</i></span>
 							</span>
 						</div>
 					</div>
 					<span class="vide" v-else>{{ $t('aucunParticipant') }}</span>
 					<h3 class="bannis" v-if="utilisateursBannis.length > 0">
 						<span>{{ $t('listeParticipantsBannis') }}</span>
-						<span class="afficher-bannis" :tabindex="modale === '' && message === '' ? 0 : -1" @click="utilisateursBannisVisibles = !utilisateursBannisVisibles" @keydown.enter="utilisateursBannisVisibles = !utilisateursBannisVisibles" v-if="utilisateursBannisVisibles"><i class="material-icons">unfold_less</i></span>
-						<span class="afficher-bannis" :tabindex="modale === '' && message === '' ? 0 : -1" @click="utilisateursBannisVisibles = !utilisateursBannisVisibles" @keydown.enter="utilisateursBannisVisibles = !utilisateursBannisVisibles" v-else><i class="material-icons">unfold_more</i></span>
+						<span class="afficher-bannis" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('masquerListe')" :aria-label="$t('masquerListe')" @click="utilisateursBannisVisibles = !utilisateursBannisVisibles" @keydown.enter="utilisateursBannisVisibles = !utilisateursBannisVisibles" v-if="utilisateursBannisVisibles"><i class="material-icons">unfold_less</i></span>
+						<span class="afficher-bannis" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('afficherListe')" :aria-label="$t('afficherListe')" @click="utilisateursBannisVisibles = !utilisateursBannisVisibles" @keydown.enter="utilisateursBannisVisibles = !utilisateursBannisVisibles" v-else><i class="material-icons">unfold_more</i></span>
 					</h3>
 					<div class="utilisateurs" v-if="utilisateursBannis.length > 0 && utilisateursBannisVisibles">
 						<div class="utilisateur banni" v-for="(utilisateur, index) in utilisateursBannis" :key="'utilisateur_banni_' + index">
-							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="autoriser(utilisateur.identifiant)" @keydown.enter="autoriser(utilisateur.identifiant)"><i class="material-icons">check_circle</i></span>
+							<span class="bannir" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('autoriserParticipant')" :aria-label="$t('autoriserParticipant')" @click="autoriser(utilisateur.identifiant)" @keydown.enter="autoriser(utilisateur.identifiant)"><i class="material-icons">check_circle</i></span>
 							<span class="avatar"><img :src="'/avatars/' + utilisateur.avatar" :alt="'avatar' + index"></span>
 							<span class="nom">{{ utilisateur.nom }}</span>
 							<span class="score">{{ definirScore(utilisateur.identifiant) }}</span>
@@ -212,10 +212,10 @@
 
 			<footer>
 				<div class="section">
-					<span class="bouton icone active" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="classer" @keydown.enter="classer" :title="$t('desactiverClassementParScore')" v-if="classement"><i class="material-icons">equalizer</i></span>
-					<span class="bouton icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="classer" @keydown.enter="classer" :title="$t('classerParScore')" v-else><i class="material-icons">equalizer</i></span>
-					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="modifierIndexQuestion" @keydown.enter="modifierIndexQuestion">{{ $t('nouvelleQuestion') }}</span>
-					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" @click="afficherModaleConfirmation" @keydown.enter="afficherModaleConfirmation">{{ $t('fermer') }}</span>
+					<span class="bouton icone active" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('desactiverClassementParScore')" :aria-label="$t('desactiverClassementParScore')" @click="classer" @keydown.enter="classer" v-if="classement"><i class="material-icons">equalizer</i></span>
+					<span class="bouton icone" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :title="$t('classerParScore')" :aria-label="$t('classerParScore')" @click="classer" @keydown.enter="classer" v-else><i class="material-icons">equalizer</i></span>
+					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('nouvelleQuestion')" @click="modifierIndexQuestion" @keydown.enter="modifierIndexQuestion">{{ $t('nouvelleQuestion') }}</span>
+					<span class="bouton" role="button" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('fermer')" @click="afficherModaleConfirmation" @keydown.enter="afficherModaleConfirmation">{{ $t('fermer') }}</span>
 				</div>
 			</footer>
 		</div>
@@ -224,14 +224,14 @@
 			<div id="modale-titre" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('modifierTitre') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
-					<div class="contenu">
+					<div class="contenu" role="form" :aria-label="$t('modifierTitre')">
 						<label for="champ-titre">{{ $t('titre') }}</label>
 						<input id="champ-titre" type="text" :value="titre" @keydown.enter="modifierTitre">
 						<div class="actions">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierTitre" @keydown.enter="modifierTitre">{{ $t('valider') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('valider')" @click="modifierTitre" @keydown.enter="modifierTitre">{{ $t('valider') }}</span>
 						</div>
 					</div>
 				</div>
@@ -242,15 +242,15 @@
 			<div id="modale-langues" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('langue') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
-						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
-						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter="modifierLangue('es')">ES</span>
-						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
-						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter="modifierLangue('de')">DE</span>
-						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'fr'}" title="Français" aria-label="Français" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'es'}" title="Español" aria-label="Español" @click="modifierLangue('es')" @keydown.enter="modifierLangue('es')">ES</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'it'}" title="Italiano" aria-label="Italiano" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'de'}" title="Deutsch" aria-label="Deutsch" @click="modifierLangue('de')" @keydown.enter="modifierLangue('de')">DE</span>
+						<span role="button" :tabindex="message === '' ? 0 : -1" :class="{'selectionne': langue === 'en'}" title="English" aria-label="English" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
 					</div>
 				</div>
 			</div>
@@ -263,7 +263,7 @@
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
 						<span class="icone"><i class="material-icons">chat_bubble_outline</i></span>
 						<div class="actions">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="ouvrirReponses" @keydown.enter="ouvrirReponses">{{ $t('cestParti') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('cestParti')" @click="ouvrirReponses" @keydown.enter="ouvrirReponses">{{ $t('cestParti') }}</span>
 						</div>
 					</div>
 				</div>
@@ -294,9 +294,9 @@
 							<input id="points" type="number" v-model="pointsRetranches">
 						</div>
 						<div class="actions">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="valider('mauvaise-reponse')" @keydown.enter="valider('mauvaise-reponse')" v-if="options.pointsRetranchesActives">{{ $t('mauvaiseReponse') }}</span>
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="annuler" @keydown.enter="annuler" v-else>{{ $t('mauvaiseReponse') }}</span>
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="valider('bonne-reponse')" @keydown.enter="valider('bonne-reponse')">{{ $t('bonneReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('mauvaiseReponse')" @click="valider('mauvaise-reponse')" @keydown.enter="valider('mauvaise-reponse')" v-if="options.pointsRetranchesActives">{{ $t('mauvaiseReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('mauvaiseReponse')" @click="annuler" @keydown.enter="annuler" v-else>{{ $t('mauvaiseReponse') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('bonneReponse')" @click="valider('bonne-reponse')" @keydown.enter="valider('bonne-reponse')">{{ $t('bonneReponse') }}</span>
 						</div>
 					</div>
 				</div>
@@ -307,13 +307,13 @@
 			<div id="modale-score" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('modifierScore') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
 						<input type="number" v-model="donneesScore.score" @keydown.enter="modifierScore">
 						<div class="actions">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierScore" @keydown.enter="modifierScore">{{ $t('modifier') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('modifier')" @click="modifierScore" @keydown.enter="modifierScore">{{ $t('modifier') }}</span>
 						</div>
 					</div>
 				</div>
@@ -324,7 +324,7 @@
 			<div id="modale-codeqr" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('codeQR') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu">
@@ -340,8 +340,8 @@
 					<div class="contenu">
 						<p v-html="$t('confirmationFermerSalle')" />
 						<div class="actions">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="fermerModale" @keydown.enter="fermerModale">{{ $t('non') }}</span>
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="fermer" @keydown.enter="fermer">{{ $t('oui') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('non')" @click="fermerModale" @keydown.enter="fermerModale">{{ $t('non') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" :aria-label="$t('oui')" @click="fermer" @keydown.enter="fermer">{{ $t('oui') }}</span>
 						</div>
 					</div>
 				</div>

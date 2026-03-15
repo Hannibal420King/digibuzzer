@@ -76,5 +76,12 @@
 	"banni": "bannato",
 	"pointsMauvaiseReponse": "Punti sottratti per una risposta errata",
 	"activerPointsRetranches": "Sottrarre punti per una risposta errata",
-	"autoriserScoreNegatif": "Consentire un punteggio negativo"
+	"autoriserScoreNegatif": "Consentire un punteggio negativo",
+	"bannirParticipant": "Blocca questo partecipante",
+	"autoriserParticipant": "Autorizza questo partecipante",
+	"afficherListe": "Mostra elenco",
+	"masquerListe": "Nascondi elenco",
+	"afficherHub": "Visualizza hub delle applicazioni",
+	"appuyerBuzzer": "Premere il buzzer",
+	"selectionnerAvatar": "Seleziona questo avatar"
 }

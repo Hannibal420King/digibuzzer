@@ -76,5 +76,12 @@
     "banni": "verbannt",
 	"pointsMauvaiseReponse": "Punkteabzug für falsche Antworten",
 	"activerPointsRetranches": "Abzug von Punkten für falsche Antworten",
-	"autoriserScoreNegatif": "Negative Punktzahlen zulassen"
+	"autoriserScoreNegatif": "Negative Punktzahlen zulassen",
+	"bannirParticipant": "Diesen Teilnehmer verbannen",
+	"autoriserParticipant": "Diesen Teilnehmer erlauben",
+	"afficherListe": "Liste anzeigen",
+	"masquerListe": "Liste ausblenden",
+	"afficherHub": "App-Hub anzeigen",
+	"appuyerBuzzer": "Auf den Buzzer drücken",
+	"selectionnerAvatar": "Diesen Avatar auswählen"
 }

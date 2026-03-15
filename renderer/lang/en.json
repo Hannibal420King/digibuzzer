@@ -76,5 +76,12 @@
 	"banni": "banned",
 	"pointsMauvaiseReponse": "Points deducted for incorrect answer",
 	"activerPointsRetranches": "Remove points for incorrect answers",
-	"autoriserScoreNegatif": "Allow negative scores"
+	"autoriserScoreNegatif": "Allow negative scores",
+	"bannirParticipant": "Ban this participant",
+	"autoriserParticipant": "Allow this participant",
+	"afficherListe": "Show list",
+	"masquerListe": "Hide list",
+	"afficherHub": "View app hub",
+	"appuyerBuzzer": "Press the buzzer",
+	"selectionnerAvatar": "Select this avatar"
 }
