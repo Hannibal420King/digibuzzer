@@ -77,7 +77,7 @@
 						<input id="nom" type="text" v-model="nomProvisoire" :disabled="nom !== '' && avatar !== '' && statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
-							<span class="avatar inactif" v-for="(item, index) in avatars" :key="'avatar_' + index" v-if="nom !== '' && avatar !== '' && statut !== ''"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
+							<span class="avatar inactif" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :key="'avatar_' + index" v-if="nom !== '' && avatar !== '' && statut !== ''"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
 							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :title="$t('selectionnerAvatar')" :aria-label="$t('selectionnerAvatar')" @click="modifierAvatar(item)" @keydown.enter="modifierAvatar(item)" :key="'selection_avatar_' + index" v-else><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
 							<label for="televerser" class="avatar ajouter" :tabindex="message === '' ? 0 : -1" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
