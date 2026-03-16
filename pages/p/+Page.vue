@@ -10,11 +10,11 @@
 					</div>
 
 					<div id="parametres" v-if="avatar === ''">
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><i class="material-icons">settings</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><i class="material-icons" aria-hidden="true">settings</i></span>
 					</div>
 					<div id="parametres" v-else>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons">sync</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
 						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
 					</div>
 				</div>
@@ -61,7 +61,7 @@
 			<div id="modale-parametres" class="modale" role="dialog" v-if="modale === 'parametres' || modaleInformations">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons" aria-hidden="true">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu" role="form" :aria-label="$t('parametres')">
@@ -79,7 +79,7 @@
 						<div class="avatars" v-if="progression === 0">
 							<span class="avatar inactif" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :key="'avatar_' + index" v-if="nom !== '' && avatar !== '' && statut !== ''"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
 							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :title="$t('selectionnerAvatar')" :aria-label="$t('selectionnerAvatar')" @click="modifierAvatar(item)" @keydown.enter="modifierAvatar(item)" :key="'selection_avatar_' + index" v-else><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<label for="televerser" class="avatar ajouter" :tabindex="message === '' ? 0 : -1" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons">add_photo_alternate</i></label>
+							<label for="televerser" class="avatar ajouter" :tabindex="message === '' ? 0 : -1" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons" aria-hidden="true">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
 							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': nom !== '' && avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
 							<span class="avatar fichier" v-if="nom !== '' && avatar !== '' && statut !== ''" />
@@ -101,7 +101,7 @@
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
-						<span class="icone"><i class="material-icons">hearing</i></span>
+						<span class="icone" aria-hidden="true"><i class="material-icons">hearing</i></span>
 					</div>
 				</div>
 			</div>
@@ -109,7 +109,7 @@
 			<div id="modale-reponse" class="modale" role="dialog" v-else-if="modale === 'reponse'">
 				<div class="conteneur">
 					<div class="contenu">
-						<span class="icone"><i class="material-icons">{{ icone }}</i></span>
+						<span class="icone" aria-hidden="true"><i class="material-icons">{{ icone }}</i></span>
 						<textarea v-if="options.reponses === 'ecrites' && icone === 'pending'" v-model="texte" :placeholder="$t('votreReponse')" :disabled="texteEnvoye" />
 						<div class="actions" v-if="options.reponses === 'ecrites' && icone === 'pending' && !texteEnvoye">
 							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="envoyerTexte" @keydown.enter="envoyerTexte">{{ $t('envoyer') }}</span>
@@ -119,7 +119,7 @@
 			</div>
 		</div>
 
-		<Notification :notification="notification" @fermer="notification = ''" v-if="notification !== ''" />
+		<Notification :notification="notification" @fermer="notification = ''" />
 
 		<Message :message="message" @elementPrecedent="definirElementPrecedent" @fermer="fermerMessage" v-if="message !== ''" />
 
