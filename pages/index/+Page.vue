@@ -2,11 +2,11 @@
 	<div id="page">
 		<div id="accueil" :style="{'background-image': 'url(/img/fond.png)'}">
 			<div id="langues">
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter="modifierLangue('es')">ES</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter="modifierLangue('de')">DE</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter.space.prevent="modifierLangue('fr')">FR</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter.space.prevent="modifierLangue('es')">ES</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter.space.prevent="modifierLangue('it')">IT</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter.space.prevent="modifierLangue('de')">DE</span>
+				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter.space.prevent="modifierLangue('en')">EN</span>
 			</div>
 			<div id="conteneur">
 				<div id="contenu">
@@ -16,13 +16,13 @@
 					<div>
 						<p v-html="$t('slogan')" />
 						<div id="actions">
-							<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirModaleCreer" @keydown.enter="ouvrirModaleCreer">{{ $t('creerSalleJeu') }}</span>
+							<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirModaleCreer" @keydown.enter.space.prevent="ouvrirModaleCreer">{{ $t('creerSalleJeu') }}</span>
 						</div>
 					</div>
 				</div>
 				<div id="credits">
 					<p><a :href="mentionsLegales" target="_blank" rel="noreferrer" v-if="mentionsLegales !== ''">{{ $t('mentionsLegales') }}</a> - <a href="https://opencollective.com/ladigitale" target="_blank">{{ $t('soutien') }} ❤️.</a></p>
-					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <span class="hub" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :title="$t('afficherHub')" :aria-label="$t('afficherHub')" @click="ouvrirHub" @keydown.enter="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></span></p>
+					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <span class="hub" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :title="$t('afficherHub')" :aria-label="$t('afficherHub')" @click="ouvrirHub" @keydown.enter.space.prevent="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></span></p>
 				</div>
 			</div>
 		</div>
@@ -31,14 +31,14 @@
 			<div id="creer" class="modale" role="dialog">
 				<header>
 					<span class="titre">{{ $t('creerSalleJeu') }}</span>
-					<span class="fermer" role="button" tabindex="0" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModaleCreer" @keydown.enter="fermerModaleCreer"><i class="material-icons" aria-hidden="true">close</i></span>
+					<span class="fermer" role="button" tabindex="0" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModaleCreer" @keydown.enter.space.prevent="fermerModaleCreer"><i class="material-icons" aria-hidden="true">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu" role="form" :aria-label="$t('creerSalleJeu')">
 						<label for="champ-titre">{{ $t('titre') }}</label>
 						<input id="champ-titre" type="text" v-model="titre" @keydown.enter="creer">
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="creer" @keydown.enter="creer" v-if="!chargementModale">{{ $t('creer') }}</span>
+							<span class="bouton" role="button" tabindex="0" @click="creer" @keydown.enter.space.prevent="creer" v-if="!chargementModale">{{ $t('creer') }}</span>
 							<div class="conteneur-chargement" v-else>
 								<div class="chargement" />
 							</div>
@@ -49,7 +49,7 @@
 		</div>
 
 		<div id="hub" :class="{'ouvert': hub}" :tabindex="hub ? 0 : -1">
-			<span role="button" :tabindex="hub ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerHub" @keydown.enter="fermerHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></span>
+			<span role="button" :tabindex="hub ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerHub" @keydown.enter.space.prevent="fermerHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></span>
 			<iframe src="https://ladigitale.dev/hub.html" title="Le Hub by La Digitale"></iframe>
 		</div>
 

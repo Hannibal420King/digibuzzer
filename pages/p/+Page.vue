@@ -10,12 +10,12 @@
 					</div>
 
 					<div id="parametres" v-if="avatar === ''">
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><i class="material-icons" aria-hidden="true">settings</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter.space.prevent="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter.space.prevent="afficherModaleParametres"><i class="material-icons" aria-hidden="true">settings</i></span>
 					</div>
 					<div id="parametres" v-else>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter.space.prevent="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
+						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter.space.prevent="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
 					</div>
 				</div>
 			</header>
@@ -24,7 +24,7 @@
 				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'">
 					<div id="conteneur-buzzer">
 						<div id="base">
-							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('appuyerBuzzer')" :aria-label="$t('appuyerBuzzer')" @click="envoyerReponse" @keydown.enter="envoyerReponse" />
+							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('appuyerBuzzer')" :aria-label="$t('appuyerBuzzer')" @click="envoyerReponse" @keydown.enter.space.prevent="envoyerReponse" />
 						</div>
 					</div>
 				</div>
@@ -61,25 +61,25 @@
 			<div id="modale-parametres" class="modale" role="dialog" v-if="modale === 'parametres' || modaleInformations">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter="fermerModale"><i class="material-icons" aria-hidden="true">close</i></span>
+					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter.space.prevent="fermerModale"><i class="material-icons" aria-hidden="true">close</i></span>
 				</header>
 				<div class="conteneur">
 					<div class="contenu" role="form" :aria-label="$t('parametres')">
 						<label v-if="modale === 'parametres'">{{ $t('langue') }}</label>
 						<div class="langue" v-if="modale === 'parametres'">
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter="modifierLangue('fr')">FR</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter="modifierLangue('es')">ES</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter="modifierLangue('it')">IT</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter="modifierLangue('de')">DE</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter="modifierLangue('en')">EN</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter.space.prevent="modifierLangue('fr')">FR</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter.space.prevent="modifierLangue('es')">ES</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter.space.prevent="modifierLangue('it')">IT</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter.space.prevent="modifierLangue('de')">DE</span>
+							<span role="button" :tabindex="message === '' ? 0 : -1" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter.space.prevent="modifierLangue('en')">EN</span>
 						</div>
 						<label for="nom">{{ $t('nomOuPseudo') }}</label>
 						<input id="nom" type="text" v-model="nomProvisoire" :disabled="nom !== '' && avatar !== '' && statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
 							<span class="avatar inactif" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :key="'avatar_' + index" v-if="nom !== '' && avatar !== '' && statut !== ''"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :title="$t('selectionnerAvatar')" :aria-label="$t('selectionnerAvatar')" @click="modifierAvatar(item)" @keydown.enter="modifierAvatar(item)" :key="'selection_avatar_' + index" v-else><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<label for="televerser" class="avatar ajouter" :tabindex="message === '' ? 0 : -1" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons" aria-hidden="true">add_photo_alternate</i></label>
+							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :title="$t('selectionnerAvatar')" :aria-label="$t('selectionnerAvatar')" @click="modifierAvatar(item)" @keydown.enter.space.prevent="modifierAvatar(item)" :key="'selection_avatar_' + index" v-else><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
+							<label for="televerser" class="avatar ajouter" :tabindex="message === '' ? 0 : -1" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter.space.prevent="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons" aria-hidden="true">add_photo_alternate</i></label>
 							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
 							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': nom !== '' && avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
 							<span class="avatar fichier" v-if="nom !== '' && avatar !== '' && statut !== ''" />
@@ -91,7 +91,7 @@
 							</div>
 						</div>
 						<div class="actions" :class="{'inactif': progression !== 0}" v-if="avatar === '' || nom === '' || statut === ''">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierInformations" @keydown.enter="modifierInformations">{{ $t('valider') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierInformations" @keydown.enter.space.prevent="modifierInformations">{{ $t('valider') }}</span>
 						</div>
 					</div>
 				</div>
@@ -112,7 +112,7 @@
 						<span class="icone" aria-hidden="true"><i class="material-icons">{{ icone }}</i></span>
 						<textarea v-if="options.reponses === 'ecrites' && icone === 'pending'" v-model="texte" :placeholder="$t('votreReponse')" :disabled="texteEnvoye" />
 						<div class="actions" v-if="options.reponses === 'ecrites' && icone === 'pending' && !texteEnvoye">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="envoyerTexte" @keydown.enter="envoyerTexte">{{ $t('envoyer') }}</span>
+							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="envoyerTexte" @keydown.enter.space.prevent="envoyerTexte">{{ $t('envoyer') }}</span>
 						</div>
 					</div>
 				</div>
