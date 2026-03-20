@@ -29,25 +29,25 @@
 
 				<div id="section-parametres" class="section">
 					<h3>{{ $t('parametres') }}</h3>
-					<div class="conteneur-parametres">
+					<div class="conteneur-parametres" role="form" :aria-label="$t('parametres')">
 						<div class="parametre">
 							<h3>{{ $t('reponses') }}</h3>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('reponses-orales')">{{ $t('orales') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('reponses') + ' ' + $t('orales')" @keydown.enter="modifierParametre('reponses-orales')">{{ $t('orales') }}
 								<input id="reponses-orales" type="radio" name="reponses" :checked="options.reponses === 'orales'" @change="modifierParametres('reponses', 'orales')">
 								<span class="coche" />
 							</label>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('reponses-ecrites')">{{ $t('ecrites') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('reponses') + ' ' + $t('ecrites')" @keydown.enter="modifierParametre('reponses-ecrites')">{{ $t('ecrites') }}
 								<input id="reponses-ecrites" type="radio" name="reponses" :checked="options.reponses === 'ecrites'" @change="modifierParametres('reponses', 'ecrites')">
 								<span class="coche" />
 							</label>
 						</div>
 						<div class="parametre">
 							<h3>{{ $t('activationBuzzer') }}</h3>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('buzzer-immediat')">{{ $t('immediate') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('activationBuzzer') + ' ' + $t('immediate')" @keydown.enter="modifierParametre('buzzer-immediat')">{{ $t('immediate') }}
 								<input id="buzzer-immediat" type="radio" name="buzzer" :checked="options.buzzer === 'immediate'" @change="modifierParametres('buzzer', 'immediate')">
 								<span class="coche" />
 							</label>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('buzzer-delai')">{{ $t('avecDelaiAleatoire') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('activationBuzzer') + ' ' + $t('avecDelaiAleatoire')" @keydown.enter="modifierParametre('buzzer-delai')">{{ $t('avecDelaiAleatoire') }}
 								<input id="buzzer-delai" type="radio" name="buzzer" :checked="options.buzzer === 'delai'" @change="modifierParametres('buzzer', 'delai')">
 								<span class="coche" />
 							</label>
@@ -58,11 +58,11 @@
 						</div>
 						<div class="parametre">
 							<h3>{{ $t('activerPointsRetranches') }}</h3>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('points-retranches-oui')">{{ $t('oui') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('activerPointsRetranches') + ' ' + $t('oui')" @keydown.enter="modifierParametre('points-retranches-oui')">{{ $t('oui') }}
 								<input id="points-retranches-oui" type="radio" name="points-retranches" :checked="options.pointsRetranchesActives === true" @change="modifierParametres('pointsRetranchesActives', true)">
 								<span class="coche" />
 							</label>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('points-retranches-non')">{{ $t('non') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('activerPointsRetranches') + ' ' + $t('non')" @keydown.enter="modifierParametre('points-retranches-non')">{{ $t('non') }}
 								<input id="points-retranches-non" type="radio" name="points-retranches" :checked="options.pointsRetranchesActives === false" @change="modifierParametres('pointsRetranchesActives', false)">
 								<span class="coche" />
 							</label>
@@ -73,11 +73,11 @@
 						</div>
 						<div class="parametre" v-if="options.pointsRetranchesActives">
 							<h3>{{ $t('autoriserScoreNegatif') }}</h3>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('score-negatif-oui')">{{ $t('oui') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('autoriserScoreNegatif') + ' ' + $t('oui')" @keydown.enter="modifierParametre('score-negatif-oui')">{{ $t('oui') }}
 								<input id="score-negatif-oui" type="radio" name="score-negatif" :checked="options.scoreNegatif === true" @change="modifierParametres('scoreNegatif', true)">
 								<span class="coche" />
 							</label>
-							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" @keydown.enter="modifierParametre('score-negatif-non')">{{ $t('non') }}
+							<label class="bouton-radio" :tabindex="modale === '' && message === '' ? 0 : -1" :aria-label="$t('autoriserScoreNegatif') + ' ' + $t('non')" @keydown.enter="modifierParametre('score-negatif-non')">{{ $t('non') }}
 								<input id="score-negatif-non" type="radio" name="score-negatif" :checked="options.scoreNegatif === false" @change="modifierParametres('scoreNegatif', false)">
 								<span class="coche" />
 							</label>
