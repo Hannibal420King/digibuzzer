@@ -42,6 +42,8 @@ DB_PORT (port de la base de données Redis / 6379 par défaut)
 SESSION_KEY (clé de session Express Session)
 SESSION_DURATION (durée de la session de connexion des utilisateurs en millisecondes)
 VITE_LEGAL_TERMS_LINK (lien vers les mentions légales)
+UMAMI_SCRIPT_URL (lien vers le script fourni par Umami pour l'analyse de trafic)
+UMAMI_WEBSITE_ID (id de site sur le serveur Umami)
 ```
 
 ### Projet Vue (Vue.js 3 et Vike) avec serveur Node.js (Express) et base de données Redis
