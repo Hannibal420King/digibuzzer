@@ -51,14 +51,21 @@ UMAMI_WEBSITE_ID (id de site sur le serveur Umami)
 ### Démo
 https://digibuzzer.app
 
+### Comment contribuer ?
+Tout d'abord, merci de vouloir contribuer ! Voici quelques idées :
+- soutenir le projet sur [Open Collective](https://opencollective.com/ladigitale) ou [LiberaPay](https://liberapay.com/ladigitale/) ;
+- signaler des bogues ou proposer des fonctionnalités en ouvrant un ticket ;
+- faire la promotion des services libres de La Digitale auprès de vos collègues, lors d'événements éducatifs, etc. ;
+- publier des articles avec des pistes pédagogiques / des idées d'activités pour proposer des exemples concrets d'utilisation des outils ;
+- participer à la traduction des services sur [Codeberg Translate](https://translate.codeberg.org/projects/la-digitale/#components).
+
+Les demandes d'ajouts (Pull Requests) ne sont pas acceptées pour le moment. En effet, une contribution au code nécessite souvent plusieurs heures pour être révisée et commentée et ce n'est pas toujours compatible avec les priorités et le temps que je peux consacrer au projet.
+
+N'hésitez pas à me contacter si vous avez des questions.
+
 ### Remerciements et crédits
 Traduction en italien par Paolo Mauri (https://codeberg.org/maupao)
 
 Traduction en allemand par kate (https://translate.codeberg.org/user/kate/), Dirk (https://translate.codeberg.org/user/Dirk/), Alexander Weller (https://translate.codeberg.org/user/weller@kreidezeit.kiwi/) et ThetaDev (https://translate.codeberg.org/user/ThetaDev/)
 
 Traduction en espagnol par fersdt (https://translate.codeberg.org/user/fersdt/)
-
-### Soutien
-Open Collective : https://opencollective.com/ladigitale
-
-Liberapay : https://liberapay.com/ladigitale/
