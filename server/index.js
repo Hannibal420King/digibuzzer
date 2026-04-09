@@ -41,6 +41,7 @@ async function demarrerServeur () {
 	} else if (process.env.PORT) {
 		hote = 'http://localhost:' + process.env.PORT
 	}
+	const langues = ['fr', 'en', 'it', 'de', 'es']
 	let db
 	let db_port = 6379
 	if (process.env.DB_PORT) {
@@ -177,7 +178,7 @@ async function demarrerServeur () {
 			urlOriginal: req.originalUrl,
 			params: req.query,
 			hote: hote,
-			langues: ['fr', 'en', 'it', 'de', 'es'],
+			langues: langues,
 			langue: langue
 		}
 		const pageContext = await renderPage(pageContextInit)
@@ -207,7 +208,7 @@ async function demarrerServeur () {
 				urlOriginal: req.originalUrl,
 				params: req.query,
 				hote: hote,
-				langues: ['fr', 'en', 'it', 'de', 'es'],
+				langues: langues,
 				identifiant: req.session.identifiant,
 				nom: req.session.nom,
 				avatar: req.session.avatar,
@@ -254,7 +255,7 @@ async function demarrerServeur () {
 			urlOriginal: req.originalUrl,
 			params: req.query,
 			hote: hote,
-			langues: ['fr', 'en', 'it', 'de', 'es'],
+			langues: langues,
 			identifiant: req.session.identifiant,
 			nom: req.session.nom,
 			avatar: req.session.avatar,
