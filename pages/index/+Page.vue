@@ -110,7 +110,9 @@ export default {
 			this.langue = localStorage.getItem('digibuzzer_lang')
 		}
 		this.$i18n.locale = this.langue
-		this.$socket.emit('modifierlangue', this.langue)
+		if (this.langue !== this.$pageContext.pageProps.langue) {
+			this.$socket.emit('modifierlangue', this.langue)
+		}
 	},
 	mounted () {
 		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
@@ -301,13 +303,13 @@ export default {
 
 #actions .bouton {
 	display: inline-block;
-	width: 255px;
+	width: auto;
+	max-width: 280px;
     line-height: 1;
     font-size: 1em;
     font-weight: 700;
     text-transform: uppercase;
 	padding: 1em 1.5em;
-	margin-right: 1em;
     border: 2px solid #00ced1;
 	border-radius: 2em;
     background: #46fbff;
@@ -399,17 +401,12 @@ export default {
 
 	#actions .bouton {
 		font-size: 0.75em!important;
-		width: 230px;
 	}
 }
 
 @media screen and (min-width: 360px) and (max-width: 599px) {
 	#contenu {
 		padding: 5em 1em 2.5em;
-	}
-
-	#actions .bouton {
-		width: 230px;
 	}
 }
 
