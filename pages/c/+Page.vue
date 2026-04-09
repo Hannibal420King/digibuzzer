@@ -496,7 +496,9 @@ export default {
 			this.langue = localStorage.getItem('digibuzzer_lang')
 		}
 		this.$i18n.locale = this.langue
-		this.$socket.emit('modifierlangue', this.langue)
+		if (this.langue !== this.$pageContext.pageProps.langue) {
+			this.$socket.emit('modifierlangue', this.langue)
+		}
 
 		this.ecouterSocket()
 
