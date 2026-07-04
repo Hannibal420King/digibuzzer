@@ -1,7 +1,7 @@
 module.exports = {
 	apps: [{
     	name: 'Digibuzzer',
-    	script: './server/index.js',
+    	script: './server/app.js',
 		autorestart: true,
 		max_restarts: 10,
 		env: {

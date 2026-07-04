@@ -2,11 +2,11 @@
 	<div id="page">
 		<div id="accueil" :style="{'background-image': 'url(/img/fond.png)'}">
 			<div id="langues">
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter.space.prevent="modifierLangue('fr')">FR</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter.space.prevent="modifierLangue('es')">ES</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter.space.prevent="modifierLangue('it')">IT</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter.space.prevent="modifierLangue('de')">DE</span>
-				<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter.space.prevent="modifierLangue('en')">EN</span>
+				<button type="button" class="bouton" :disabled="disabled" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</button>
+				<button type="button" class="bouton" :disabled="disabled" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')">ES</button>
+				<button type="button" class="bouton" :disabled="disabled" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</button>
+				<button type="button" class="bouton" :disabled="disabled" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')">DE</button>
+				<button type="button" class="bouton" :disabled="disabled" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</button>
 			</div>
 			<div id="conteneur">
 				<div id="contenu">
@@ -16,29 +16,29 @@
 					<div>
 						<p v-html="$t('slogan')" />
 						<div id="actions">
-							<span class="bouton" role="button" :tabindex="modale === '' && !hub ? 0 : -1" @click="ouvrirModaleCreer" @keydown.enter.space.prevent="ouvrirModaleCreer">{{ $t('creerSalleJeu') }}</span>
+							<button type="button" class="bouton" :disabled="disabled" @click="ouvrirModaleCreer">{{ $t('creerSalleJeu') }}</button>
 						</div>
 					</div>
 				</div>
 				<div id="credits">
-					<p><a :href="mentionsLegales" target="_blank" rel="noreferrer" v-if="mentionsLegales !== ''">{{ $t('mentionsLegales') }}</a> - <a href="https://ladigitale.dev/contribuer.html" target="_blank">{{ $t('soutien') }} ❤️.</a></p>
-					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <span class="hub" role="button" :tabindex="modale === '' && !hub ? 0 : -1" :title="$t('afficherHub')" :aria-label="$t('afficherHub')" @click="ouvrirHub" @keydown.enter.space.prevent="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></span></p>
+					<p><a :href="mentionsLegales" target="_blank" rel="noreferrer" v-if="mentionsLegales !== ''">{{ $t('mentionsLegales') }}</a> - <a href="https://ladigitale.dev/contribuer.html" target="_blank" rel="noreferrer">{{ $t('soutien') }} ❤️.</a></p>
+					<p>{{ new Date().getFullYear() }} - <a href="https://ladigitale.dev" target="_blank" rel="noreferrer">La Digitale</a> - <a href="https://codeberg.org/ladigitale/digibuzzer" target="_blank" rel="noreferrer">{{ $t('codeSource') }}</a> - <a href="https://codeberg.org/ladigitale/digibuzzer/releases" target="_blank" rel="noreferrer">v{{ version }}</a> - <button type="button" class="hub" :disabled="disabled" :title="$t('afficherHub')" :aria-label="$t('afficherHub')" @click="ouvrirHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#001d1d" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" /></svg></button></p>
 				</div>
 			</div>
 		</div>
 
 		<div class="conteneur-modale" v-if="modale === 'creer'">
-			<div id="creer" class="modale" role="dialog">
+			<div id="creer" class="modale" role="dialog" aria-modal="true" :aria-label="$t('creerSalleJeu')">
 				<header>
 					<span class="titre">{{ $t('creerSalleJeu') }}</span>
-					<span class="fermer" role="button" tabindex="0" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModaleCreer" @keydown.enter.space.prevent="fermerModaleCreer"><i class="material-icons" aria-hidden="true">close</i></span>
+					<button type="button" class="fermer" :disabled="disabledModale" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModaleCreer"><i class="material-icons" aria-hidden="true">close</i></button>
 				</header>
 				<div class="conteneur">
-					<div class="contenu" role="form" :aria-label="$t('creerSalleJeu')">
+					<div class="contenu">
 						<label for="champ-titre">{{ $t('titre') }}</label>
-						<input id="champ-titre" type="text" v-model="titre" @keydown.enter="creer">
+						<input id="champ-titre" type="text" v-model="titre" @keydown.enter="creer" :disabled="disabledModale">
 						<div class="actions">
-							<span class="bouton" role="button" tabindex="0" @click="creer" @keydown.enter.space.prevent="creer" v-if="!chargementModale">{{ $t('creer') }}</span>
+							<button type="button" class="bouton" :disabled="disabledModale" @click="creer" v-if="!chargementModale">{{ $t('creer') }}</button>
 							<div class="conteneur-chargement" v-else>
 								<div class="chargement" />
 							</div>
@@ -48,8 +48,8 @@
 			</div>
 		</div>
 
-		<div id="hub" :class="{'ouvert': hub}" :tabindex="hub ? 0 : -1">
-			<span role="button" :tabindex="hub ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerHub" @keydown.enter.space.prevent="fermerHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></span>
+		<div id="hub" :class="{'ouvert': hub}" role="dialog" aria-modal="true" aria-label="Le Hub by La Digitale" :aria-hidden="!hub">
+			<button type="button" :disabled="!hub" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="36px" height="36px" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg></button>
 			<iframe src="https://ladigitale.dev/hub.html" title="Le Hub by La Digitale"></iframe>
 		</div>
 
@@ -96,6 +96,14 @@ export default {
 			mentionsLegales: import.meta.env.VITE_LEGAL_TERMS_LINK || ''
 		}
 	},
+	computed : {
+		disabled () {
+			return this.modale === '' && !this.hub ? false : true
+		},
+		disabledModale () {
+			return this.message === '' ? false : true
+		}
+	},
 	created () {
 		const params = this.$pageContext.pageProps.params
 		const langueNav = navigator.language.substring(0, 2)
@@ -116,22 +124,20 @@ export default {
 	},
 	mounted () {
 		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
-
-		setTimeout(function () {
-			this.chargementPage = false
-		}.bind(this), 300)
-
+		this.chargementPage = false
 		document.addEventListener('keydown', this.gererClavier, false)
+		window.addEventListener('message', this.gererMessageHub, false)
 	},
 	beforeUnmount () {
 		document.removeEventListener('keydown', this.gererClavier, false)
+		window.removeEventListener('message', this.gererMessageHub, false)
 	},
 	methods: {
 		ouvrirModaleCreer () {
 			this.elementPrecedent = (document.activeElement || document.body)
 			this.modale = 'creer'
-			this.$nextTick(function () {
-				document.querySelector('#creer input').focus()
+			this.$nextTick(() => {
+				document.querySelector('#creer input')?.focus()
 			})
 		},
 		fermerModaleCreer () {
@@ -144,7 +150,7 @@ export default {
 				this.chargementModale = true
 				axios.post(this.hote + '/api/creer-salle', {
 					titre: this.titre
-				}).then(function (reponse) {
+				}).then((reponse) => {
 					const donnees = reponse.data
 					if (donnees === 'erreur') {
 						this.chargementModale = false
@@ -153,11 +159,11 @@ export default {
 					} else {
 						window.location.href = '/c/' + donnees.salle
 					}
-				}.bind(this)).catch(function () {
+				}).catch(() => {
 					this.chargementModale = false
 					this.fermerModaleCreer()
 					this.message = this.$t('erreurCommunicationServeur')
-				}.bind(this))
+				})
 			} else {
 				this.message = this.$t('completerChampTitre')
 			}
@@ -167,17 +173,17 @@ export default {
 				this.chargement = true
 				axios.post(this.hote + '/api/modifier-langue', {
 					langue: langue
-				}).then(function () {
+				}).then(() => {
 					this.chargement = false
 					this.$i18n.locale = langue
 					document.getElementsByTagName('html')[0].setAttribute('lang', langue)
 					this.langue = langue
 					this.notification = this.$t('langueModifiee')
 					localStorage.setItem('digibuzzer_lang', langue)
-				}.bind(this)).catch(function () {
+				}).catch(() => {
 					this.chargement = false
 					this.message = this.$t('erreurCommunicationServeur')
-				}.bind(this))
+				})
 			}
 		},
 		fermerMessage () {
@@ -195,20 +201,57 @@ export default {
 			} else if (event.key === 'Escape' && this.hub) {
 				this.hub = false
 				this.gererFocus()
+			} else if (event.key === 'Tab') {
+				if (this.message !== '') {
+					const modale = document.querySelector('#message')
+					this.piegerFocus(event, modale)
+				} else if (this.modale !== '') {
+					const modale = document.querySelector('.modale')
+					this.piegerFocus(event, modale)
+				}
 			}
 		},
 		gererFocus () {
-			if (this.elementPrecedent) {
-				this.elementPrecedent.focus()
-				this.elementPrecedent = null
+			this.$nextTick(() => {
+				if (this.elementPrecedent) {
+					this.elementPrecedent.focus()
+					this.elementPrecedent = null
+				}
+			})
+		},
+		piegerFocus (event, conteneur) {
+			if (!conteneur) return
+			const isVisible = el => el.offsetWidth || el.offsetHeight || el.getClientRects().length
+			const focusables = Array.from(conteneur.querySelectorAll('a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])'))
+			.filter(el => !el.disabled && el.tabIndex >= 0 && isVisible(el))
+			if (focusables.length === 0) return
+			const premier = focusables[0]
+			const dernier = focusables[focusables.length - 1]
+			if (event.shiftKey) {
+				if (document.activeElement === premier) {
+					event.preventDefault()
+					dernier.focus()
+				}
+			} else {
+				if (document.activeElement === dernier) {
+					event.preventDefault()
+					premier.focus()
+				}
 			}
 		},
 		ouvrirHub () {
 			this.elementPrecedent = (document.activeElement || document.body)
 			this.hub = true
-			this.$nextTick(function () {
-				document.querySelector('#hub span').focus()
+			this.$nextTick(() => {
+				document.querySelector('#hub button')?.focus()
 			})
+		},
+		gererMessageHub (event) {
+			if (event.origin !== 'https://ladigitale.dev') return
+			if (typeof event.data !== 'object' || event.data === null) return
+			if (event.data.message === 'fermer-hub') {
+				this.fermerHub()
+			}
 		},
 		fermerHub () {
 			this.hub = false
@@ -239,7 +282,7 @@ export default {
 	z-index: 10;
 }
 
-#langues span {
+#langues button {
     display: flex;
     justify-content: center;
 	align-items: center;
@@ -253,7 +296,7 @@ export default {
 	cursor: pointer;
 }
 
-#langues span.selectionne {
+#langues button.selectionne {
     background: #242f3d;
     color: #fff;
     border: 1px solid #222;
@@ -372,7 +415,7 @@ export default {
     height: 100%;
 }
 
-#hub span {
+#hub button {
 	font-size: 0;
 	color: #fff;
 	position: absolute;
@@ -435,12 +478,12 @@ export default {
 		font-size: 0.85em;
 	}
 
-	#hub span {
+	#hub button {
 		top: 5px;
 		right: 5px;
 	}
 
-	#hub span svg {
+	#hub button svg {
 		width: 24px;
 		height: 24px;
 	}

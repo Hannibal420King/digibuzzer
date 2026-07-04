@@ -2,7 +2,7 @@ export { render as onRenderClient }
 
 import { createPageApp } from './app'
 
-function render (pageContext) {
+const render = (pageContext) => {
 	if (pageContext.pageProps.hasOwnProperty('erreur')) {
 		window.location.href = '/'
 	} else {

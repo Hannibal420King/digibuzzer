@@ -10,12 +10,12 @@
 					</div>
 
 					<div id="parametres" v-if="avatar === ''">
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter.space.prevent="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter.space.prevent="afficherModaleParametres"><i class="material-icons" aria-hidden="true">settings</i></span>
+						<button type="button" :disabled="disabled" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></button>
+						<button type="button" :disabled="disabled" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres"><i class="material-icons" aria-hidden="true">settings</i></button>
 					</div>
 					<div id="parametres" v-else>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')" @keydown.enter.space.prevent="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></span>
-						<span role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres" @keydown.enter.space.prevent="afficherModaleParametres"><img :src="'/avatars/' + avatar"></span>
+						<button type="button" :disabled="disabled" :title="$t('rechargerDonnees')" :aria-label="$t('rechargerDonnees')" @click="rechargerDonnees('notification')"><i class="material-icons" aria-hidden="true">sync</i></button>
+						<button type="button" :disabled="disabled" :title="$t('afficherParametres')" :aria-label="$t('afficherParametres')" @click="afficherModaleParametres"><img :src="'/avatars/' + avatar"></button>
 					</div>
 				</div>
 			</header>
@@ -24,7 +24,7 @@
 				<div id="conteneur" class="ascenseur avec-footer" v-if="statut === 'ouvert'">
 					<div id="conteneur-buzzer">
 						<div id="base">
-							<div id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" role="button" :tabindex="modale === '' && !modaleInformations && message === '' ? 0 : -1" :title="$t('appuyerBuzzer')" :aria-label="$t('appuyerBuzzer')" @click="envoyerReponse" @keydown.enter.space.prevent="envoyerReponse" />
+							<button type="button" id="buzzer" :class="{'desactive': reponse === false || premiereReponse !== '' || reponses[indexQuestion].includes(identifiant)}" :disabled="disabled" :title="$t('appuyerBuzzer')" :aria-label="$t('appuyerBuzzer')" @click="envoyerReponse"></button>
 						</div>
 					</div>
 				</div>
@@ -58,29 +58,29 @@
 		</div>
 
 		<div class="conteneur-modale" v-if="modaleInformations || modale === 'parametres' || modale === 'question' || modale === 'reponse'">
-			<div id="modale-parametres" class="modale" role="dialog" v-if="modale === 'parametres' || modaleInformations">
+			<div id="modale-parametres" class="modale" role="dialog" aria-modal="true" :aria-label="$t('parametres')" v-if="modale === 'parametres' || modaleInformations">
 				<header v-if="modale === 'parametres'">
 					<span class="titre">{{ $t('parametres') }}</span>
-					<span class="fermer" role="button" :tabindex="message === '' ? 0 : -1" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale" @keydown.enter.space.prevent="fermerModale"><i class="material-icons" aria-hidden="true">close</i></span>
+					<button type="button" class="fermer" :disabled="disabledModale" :title="$t('fermer')" :aria-label="$t('fermer')" @click="fermerModale"><i class="material-icons" aria-hidden="true">close</i></button>
 				</header>
 				<div class="conteneur">
-					<div class="contenu" role="form" :aria-label="$t('parametres')">
+					<div class="contenu">
 						<label v-if="modale === 'parametres'">{{ $t('langue') }}</label>
 						<div class="langue" v-if="modale === 'parametres'">
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')" @keydown.enter.space.prevent="modifierLangue('fr')">FR</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')" @keydown.enter.space.prevent="modifierLangue('es')">ES</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')" @keydown.enter.space.prevent="modifierLangue('it')">IT</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')" @keydown.enter.space.prevent="modifierLangue('de')">DE</span>
-							<span role="button" :tabindex="message === '' ? 0 : -1" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')" @keydown.enter.space.prevent="modifierLangue('en')">EN</span>
+							<button type="button" :disabled="disabledModale" title="Français" aria-label="Français" :class="{'selectionne': langue === 'fr'}" @click="modifierLangue('fr')">FR</button>
+							<button type="button" :disabled="disabledModale" title="Español" aria-label="Español" :class="{'selectionne': langue === 'es'}" @click="modifierLangue('es')">ES</button>
+							<button type="button" :disabled="disabledModale" title="Italiano" aria-label="Italiano" :class="{'selectionne': langue === 'it'}" @click="modifierLangue('it')">IT</button>
+							<button type="button" :disabled="disabledModale" title="Deutsch" aria-label="Deutsch" :class="{'selectionne': langue === 'de'}" @click="modifierLangue('de')">DE</button>
+							<button type="button" :disabled="disabledModale" title="English" aria-label="English" :class="{'selectionne': langue === 'en'}" @click="modifierLangue('en')">EN</button>
 						</div>
 						<label for="nom">{{ $t('nomOuPseudo') }}</label>
 						<input id="nom" type="text" v-model="nomProvisoire" :disabled="nom !== '' && avatar !== '' && statut !== ''">
 						<label>{{ $t('avatar') }}</label>
 						<div class="avatars" v-if="progression === 0">
 							<span class="avatar inactif" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :key="'avatar_' + index" v-if="nom !== '' && avatar !== '' && statut !== ''"><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<span class="avatar" role="button" :tabindex="message === '' ? 0 : -1" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :title="$t('selectionnerAvatar')" :aria-label="$t('selectionnerAvatar')" @click="modifierAvatar(item)" @keydown.enter.space.prevent="modifierAvatar(item)" :key="'selection_avatar_' + index" v-else><img :src="'/avatars/' + item" :alt="'avatar' + index"></span>
-							<label for="televerser" class="avatar ajouter" :tabindex="message === '' ? 0 : -1" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter.space.prevent="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons" aria-hidden="true">add_photo_alternate</i></label>
-							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png, .gif" @change="televerserAvatar">
+							<button type="button" class="avatar" :disabled="disabledModale" v-for="(item, index) in avatars" :class="{'actif': item === avatarProvisoire }" :title="$t('selectionnerAvatar')" :aria-label="$t('selectionnerAvatar')" @click="modifierAvatar(item)" :key="'selection_avatar_' + index" v-else><img :src="'/avatars/' + item" :alt="'avatar' + index"></button>
+							<label for="televerser" class="avatar ajouter" :tabindex="tabIndexModale" :aria-disabled="disabledModale" :title="$t('televerserFichier')" :aria-label="$t('televerserFichier')" @keydown.enter.space.prevent="afficherSelectionAvatar" v-if="avatar === '' || nom === '' || statut === ''"><i class="material-icons" aria-hidden="true">add_photo_alternate</i></label>
+							<input id="televerser" type="file" style="display: none" accept=".jpg, .jpeg, .png" :disabled="disabledModale" @change="televerserAvatar">
 							<span class="avatar fichier" :class="{'actif': avatarProvisoire !== '' && !avatars.includes(avatarProvisoire), 'inactif': nom !== '' && avatar !== '' && statut !== ''}"><img :src="'/avatars/' + avatarProvisoire" v-if="avatarProvisoire !== '' && !avatars.includes(avatarProvisoire)"></span>
 							<span class="avatar fichier" v-if="nom !== '' && avatar !== '' && statut !== ''" />
 						</div>
@@ -91,13 +91,13 @@
 							</div>
 						</div>
 						<div class="actions" :class="{'inactif': progression !== 0}" v-if="avatar === '' || nom === '' || statut === ''">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="modifierInformations" @keydown.enter.space.prevent="modifierInformations">{{ $t('valider') }}</span>
+							<button type="button" class="bouton" :disabled="disabledModale" @click="modifierInformations">{{ $t('valider') }}</button>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div id="modale-question" class="modale" role="dialog" v-else-if="modale === 'question'">
+			<div id="modale-question" class="modale" role="dialog" aria-modal="true" v-else-if="modale === 'question'">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="question">{{ $t('question') }} {{ indexQuestion + 1 }}</span>
@@ -106,13 +106,13 @@
 				</div>
 			</div>
 
-			<div id="modale-reponse" class="modale" role="dialog" v-else-if="modale === 'reponse'">
+			<div id="modale-reponse" class="modale" role="dialog" aria-modal="true" v-else-if="modale === 'reponse'">
 				<div class="conteneur">
 					<div class="contenu">
 						<span class="icone" aria-hidden="true"><i class="material-icons">{{ icone }}</i></span>
 						<textarea v-if="options.reponses === 'ecrites' && icone === 'pending'" v-model="texte" :placeholder="$t('votreReponse')" :disabled="texteEnvoye" />
 						<div class="actions" v-if="options.reponses === 'ecrites' && icone === 'pending' && !texteEnvoye">
-							<span class="bouton" role="button" :tabindex="message === '' ? 0 : -1" @click="envoyerTexte" @keydown.enter.space.prevent="envoyerTexte">{{ $t('envoyer') }}</span>
+							<button type="button" class="bouton" :disabled="disabledModale" @click="envoyerTexte">{{ $t('envoyer') }}</button>
 						</div>
 					</div>
 				</div>
@@ -182,6 +182,7 @@ export default {
 			score: 0,
 			reponse: false,
 			premiereReponse: '',
+			indexQuestion: -1,
 			reponses: [],
 			resultats: [],
 			textes: [],
@@ -204,6 +205,17 @@ export default {
 			titre: this.$pageContext.pageProps.titre,
 			statut: this.$pageContext.pageProps.statut,
 			donnees: this.$pageContext.pageProps.donnees
+		}
+	},
+	computed : {
+		tabIndexModale () {
+			return this.message === '' ? 0 : -1
+		},
+		disabled () {
+			return this.modale === '' && !this.modaleInformations && this.message === '' ? false : true
+		},
+		disabledModale () {
+			return this.message === '' ? false : true
 		}
 	},
 	created () {
@@ -256,8 +268,8 @@ export default {
 			this.modale = 'question'
 		} else if (this.donnees.statutQuestion === 'reponses') {
 			this.reponse = true
-			this.$nextTick(function () {
-				document.querySelector('#buzzer').focus()
+			this.$nextTick(() => {
+				document.querySelector('#buzzer')?.focus()
 			})
 		}
 
@@ -272,8 +284,8 @@ export default {
 				}
 			}
 			if (this.options.reponses === 'ecrites' && this.texteEnvoye === false) {
-				this.$nextTick(function () {
-					document.querySelector('#modale-reponse textarea').focus()
+				this.$nextTick(() => {
+					document.querySelector('#modale-reponse textarea')?.focus()
 				})
 			}
 		}
@@ -286,11 +298,9 @@ export default {
 			this.verrouVeilleAPI = true
 		}
 
-		setTimeout(function () {
-			this.chargementPage = false
-		}.bind(this), 300)
+		this.chargementPage = false
 
-		document.body.addEventListener('touchstart', async function () {
+		document.body.addEventListener('touchstart', async () => {
 			if (this.audioInitialise === false) {
 				this.audio.play()
 				this.audioInitialise = true
@@ -302,9 +312,9 @@ export default {
 					this.verrouVeille = ''
 				}
 			}
-		}.bind(this))
+		})
 
-		document.body.addEventListener('click', async function () {
+		document.body.addEventListener('click', async () => {
 			if (this.audioInitialise === false) {
 				this.audio.play()
 				this.audioInitialise = true
@@ -316,18 +326,18 @@ export default {
 					this.verrouVeille = ''
 				}
 			}
-		}.bind(this))
+		})
 
 		document.addEventListener('keydown', this.gererClavier, false)
 
 		window.addEventListener('beforeunload', this.quitterPage, false)
 
 		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
-		document.addEventListener('visibilitychange', async function () {
+		document.addEventListener('visibilitychange', async () => {
 			if (this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-				setTimeout(function () {
+				setTimeout(() => {
 					this.rechargerDonnees('')
-				}.bind(this), 200)
+				}, 200)
 			} else if (!this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
 				this.rechargerDonnees('')
 			}
@@ -338,7 +348,7 @@ export default {
 					this.verrouVeille = ''
 				}
 			}
-		}.bind(this))
+		})
 	},
 	beforeUnmount () {
 		document.removeEventListener('keydown', this.gererClavier, false)
@@ -357,13 +367,13 @@ export default {
 				this.nomProvisoire = this.nom
 				this.avatarProvisoire = this.avatar
 				this.modale = 'parametres'
-				this.$nextTick(function () {
+				this.$nextTick(() => {
 					if (this.statut === '') {
-						document.querySelector('#nom').focus()
+						document.querySelector('#nom')?.focus()
 					} else {
-						document.querySelector('.modale .fermer').focus()
+						document.querySelector('.modale .fermer')?.focus()
 					}
-				}.bind(this))
+				})
 			}
 		},
 		afficherModaleInformations () {
@@ -371,8 +381,8 @@ export default {
 				this.nomProvisoire = this.nom
 				this.avatarProvisoire = this.avatar
 				this.modaleInformations = true
-				this.$nextTick(function () {
-					document.querySelector('#nom').focus()
+				this.$nextTick(() => {
+					document.querySelector('#nom')?.focus()
 				})
 			}
 		},
@@ -388,17 +398,17 @@ export default {
 				axios.post(this.hote + '/api/modifier-langue', {
 					identifiant: this.identifiant,
 					langue: langue
-				}).then(function () {
+				}).then(() => {
 					this.chargement = false
 					this.$i18n.locale = langue
 					document.getElementsByTagName('html')[0].setAttribute('lang', langue)
 					this.langue = langue
 					this.notification = this.$t('langueModifiee')
 					localStorage.setItem('digibuzzer_lang', langue)
-				}.bind(this)).catch(function () {
+				}).catch(() => {
 					this.chargement = false
 					this.message = this.$t('erreurCommunicationServeur')
-				}.bind(this))
+				})
 			}
 		},
 		modifierInformations () {
@@ -413,17 +423,17 @@ export default {
 					identifiant: this.identifiant,
 					nom: this.nomProvisoire,
 					avatar: this.avatarProvisoire
-				}).then(function () {
+				}).then(() => {
 					this.chargement = false
 					this.$socket.emit('informations', { salle: this.salle, identifiant: this.identifiant, nom: this.nomProvisoire, avatar: this.avatarProvisoire })
 					this.nom = this.nomProvisoire
 					this.avatar = this.avatarProvisoire
 					this.notification = this.$t('informationsModifiees')
 					this.gererFocus()
-				}.bind(this)).catch(function () {
+				}).catch(() => {
 					this.chargement = false
 					this.message = this.$t('erreurCommunicationServeur')
-				}.bind(this))
+				})
 			} else if (this.progression === 0 && this.nomProvisoire !== '' && this.nomProvisoire === this.nom && this.avatarProvisoire !== '' && this.avatarProvisoire === this.avatar && this.modale === 'parametres') {
 				this.modale = ''
 			} else if (this.progression === 0 && this.nomProvisoire !== '' && this.nomProvisoire === this.nom && this.avatarProvisoire !== '' && this.avatarProvisoire === this.avatar && this.modaleInformations) {
@@ -440,9 +450,9 @@ export default {
 		},
 		televerserAvatar (event) {
 			const champ = event.target
-			const formats = ['jpg', 'jpeg', 'png', 'gif']
-			const extension = champ.files[0].name.substr(champ.files[0].name.lastIndexOf('.') + 1).toLowerCase()
-			if (champ.files && champ.files[0] && formats.includes(extension) && champ.files[0].size < 1048576) {
+			const formats = ['jpg', 'jpeg', 'png']
+			const extension = champ.files[0].name.substring(champ.files[0].name.lastIndexOf('.') + 1).toLowerCase()
+			if (champ.files && champ.files[0] && formats.includes(extension) && champ.files[0].size <= 1 * 1024 * 1024) {
 				const fichier = champ.files[0]
 				const formulaire = new FormData()
 				formulaire.append('fichier', fichier)
@@ -450,11 +460,11 @@ export default {
 					headers: {
 						'Content-Type': 'multipart/form-data'
 					},
-					onUploadProgress: function (progression) {
+					onUploadProgress: (progression) => {
 						const pourcentage = parseInt(Math.round((progression.loaded * 100) / progression.total))
 						this.progression = pourcentage
-					}.bind(this)
-				}).then(function (reponse) {
+					}
+				}).then((reponse) => {
 					const donnees = reponse.data
 					if (donnees === 'erreur') {
 						this.message = this.$t('erreurCommunicationServeur')
@@ -463,16 +473,16 @@ export default {
 					}
 					champ.value = ''
 					this.progression = 0
-				}.bind(this)).catch(function () {
+				}).catch(() => {
 					champ.value = ''
 					this.progression = 0
 					this.message = this.$t('erreurCommunicationServeur')
-				}.bind(this))
+				})
 			} else {
 				champ.value = ''
 				if (!formats.includes(extension)) {
 					this.message = this.$t('formatImageNonAccepte')
-				} else if (champ.files[0].size >= 1048576) {
+				} else if (champ.files[0].size > 1 * 1024 * 1024) {
 					this.message = this.$t('tailleMaximaleImage')
 				}
 			}
@@ -492,19 +502,19 @@ export default {
 		},
 		definirScore () {
 			let score = 0
-			this.resultats.forEach(function (question) {
-				question.forEach(function (resultat) {
+			this.resultats.forEach((question) => {
+				question.forEach((resultat) => {
 					if (resultat.identifiant === this.identifiant) {
 						score = score + resultat.points
 					}
-				}.bind(this))
-			}.bind(this))
-			if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(this.identifiant) === true) {
-				this.donnees.bonus.forEach(function (bonus) {
+				})
+			})
+			if (this.donnees.bonus.map((e) => e.identifiant).includes(this.identifiant) === true) {
+				this.donnees.bonus.forEach((bonus) => {
 					if (bonus.identifiant === this.identifiant) {
 						score = score + bonus.points
 					}
-				}.bind(this))
+				})
 			}
 			if (this.options.scoreNegatif === false && score < 0) {
 				score = 0
@@ -515,7 +525,7 @@ export default {
 			this.chargement = true
 			axios.post(this.hote + '/api/recuperer-donnees-salle', {
 				salle: this.salle
-			}).then(function (reponse) {
+			}).then((reponse) => {
 				this.chargement = false
 				if (reponse.hasOwnProperty('data') && reponse.data !== 'erreur' && reponse.data !== 'salle_inexistante') {
 					this.modale = ''
@@ -550,8 +560,8 @@ export default {
 							}
 						}
 						if (this.options.reponses === 'ecrites' && this.texteEnvoye === false) {
-							this.$nextTick(function () {
-								document.querySelector('#modale-reponse textarea').focus()
+							this.$nextTick(() => {
+								document.querySelector('#modale-reponse textarea')?.focus()
 							})
 						}
 					}
@@ -570,44 +580,74 @@ export default {
 				} else {
 					this.message = this.$t('erreurCommunicationServeur')
 				}
-			}.bind(this)).catch(function () {
+			}).catch(() => {
 				this.chargement = false
 				this.message = this.$t('erreurCommunicationServeur')
-			}.bind(this))
+			})
 		},
 		gererClavier (event) {
 			if (event.key === 'Escape' && this.message !== '') {
 				this.message = ''
-			} else if (event.key === 'Escape' && this.modale === 'parametres') {
+			} else if (event.key === 'Escape' && (this.modale === 'parametres' || this.modaleInformations)) {
 				this.fermerModale()
 			} else if (event.key === ' ' && this.modale === '' && this.statut === 'ouvert') {
 				this.envoyerReponse()
+			} else if (event.key === 'Tab') {
+				if (this.message !== '') {
+					const modale = document.querySelector('#message')
+					this.piegerFocus(event, modale)
+				} else if (this.modale !== '' || this.modaleInformations) {
+					const modale = document.querySelector('.modale')
+					this.piegerFocus(event, modale)
+				}
 			}
 		},
 		gererFocus () {
-			if (this.elementPrecedent) {
-				this.elementPrecedent.focus()
-				this.elementPrecedent = null
+			this.$nextTick(() => {
+				if (this.elementPrecedent) {
+					this.elementPrecedent.focus()
+					this.elementPrecedent = null
+				}
+			})
+		},
+		piegerFocus (event, conteneur) {
+			if (!conteneur) return
+			const isVisible = el => el.offsetWidth || el.offsetHeight || el.getClientRects().length
+			const focusables = Array.from(conteneur.querySelectorAll('a[href], button, textarea, input:not([type="file"]), select'))
+			.filter(el => !el.disabled && el.tabIndex >= 0 && isVisible(el))
+			if (focusables.length === 0) return
+			const premier = focusables[0]
+			const dernier = focusables[focusables.length - 1]
+			if (event.shiftKey) {
+				if (document.activeElement === premier) {
+					event.preventDefault()
+					dernier.focus()
+				}
+			} else {
+				if (document.activeElement === dernier) {
+					event.preventDefault()
+					premier.focus()
+				}
 			}
 		},
 		quitterPage () {
 			this.$socket.emit('deconnexion', this.salle)
 		},
 		ecouterSocket () {
-			this.$socket.on('salleouverte', function (salle) {
+			this.$socket.on('salleouverte', (salle) => {
 				this.statut = 'ouvert'
 				this.titre = salle.titre
 				this.options = salle.options
-				if (this.nom !== '' && this.avatar !== '' && this.modale === 'informations') {
-					this.modale = ''
+				if (this.nom !== '' && this.avatar !== '' && this.modaleInformations) {
+					this.modaleInformations = false
 				}
-			}.bind(this))
+			})
 
-			this.$socket.on('sallefermee', function () {
+			this.$socket.on('sallefermee', () => {
 				this.statut = 'ferme'
-			}.bind(this))
+			})
 
-			this.$socket.on('question', function (indexQuestion) {
+			this.$socket.on('question', (indexQuestion) => {
 				this.indexQuestion = indexQuestion
 				this.reponse = false
 				this.premiereReponse = ''
@@ -617,28 +657,28 @@ export default {
 				this.resultats.push([])
 				this.textes.push([])
 				this.modale = 'question'
-			}.bind(this))
+			})
 
-			this.$socket.on('reponses', function () {
+			this.$socket.on('reponses', () => {
 				this.modale = ''
 				this.reponse = true
-				this.$nextTick(function () {
-					document.querySelector('#buzzer').focus()
+				this.$nextTick(() => {
+					document.querySelector('#buzzer')?.focus()
 				})
-			}.bind(this))
+			})
 
-			this.$socket.on('reponse', function () {
+			this.$socket.on('reponse', () => {
 				this.chargement = false
-			}.bind(this))
+			})
 
-			this.$socket.on('texte', function (donnees) {
+			this.$socket.on('texte', (donnees) => {
 				this.chargement = false
 				if (donnees.identifiant === this.identifiant) {
 					this.texteEnvoye = true
 				}
-			}.bind(this))
+			})
 
-			this.$socket.on('premierereponse', function (identifiant) {
+			this.$socket.on('premierereponse', (identifiant) => {
 				this.premiereReponse = identifiant
 				this.reponses[this.indexQuestion].push(identifiant)
 				if (identifiant === this.identifiant) {
@@ -647,31 +687,31 @@ export default {
 					this.audio.src = '/fx/reponse.mp3'
 					this.audio.play()
 					if (this.options.reponses === 'ecrites') {
-						this.$nextTick(function () {
-							document.querySelector('#modale-reponse textarea').focus()
+						this.$nextTick(() => {
+							document.querySelector('#modale-reponse textarea')?.focus()
 						})
 					}
 				}
-			}.bind(this))
+			})
 
-			this.$socket.on('texteenvoye', function (texte) {
+			this.$socket.on('texteenvoye', (texte) => {
 				this.textes[this.indexQuestion].push(texte)
-			}.bind(this))
+			})
 
-			this.$socket.on('reponseannulee', function (identifiant) {
+			this.$socket.on('reponseannulee', (identifiant) => {
 				this.premiereReponse = ''
 				if (identifiant === this.identifiant) {
 					this.icone = 'clear'
 					this.audio.src = '/fx/incorrect.mp3'
 					this.audio.play()
-					setTimeout(function () {
+					setTimeout(() => {
 						this.modale = ''
 						this.icone = 'pending'
-					}.bind(this), 2000)
+					}, 2000)
 				}
-			}.bind(this))
+			})
 
-			this.$socket.on('reponsecomptabilisee', function (donnees) {
+			this.$socket.on('reponsecomptabilisee', (donnees) => {
 				if (donnees.type === 'mauvaise-reponse') {
 					this.premiereReponse = ''
 				}
@@ -683,55 +723,55 @@ export default {
 						this.audio.src = '/fx/incorrect.mp3'
 					}
 					this.audio.play()
-					setTimeout(function () {
+					setTimeout(() => {
 						this.modale = ''
 						this.icone = 'pending'
-					}.bind(this), 2000)
+					}, 2000)
 				}
-				if (this.resultats[donnees.indexQuestion].map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
-					this.resultats[donnees.indexQuestion].forEach(function (resultat, indexResultat) {
+				if (this.resultats[donnees.indexQuestion].map((e) => e.identifiant).includes(donnees.identifiant) === true) {
+					this.resultats[donnees.indexQuestion].forEach((resultat, indexResultat) => {
 						if (resultat.identifiant === donnees.identifiant) {
 							this.resultats[donnees.indexQuestion][indexResultat].points = parseInt(this.resultats[donnees.indexQuestion][indexResultat].points) + parseInt(donnees.points)
 						}
-					}.bind(this))
+					})
 				} else {
 					this.resultats[donnees.indexQuestion].push({ identifiant: donnees.identifiant, points: parseInt(donnees.points) })
 				}
 				this.definirScore()
-			}.bind(this))
+			})
 
-			this.$socket.on('score', function (donnees) {
-				if (this.donnees.bonus.map(function (e) { return e.identifiant }).includes(donnees.identifiant) === true) {
-					this.donnees.bonus.forEach(function (bonus, indexBonus) {
+			this.$socket.on('score', (donnees) => {
+				if (this.donnees.bonus.map((e) => e.identifiant).includes(donnees.identifiant) === true) {
+					this.donnees.bonus.forEach((bonus, indexBonus) => {
 						if (bonus.identifiant === donnees.identifiant) {
 							this.donnees.bonus[indexBonus].points = parseInt(donnees.bonus)
 						}
-					}.bind(this))
+					})
 				} else {
 					this.donnees.bonus.push({ identifiant: donnees.identifiant, points: parseInt(donnees.bonus) })
 				}
 				this.definirScore()
-			}.bind(this))
+			})
 
-			this.$socket.on('utilisateurbanni', function (identifiant) {
+			this.$socket.on('utilisateurbanni', (identifiant) => {
 				if (this.identifiant === identifiant) {
 					this.utilisateurBanni = true
 				}
-			}.bind(this))
+			})
 
-			this.$socket.on('utilisateurautorise', function (identifiant) {
+			this.$socket.on('utilisateurautorise', (identifiant) => {
 				if (this.identifiant === identifiant) {
 					this.utilisateurBanni = false
 				}
-			}.bind(this))
+			})
 
-			this.$socket.on('erreur', function () {
+			this.$socket.on('erreur', () => {
 				this.message = this.$t('erreurCommunicationServeur')
-			}.bind(this))
+			})
 
-			this.$socket.on('erreursalle', function () {
+			this.$socket.on('erreursalle', () => {
 				this.message = this.$t('salleInexistante')
-			}.bind(this))
+			})
 		}
 	}
 }
@@ -758,15 +798,15 @@ export default {
 	line-height: 1;
 }
 
-#parametres span {
+#parametres button {
 	cursor: pointer;
 }
 
-#parametres span:first-child {
+#parametres button:first-child {
 	margin-right: 20px;
 }
 
-#parametres span img {
+#parametres button img {
 	border-radius: 50%;
 	width: 24px;
 }
@@ -841,6 +881,7 @@ export default {
 }
 
 #buzzer {
+	display: block;
     width: 25rem;
     height: 25rem;
     margin-left: auto;
@@ -853,6 +894,9 @@ export default {
     border-radius: 15rem;
     box-shadow: inset 0px 2px 0px #a8a8a8, 0px 2px 0px #2a2a2a, 0px 3px 0px #2a2a2a, 0px 4px 0px #2a2a2a, 0px 5px 0px #2a2a2a, 0px 6px 0px #2a2a2a, 0px 7px 0px #2a2a2a, 0px 8px 0px #2a2a2a, 0px 9px 0px #2a2a2a, 0px 10px 0px #2a2a2a, 10px 20px 10px #000;
     transition: all 0.2s;
+    border: none;
+    padding: 0;
+    appearance: none;
 }
 
 #buzzer:active {
@@ -883,12 +927,12 @@ export default {
 	max-width: 500px;
 }
 
-#modale-parametres span.bouton {
+#modale-parametres button.bouton {
 	width: 100%;
 	text-align: center;
 }
 
-#modale-parametres .langue span {
+#modale-parametres .langue button {
     display: flex;
     justify-content: center;
 	align-items: center;
@@ -901,7 +945,7 @@ export default {
 	cursor: pointer;
 }
 
-#modale-parametres .langue span.selectionne {
+#modale-parametres .langue button.selectionne {
     background: #242f3d;
     color: #fff;
     border: 1px solid #222;
@@ -915,7 +959,8 @@ export default {
 	margin-bottom: 10px;
 }
 
-.modale .avatars span {
+.modale .avatars span,
+.modale .avatars button {
 	width: 18.5%;
 	cursor: pointer;
 	border: 2px solid transparent;
@@ -926,7 +971,7 @@ export default {
 	cursor: default;
 }
 
-.modale .avatars span.actif {
+.modale .avatars .actif {
 	border: 2px solid #001d1d;
 	cursor: pointer;
 }
@@ -947,7 +992,8 @@ export default {
 	margin: 0 0 10px 0;
 }
 
-.modale .avatars span img {
+.modale .avatars span img,
+.modale .avatars button img {
 	border-radius: 50%;
 }
 

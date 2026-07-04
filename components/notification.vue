@@ -9,18 +9,18 @@ export default {
 		notification: String
 	},
 	watch: {
-		notification: function (notification) {
+		notification (notification) {
 			if (notification !== '') {
 				const element = document.createElement('div')
 				const id = 'notification_' + Date.now().toString(36) + Math.random().toString(36).substring(2)
 				element.id = id
 				element.textContent = notification
 				element.classList.add('notification')
-				document.querySelector('#notification').appendChild(element)
-				setTimeout(function () {
+				document.querySelector('#notification')?.appendChild(element)
+				setTimeout(() => {
 					element.parentNode.removeChild(element)
 					this.$emit('fermer')
-				}.bind(this), 2500)
+				}, 2500)
 			}
 		}
 	}

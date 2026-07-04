@@ -1,6 +1,4 @@
-export { onBeforeRender }
-
-function onBeforeRender (pageContext) {
+const onBeforeRender = (pageContext) => {
 	const params = pageContext.params
 	const hote = pageContext.hote
 	const langues = pageContext.langues
@@ -12,3 +10,5 @@ function onBeforeRender (pageContext) {
 		}
 	}
 }
+
+export { onBeforeRender }

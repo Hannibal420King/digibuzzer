@@ -6,21 +6,21 @@ import messages from './lang'
 
 export { createPageApp }
 
-function createPageApp (pageContext) {
+const createPageApp = (pageContext) => {
 	const { Page, pageProps } = pageContext
 	const PageWithLayout = {
-    	render () {
-      		return h(
-        		PageShell,
-        		{},
-        		{
-          			default () {
-            			return h(Page, pageProps || {})
-          			}
-        		}
-      		)
-    	}
-  	}
+		render () {
+			return h(
+				PageShell,
+				{},
+				{
+					default () {
+						return h(Page, pageProps || {})
+					}
+				}
+			)
+		}
+	}
 
 	const i18n = createI18n({
 		locale: 'fr',
@@ -33,7 +33,6 @@ function createPageApp (pageContext) {
 	app.use(i18n)
 
 	app.config.globalProperties.$socket = io(pageProps.hote, {
-		// transports: ['websocket', 'polling'],
 		autoConnect: true,
 		closeOnBeforeunload: false
 	})

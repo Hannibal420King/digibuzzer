@@ -9,6 +9,7 @@
 	font-family: 'Roboto Slab';
 	font-style: normal;
 	font-weight: 500;
+	font-display: swap;
 	src: local('Roboto Slab Medium'), local('Roboto-Slab-Medium'), url('/fonts/Roboto-Slab-Medium.woff2') format('woff2');
 }
 
@@ -74,13 +75,21 @@ body {
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-*:focus {
+*:focus,
+button[type="button"]:focus {
 	outline: 2px solid #ed5b00;
   	outline-offset: 1px;
 }
 
-[tabIndex="-1"] {
+[tabIndex="-1"],
+button[type="button"][tabIndex="-1"]:focus {
 	outline: none;
+}
+
+[role="menuitem"][tabIndex="-1"]:focus,
+button[type="button"][role="menuitem"][tabIndex="-1"]:focus {
+	outline: 2px solid #ed5b00;
+  	outline-offset: 1px;
 }
 
 audio {
@@ -115,11 +124,6 @@ input,
 	-webkit-touch-callout: default!important;
 }
 
-button {
-	appearance: none;
-    -webkit-appearance: none;
-}
-
 ::-webkit-scrollbar {
 	width: 7px;
 	height: 15px;
@@ -144,6 +148,7 @@ button {
 .ascenseur {
 	scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
 	scrollbar-width: thin;
+	outline: 0
 }
 
 ::placeholder {
@@ -154,10 +159,6 @@ button {
 input:disabled {
 	-webkit-text-fill-color: #001d1d;
 	opacity: 1;
-}
-
-[v-cloak] {
-	display: none;
 }
 
 b,
@@ -452,6 +453,7 @@ main {
 	padding: 20px;
 	overflow: auto;
     height: calc(100% - 45px);
+	outline: 0;
 }
 
 .modale .conteneur p {

@@ -1,15 +1,13 @@
 import axios from 'axios'
 
-export { onBeforeRender }
-
-async function onBeforeRender (pageContext) {
+const onBeforeRender = async (pageContext) => {
 	let pageProps, erreur
 	const salle = pageContext.routeParams.salle
 	const reponse = await axios.post(pageContext.hote + '/api/recuperer-donnees-salle', {
 		salle: salle
 	}, {
 		headers: { 'Content-Type': 'application/json' }
-	}).catch(function () {
+	}).catch(() => {
 		erreur = true
 		pageProps = { erreur }
 	})
@@ -26,13 +24,14 @@ async function onBeforeRender (pageContext) {
 		const langues = pageContext.langues
 		const identifiant = pageContext.identifiant
 		const nom = pageContext.nom
+		const avatar = pageContext.avatar
 		const langue = pageContext.langue
 		const role = pageContext.role
 		const salles = pageContext.salles
 		const titre = reponse.data.titre
 		const statut = reponse.data.statut
 		const donnees = reponse.data.donnees
-		pageProps = { urlOriginal, params, hote, langues, identifiant, nom, langue, role, salles, salle, titre, statut, donnees }
+		pageProps = { urlOriginal, params, hote, langues, identifiant, nom, avatar, langue, role, salles, salle, titre, statut, donnees }
 	}
 	return {
 		pageContext: {
@@ -40,3 +39,5 @@ async function onBeforeRender (pageContext) {
 		}
 	}
 }
+
+export { onBeforeRender }

@@ -1,11 +1,11 @@
 <template>
 	<div id="conteneur-message" class="conteneur-modale">
-		<div id="message" class="modale" role="dialog">
+		<div id="message" class="modale" role="dialog" aria-modal="true">
 			<div class="conteneur">
 				<div class="contenu">
 					<div class="message" v-html="message" />
 					<div class="actions">
-						<span class="bouton" role="button" tabindex="0" @click="$emit('fermer')" @keydown.enter.space.prevent="$emit('fermer')">{{ $t('fermer') }}</span>
+						<button type="button" class="bouton" @click="$emit('fermer')">{{ $t('fermer') }}</button>
 					</div>
 				</div>
 			</div>
@@ -20,10 +20,10 @@ export default {
 		message: String
 	},
 	mounted () {
-		if (message !== '') {
+		if (this.message !== '') {
 			this.$emit('elementPrecedent', document.activeElement || document.body)
-			this.$nextTick(function () {
-				document.querySelector('#message .bouton').focus()
+			this.$nextTick(() => {
+				document.querySelector('#message .bouton')?.focus()
 			})
 		}
 	}
