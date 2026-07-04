@@ -701,7 +701,7 @@ export default {
 					height: 360,
 					colorDark: '#000000',
 					colorLight: '#ffffff',
-					correctLevel : QRCode.CorrectLevel.H
+					correctLevel: QRCode.CorrectLevel.H
 				})
 				document.querySelector('.modale .fermer')?.focus()
 			})
