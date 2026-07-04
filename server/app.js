@@ -156,9 +156,11 @@ const demarrerServeur = async () => {
 	})
 
 	let scriptSrc
+	let domaineUmami = null
 	if (process.env.UMAMI_SCRIPT_URL && process.env.UMAMI_SCRIPT_URL !== '') {
 		const umamiScriptUrl = new URL(process.env.UMAMI_SCRIPT_URL)
-		scriptSrc = ["'self'", umamiScriptUrl.protocol + '//' + umamiScriptUrl.hostname]
+		domaineUmami = umamiScriptUrl.protocol + '//' + umamiScriptUrl.hostname
+		scriptSrc = ["'self'", domaineUmami]
 	} else {
 		scriptSrc = ["'self'"]
 	}
@@ -174,7 +176,7 @@ const demarrerServeur = async () => {
 		helmet.contentSecurityPolicy({
 			directives: {
 				"default-src": ["'self'", "https:"],
-				"connect-src": ["'self'", hoteWs, hoteVite],
+				"connect-src": ["'self'", hoteWs, hoteVite, ...(domaineUmami ? [domaineUmami] : [])],
 				"script-src": scriptSrc,
 				"media-src": ["'self'", "data:"],
 				"frame-ancestors": ["'self'", 'https://ladigitale.dev', 'https://digipad.app', 'https://digiwall.app']
