@@ -589,6 +589,7 @@ export default {
 	},
 	beforeUnmount () {
 		this.clipboard?.destroy()
+		this.codeqr?.clear()
 		document.removeEventListener('keydown', this.gererClavier, false)
 	},
 	methods: {
@@ -707,6 +708,10 @@ export default {
 			})
 		},
 		fermerModale () {
+			if (this.codeqr) {
+				this.codeqr.clear()
+				this.codeqr = null
+			}
 			this.modale = ''
 			this.gererFocus()
 		},
