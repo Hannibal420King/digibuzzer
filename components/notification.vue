@@ -18,7 +18,7 @@ export default {
 				element.classList.add('notification')
 				document.querySelector('#notification')?.appendChild(element)
 				setTimeout(() => {
-					element.parentNode.removeChild(element)
+					element?.remove()
 					this.$emit('fermer')
 				}, 2500)
 			}
