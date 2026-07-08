@@ -82,7 +82,8 @@ button[type="button"]:focus {
 }
 
 [tabIndex="-1"],
-button[type="button"][tabIndex="-1"]:focus {
+button[type="button"][tabIndex="-1"]:focus,
+button:disabled:focus {
 	outline: none;
 }
 
