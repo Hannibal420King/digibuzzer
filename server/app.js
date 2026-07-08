@@ -443,14 +443,14 @@ const demarrerServeur = async () => {
 			if (extension === '.jpg' || extension === '.jpeg') {
 				try {
 					const bufferOptimise = await sharp(chemin, { failOnError: false })
-					.withMetadata()
-					.rotate()
-					.jpeg({
-						quality: 90,
-						progressive: true
-					})
-					.resize(300, 320)
-					.toBuffer()
+						.withMetadata()
+						.rotate()
+						.jpeg({
+							quality: 90,
+							progressive: true
+						})
+						.resize(300, 320)
+						.toBuffer()
 					if (!bufferOptimise) return res.status(500).send('erreur')
 					await fs.writeFile(chemin, bufferOptimise)
 					res.status(200).send(fichier.filename)
@@ -461,9 +461,9 @@ const demarrerServeur = async () => {
 			} else if (extension === '.png') {
 				try {
 					const bufferOptimise = await sharp(chemin, { failOnError: false })
-					.withMetadata()
-					.resize(300, 320)
-					.toBuffer()
+						.withMetadata()
+						.resize(300, 320)
+						.toBuffer()
 					if (!bufferOptimise) return res.status(500).send('erreur')
 					await fs.writeFile(chemin, bufferOptimise)
 					res.status(200).send(fichier.filename)
