@@ -151,7 +151,7 @@ import Message from '#root/components/message.vue'
 import Notification from '#root/components/notification.vue'
 
 export default {
-	name: 'Participer',
+	name: 'DigibuzzerParticiper',
 	components: {
 		ChargementPage,
 		Chargement,

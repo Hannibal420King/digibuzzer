@@ -4,7 +4,7 @@
 
 <script>
 export default {
-	name: 'Notification',
+	name: 'DigibuzzerNotification',
 	props: {
 		notification: String
 	},
