@@ -19,6 +19,7 @@ import { RedisStore } from 'connect-redis'
 import session from 'express-session'
 import rateLimit from 'express-rate-limit'
 import { RedisStore as RateLimitRedisStore } from 'rate-limit-redis'
+import { randomBytes } from 'crypto'
 import { renderPage, createDevMiddleware } from 'vike/server'
 
 const production = process.env.NODE_ENV === 'production'
@@ -315,7 +316,7 @@ const demarrerServeur = async () => {
 			req.session.salles = []
 		}
 		const titre = req.body.titre
-		const salle = Math.random().toString(16).slice(7)
+		const salle = randomBytes(8).toString('hex')
 		const date = dayjs().format()
 		try {
 			const salleExiste = await db.EXISTS('salles:' + salle)
