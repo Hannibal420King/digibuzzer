@@ -422,9 +422,6 @@ export default {
 				const formulaire = new FormData()
 				formulaire.append('fichier', fichier)
 				axios.post(this.hote + '/api/televerser-avatar', formulaire, {
-					headers: {
-						'Content-Type': 'multipart/form-data'
-					},
 					onUploadProgress: (progression) => {
 						const pourcentage = parseInt(Math.round((progression.loaded * 100) / progression.total))
 						this.progression = pourcentage
