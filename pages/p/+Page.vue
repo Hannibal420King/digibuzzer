@@ -300,58 +300,20 @@ export default {
 
 		this.chargementPage = false
 
-		document.body.addEventListener('touchstart', async () => {
-			if (this.audioInitialise === false) {
-				this.audio.play()
-				this.audioInitialise = true
-			}
-			if (this.verrouVeilleAPI && this.verrouVeille === '') {
-				try {
-					this.verrouVeille = await navigator.wakeLock.request('screen')
-				} catch (err) {
-					this.verrouVeille = ''
-				}
-			}
-		})
-
-		document.body.addEventListener('click', async () => {
-			if (this.audioInitialise === false) {
-				this.audio.play()
-				this.audioInitialise = true
-			}
-			if (this.verrouVeilleAPI && this.verrouVeille === '') {
-				try {
-					this.verrouVeille = await navigator.wakeLock.request('screen')
-				} catch (err) {
-					this.verrouVeille = ''
-				}
-			}
-		})
+		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
 
 		document.addEventListener('keydown', this.gererClavier, false)
-
+		document.body.addEventListener('touchstart', this.initialiserVerrouVeilleAudio, false)
+		document.body.addEventListener('click', this.initialiserVerrouVeilleAudio, false)
 		window.addEventListener('beforeunload', this.quitterPage, false)
-
-		this.mobile = (window.navigator.maxTouchPoints || 'ontouchstart' in document)
-		document.addEventListener('visibilitychange', async () => {
-			if (this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-				setTimeout(() => {
-					this.rechargerDonnees('')
-				}, 200)
-			} else if (!this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
-				this.rechargerDonnees('')
-			}
-			if (this.verrouVeilleAPI && this.verrouVeille !== '' && document.visibilityState === 'visible') {
-				try {
-					this.verrouVeille = await navigator.wakeLock.request('screen')
-				} catch (err) {
-					this.verrouVeille = ''
-				}
-			}
-		})
+		document.addEventListener('visibilitychange', this.gererVisibilite, false)
 	},
 	beforeUnmount () {
 		document.removeEventListener('keydown', this.gererClavier, false)
+		document.body.removeEventListener('touchstart', this.initialiserVerrouVeilleAudio, false)
+		document.body.removeEventListener('click', this.initialiserVerrouVeilleAudio, false)
+		window.removeEventListener('beforeunload', this.quitterPage, false)
+		document.removeEventListener('visibilitychange', this.gererVisibilite, false)
 	},
 	methods: {
 		definirElementPrecedent (element) {
@@ -627,6 +589,35 @@ export default {
 				if (document.activeElement === dernier) {
 					event.preventDefault()
 					premier.focus()
+				}
+			}
+		},
+		async initialiserVerrouVeilleAudio () {
+			if (this.audioInitialise === false) {
+				this.audio.play()
+				this.audioInitialise = true
+			}
+			if (this.verrouVeilleAPI && this.verrouVeille === '') {
+				try {
+					this.verrouVeille = await navigator.wakeLock.request('screen')
+				} catch (err) {
+					this.verrouVeille = ''
+				}
+			}
+		},
+		async gererVisibilite () {
+			if (this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+				setTimeout(() => {
+					this.rechargerDonnees('')
+				}, 200)
+			} else if (!this.mobile && !this.chargement && document.visibilityState === 'visible' && this.identifiant !== '' && this.nom !== '' && this.avatar !== '') {
+				this.rechargerDonnees('')
+			}
+			if (this.verrouVeilleAPI && this.verrouVeille !== '' && document.visibilityState === 'visible') {
+				try {
+					this.verrouVeille = await navigator.wakeLock.request('screen')
+				} catch (err) {
+					this.verrouVeille = ''
 				}
 			}
 		},
