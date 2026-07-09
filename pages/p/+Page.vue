@@ -358,7 +358,6 @@ export default {
 			if (this.langue !== langue) {
 				this.chargement = true
 				axios.post(this.hote + '/api/modifier-langue', {
-					identifiant: this.identifiant,
 					langue: langue
 				}).then(() => {
 					this.chargement = false
@@ -367,9 +366,13 @@ export default {
 					this.langue = langue
 					this.notification = this.$t('langueModifiee')
 					localStorage.setItem('digibuzzer_lang', langue)
-				}).catch(() => {
+				}).catch((err) => {
 					this.chargement = false
-					this.message = this.$t('erreurCommunicationServeur')
+					if (err.response?.data === 'non_autorise') {
+						this.message = this.$t('actionNonAutorisee')
+					} else {
+						this.message = this.$t('erreurCommunicationServeur')
+					}
 				})
 			}
 		},
@@ -427,12 +430,7 @@ export default {
 						this.progression = pourcentage
 					}
 				}).then((reponse) => {
-					const donnees = reponse.data
-					if (donnees === 'erreur') {
-						this.message = this.$t('erreurCommunicationServeur')
-					} else {
-						this.avatarProvisoire = donnees
-					}
+					this.avatarProvisoire = reponse.data
 					champ.value = ''
 					this.progression = 0
 				}).catch(() => {
@@ -489,62 +487,60 @@ export default {
 				salle: this.salle
 			}).then((reponse) => {
 				this.chargement = false
-				if (reponse.hasOwnProperty('data') && reponse.data !== 'erreur' && reponse.data !== 'salle_inexistante') {
-					this.modale = ''
-					this.reponse = false
-					this.titre = reponse.data.titre
-					this.statut = reponse.data.statut
-					this.donnees = reponse.data.donnees
-					this.indexQuestion = parseInt(this.donnees.indexQuestion)
-					if (this.donnees.statutQuestion === 'question') {
-						this.modale = 'question'
-					} else if (this.donnees.statutQuestion === 'reponses') {
-						this.reponse = true
+				this.modale = ''
+				this.reponse = false
+				this.titre = reponse.data.titre
+				this.statut = reponse.data.statut
+				this.donnees = reponse.data.donnees
+				this.indexQuestion = parseInt(this.donnees.indexQuestion)
+				if (this.donnees.statutQuestion === 'question') {
+					this.modale = 'question'
+				} else if (this.donnees.statutQuestion === 'reponses') {
+					this.reponse = true
+				}
+				this.premiereReponse = this.donnees.premiereReponse
+				if (this.donnees.hasOwnProperty('options')) {
+					this.options = this.donnees.options
+					if (!this.options.hasOwnProperty('scoreNegatif')) {
+						this.options.scoreNegatif = false
 					}
-					this.premiereReponse = this.donnees.premiereReponse
-					if (this.donnees.hasOwnProperty('options')) {
-						this.options = this.donnees.options
-						if (!this.options.hasOwnProperty('scoreNegatif')) {
-							this.options.scoreNegatif = false
-						}
-					}
-					if (this.donnees.hasOwnProperty('textes')) {
-						this.textes = this.donnees.textes
-					}
-					if (this.reponse && this.premiereReponse === this.identifiant) {
-						this.modale = 'reponse'
-						if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
-							for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
-								if (this.textes[this.indexQuestion][i].identifiant === this.identifiant) {
-									this.texte = this.textes[this.indexQuestion][i].texte
-									this.texteEnvoye = true
-								}
+				}
+				if (this.donnees.hasOwnProperty('textes')) {
+					this.textes = this.donnees.textes
+				}
+				if (this.reponse && this.premiereReponse === this.identifiant) {
+					this.modale = 'reponse'
+					if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
+						for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
+							if (this.textes[this.indexQuestion][i].identifiant === this.identifiant) {
+								this.texte = this.textes[this.indexQuestion][i].texte
+								this.texteEnvoye = true
 							}
 						}
-						if (this.options.reponses === 'ecrites' && this.texteEnvoye === false) {
-							this.$nextTick(() => {
-								document.querySelector('#modale-reponse textarea')?.focus()
-							})
-						}
 					}
-					this.reponses = this.donnees.reponses
-					this.resultats = this.donnees.resultats
-					if (this.donnees.hasOwnProperty('utilisateursBannis') === true && this.donnees.utilisateursBannis.includes(this.identifiant)) {
-						this.utilisateurBanni = true
+					if (this.options.reponses === 'ecrites' && this.texteEnvoye === false) {
+						this.$nextTick(() => {
+							document.querySelector('#modale-reponse textarea')?.focus()
+						})
 					}
-					this.definirScore()
-					if (notification !== '') {
-						this.notification = this.$t('donneesRechargees')
-					}
-					this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-				} else if (reponse.data === 'salle_inexistante') {
-					window.location.href = '/'
+				}
+				this.reponses = this.donnees.reponses
+				this.resultats = this.donnees.resultats
+				if (this.donnees.hasOwnProperty('utilisateursBannis') === true && this.donnees.utilisateursBannis.includes(this.identifiant)) {
+					this.utilisateurBanni = true
+				}
+				this.definirScore()
+				if (notification !== '') {
+					this.notification = this.$t('donneesRechargees')
+				}
+				this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+			}).catch((err) => {
+				this.chargement = false
+				if (err.response?.data === 'salle_inexistante') {
+					window.location.replace('/')
 				} else {
 					this.message = this.$t('erreurCommunicationServeur')
 				}
-			}).catch(() => {
-				this.chargement = false
-				this.message = this.$t('erreurCommunicationServeur')
 			})
 		},
 		gererClavier (event) {
