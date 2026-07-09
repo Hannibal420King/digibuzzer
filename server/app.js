@@ -151,7 +151,9 @@ const demarrerServeur = async () => {
 		legacyHeaders: false,
 		store: new RateLimitRedisStore({
 			sendCommand: (...args) => db.sendCommand(args),
+			prefix: 'rl-api:'
 		}),
+		skipSuccessfulRequests: true,
 		validate: { trustProxy: false }
 	})
 
