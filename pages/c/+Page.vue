@@ -740,19 +740,16 @@ export default {
 					titre: titre
 				}).then((reponse) => {
 					this.chargement = false
-					const donnees = reponse.data
-					if (donnees === 'erreur') {
-						this.message = this.$t('erreurCommunicationServeur')
-					} else if (donnees === 'non_autorise') {
-						this.notification = this.$t('actionNonAutorisee')
-					} else if (donnees === 'titre_modifie') {
-						this.titre = titre
-						document.title = titre + ' - Digibuzzer by La Digitale'
-						this.notification = this.$t('titreModifie')
-					}
-				}).catch(() => {
+					this.titre = titre
+					document.title = titre + ' - Digibuzzer by La Digitale'
+					this.notification = this.$t('titreModifie')
+				}).catch((err) => {
 					this.chargement = false
-					this.message = this.$t('erreurCommunicationServeur')
+					if (err.response?.data === 'non_autorise') {
+						this.message = this.$t('actionNonAutorisee')
+					} else {
+						this.message = this.$t('erreurCommunicationServeur')
+					}
 				})
 			}
 		},
@@ -767,7 +764,6 @@ export default {
 			if (this.langue !== langue) {
 				this.chargement = true
 				axios.post(this.hote + '/api/modifier-langue', {
-					identifiant: this.identifiant,
 					langue: langue
 				}).then(() => {
 					this.chargement = false
@@ -776,9 +772,13 @@ export default {
 					this.langue = langue
 					this.notification = this.$t('langueModifiee')
 					localStorage.setItem('digibuzzer_lang', langue)
-				}).catch(() => {
+				}).catch((err) => {
 					this.chargement = false
-					this.message = this.$t('erreurCommunicationServeur')
+					if (err.response?.data === 'non_autorise') {
+						this.message = this.$t('actionNonAutorisee')
+					} else {
+						this.message = this.$t('erreurCommunicationServeur')
+					}
 				})
 			}
 		},
@@ -801,22 +801,19 @@ export default {
 				statut: 'ouvert'
 			}).then((reponse) => {
 				this.chargement = false
-				const donnees = reponse.data
-				if (donnees === 'erreur') {
-					this.message = this.$t('erreurCommunicationServeur')
-				} else if (donnees === 'non_autorise') {
-					this.notification = this.$t('actionNonAutorisee')
-				} else if (donnees === 'statut_modifie') {
-					this.statut = 'ouvert'
-					this.notification = this.$t('salleOuverte')
-					this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre, options: this.options })
-					this.$nextTick(() => {
-						document.querySelector('footer .bouton:nth-child(2)')?.focus()
-					})
-				}
-			}).catch(() => {
+				this.statut = 'ouvert'
+				this.notification = this.$t('salleOuverte')
+				this.$socket.emit('salleouverte', { salle: this.salle, titre: this.titre, options: this.options })
+				this.$nextTick(() => {
+					document.querySelector('footer .bouton:nth-child(2)')?.focus()
+				})
+			}).catch((err) => {
 				this.chargement = false
-				this.message = this.$t('erreurCommunicationServeur')
+				if (err.response?.data === 'non_autorise') {
+					this.message = this.$t('actionNonAutorisee')
+				} else {
+					this.message = this.$t('erreurCommunicationServeur')
+				}
 			})
 		},
 		modifierIndexQuestion () {
@@ -931,19 +928,16 @@ export default {
 				statut: 'ferme'
 			}).then((reponse) => {
 				this.chargement = false
-				const donnees = reponse.data
-				if (donnees === 'erreur') {
-					this.message = this.$t('erreurCommunicationServeur')
-				} else if (donnees === 'non_autorise') {
-					this.notification = this.$t('actionNonAutorisee')
-				} else if (donnees === 'statut_modifie') {
-					this.statut = 'ferme'
-					this.notification = this.$t('salleFermee')
-					this.$socket.emit('sallefermee', this.salle)
-				}
-			}).catch(() => {
+				this.statut = 'ferme'
+				this.notification = this.$t('salleFermee')
+				this.$socket.emit('sallefermee', this.salle)
+			}).catch((err) => {
 				this.chargement = false
-				this.message = this.$t('erreurCommunicationServeur')
+				if (err.response?.data === 'non_autorise') {
+					this.message = this.$t('actionNonAutorisee')
+				} else {
+					this.message = this.$t('erreurCommunicationServeur')
+				}
 			})
 		},
 		exporter () {
@@ -995,69 +989,67 @@ export default {
 				salle: this.salle
 			}).then((reponse) => {
 				this.chargement = false
-				if (reponse.hasOwnProperty('data') && reponse.data !== 'erreur' && reponse.data !== 'salle_inexistante') {
-					this.titre = reponse.data.titre
-					this.statut = reponse.data.statut
-					this.donnees = reponse.data.donnees
-					this.indexQuestion = parseInt(this.donnees.indexQuestion)
-					this.statutQuestion = this.donnees.statutQuestion
-					if (this.statutQuestion === 'question') {
-						this.modale = 'question'
-						this.$nextTick(() => {
-							document.querySelector('#modale-question .bouton')?.focus()
-						})
+				this.titre = reponse.data.titre
+				this.statut = reponse.data.statut
+				this.donnees = reponse.data.donnees
+				this.indexQuestion = parseInt(this.donnees.indexQuestion)
+				this.statutQuestion = this.donnees.statutQuestion
+				if (this.statutQuestion === 'question') {
+					this.modale = 'question'
+					this.$nextTick(() => {
+						document.querySelector('#modale-question .bouton')?.focus()
+					})
+				}
+				this.premiereReponse = this.donnees.premiereReponse
+				if (this.donnees.hasOwnProperty('options')) {
+					this.options = this.donnees.options
+					if (!this.options.hasOwnProperty('points')) {
+						this.options.points = 1000
 					}
-					this.premiereReponse = this.donnees.premiereReponse
-					if (this.donnees.hasOwnProperty('options')) {
-						this.options = this.donnees.options
-						if (!this.options.hasOwnProperty('points')) {
-							this.options.points = 1000
-						}
-						if (!this.options.hasOwnProperty('pointsRetranches')) {
-							this.options.pointsRetranches = 500
-						}
-						if (!this.options.hasOwnProperty('pointsRetranchesActives')) {
-							this.options.pointsRetranchesActives = false
-						}
-						if (!this.options.hasOwnProperty('scoreNegatif')) {
-							this.options.scoreNegatif = false
-						}
+					if (!this.options.hasOwnProperty('pointsRetranches')) {
+						this.options.pointsRetranches = 500
 					}
-					if (this.donnees.hasOwnProperty('textes')) {
-						this.textes = this.donnees.textes
+					if (!this.options.hasOwnProperty('pointsRetranchesActives')) {
+						this.options.pointsRetranchesActives = false
 					}
-					if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
-						this.points = this.options.points
-						this.pointsRetranches = this.options.pointsRetranches
-						this.modale = 'utilisateur'
-						if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
-							for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
-								if (this.textes[this.indexQuestion][i].identifiant === this.premiereReponse) {
-									this.texte = this.textes[this.indexQuestion][i].texte
-								}
+					if (!this.options.hasOwnProperty('scoreNegatif')) {
+						this.options.scoreNegatif = false
+					}
+				}
+				if (this.donnees.hasOwnProperty('textes')) {
+					this.textes = this.donnees.textes
+				}
+				if (this.statutQuestion === 'reponses' && this.premiereReponse !== '') {
+					this.points = this.options.points
+					this.pointsRetranches = this.options.pointsRetranches
+					this.modale = 'utilisateur'
+					if (this.options.reponses === 'ecrites' && this.textes[this.indexQuestion] && this.textes[this.indexQuestion].length > 0) {
+						for (let i = 0; i < this.textes[this.indexQuestion].length; i++) {
+							if (this.textes[this.indexQuestion][i].identifiant === this.premiereReponse) {
+								this.texte = this.textes[this.indexQuestion][i].texte
 							}
 						}
-						this.$nextTick(() => {
-							document.querySelector('#points')?.focus()
-						})
 					}
-					this.reponses = this.donnees.reponses
-					this.resultats = this.donnees.resultats
-					if (this.statut === 'ferme') {
-						this.definirDonneesUtilisateurs()
-					}
-					if (notification !== '') {
-						this.notification = this.$t('donneesRechargees')
-					}
-					this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
-				} else if (reponse.data === 'salle_inexistante') {
-					window.location.href = '/'
+					this.$nextTick(() => {
+						document.querySelector('#points')?.focus()
+					})
+				}
+				this.reponses = this.donnees.reponses
+				this.resultats = this.donnees.resultats
+				if (this.statut === 'ferme') {
+					this.definirDonneesUtilisateurs()
+				}
+				if (notification !== '') {
+					this.notification = this.$t('donneesRechargees')
+				}
+				this.$socket.emit('connexion', { salle: this.salle, identifiant: this.identifiant, nom: this.nom, avatar: this.avatar })
+			}).catch((err) => {
+				this.chargement = false
+				if (err.response?.data === 'salle_inexistante') {
+					window.location.replace('/')
 				} else {
 					this.message = this.$t('erreurCommunicationServeur')
 				}
-			}).catch(() => {
-				this.chargement = false
-				this.message = this.$t('erreurCommunicationServeur')
 			})
 		},
 		gererClavier (event) {
