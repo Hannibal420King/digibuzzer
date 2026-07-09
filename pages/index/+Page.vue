@@ -151,14 +151,7 @@ export default {
 				axios.post(this.hote + '/api/creer-salle', {
 					titre: this.titre
 				}).then((reponse) => {
-					const donnees = reponse.data
-					if (donnees === 'erreur') {
-						this.chargementModale = false
-						this.fermerModaleCreer()
-						this.message = this.$t('erreurCommunicationServeur')
-					} else {
-						window.location.href = '/c/' + donnees.salle
-					}
+					window.location.href = '/c/' + reponse.data.salle
 				}).catch(() => {
 					this.chargementModale = false
 					this.fermerModaleCreer()
@@ -180,9 +173,13 @@ export default {
 					this.langue = langue
 					this.notification = this.$t('langueModifiee')
 					localStorage.setItem('digibuzzer_lang', langue)
-				}).catch(() => {
+				}).catch((err) => {
 					this.chargement = false
-					this.message = this.$t('erreurCommunicationServeur')
+					if (err.response?.data === 'non_autorise') {
+						this.message = this.$t('actionNonAutorisee')
+					} else {
+						this.message = this.$t('erreurCommunicationServeur')
+					}
 				})
 			}
 		},
