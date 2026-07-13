@@ -64,7 +64,14 @@
     "prettier": "^3.8.1"
   },
   "optionalDependencies": {
-    "bufferutil": "^4.0.9",
-    "utf-8-validate": "^6.0.5"
+    "bufferutil": "^4.1.0",
+    "utf-8-validate": "^6.0.6"
+  },
+  "allowScripts": {
+    "bufferutil@4.1.0": true,
+    "esbuild@0.28.1": true,
+    "sharp@0.34.5": true,
+    "utf-8-validate@6.0.6": true,
+    "eiows@9.2.0": true
   }
 }
