@@ -64,6 +64,7 @@ const demarrerServeur = async () => {
 			console.error('Erreur Redis : ' + err)
 		}).connect()
 	}
+	const cookieSecurise = parseInt(process.env.COOKIE_SECURE) !== 0
 	let storeOptions, cookie, dureeSession, domainesAutorises
 	if (production) {
 		storeOptions = {
@@ -73,10 +74,7 @@ const demarrerServeur = async () => {
 			client: db,
 			prefix: 'sessions:'
 		}
-		cookie = {
-			sameSite: 'None',
-			secure: true
-		}
+		cookie = cookieSecurise ? { sameSite: 'None', secure: true } : { sameSite: 'Lax', secure: false }
 	} else {
 		storeOptions = {
 			host: 'localhost',
@@ -513,7 +511,14 @@ const demarrerServeur = async () => {
 			}, 1000) })
 		}
 		socket.use((paquet, suivant) => {
-			const etat = compteurSocket.get(identifiant)
+			let etat = compteurSocket.get(identifiant)
+			if (!etat) {
+				etat = { n: 0, intervalle: setInterval(() => {
+					const e = compteurSocket.get(identifiant)
+					if (e) e.n = 0
+				}, 1000) }
+				compteurSocket.set(identifiant, etat)
+			}
 			etat.n++
 			if (etat.n > 100) {
 				return suivant(new Error('connexions_trop_nombreuses'))
