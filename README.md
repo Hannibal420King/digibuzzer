@@ -6,7 +6,7 @@ Elle est publiée sous licence GNU AGPLv3.
 Sauf les fontes Roboto Slab et Material Icons (Apache License Version 2.0) et la fonte Mona Sans Expanded (Sil Open Font Licence 1.1)
 
 ## Prérequis
-Node.js 20+, Redis 6+
+Node.js 22+, Redis 7+
 
 ## Préparation et installation des dépendances
 ```
@@ -18,18 +18,7 @@ npm install
 npm run dev
 ```
 
-## Compilation, minification des fichiers et lancement du serveur de production
-```
-npm run prod
-```
-
-## Avec PM2
-```
-npm run build
-pm2 start ecosystem.config.cjs --env production
-```
-
-## Variables d'environnement pour la mise en production (fichier .env à créer à la racine du dossier)
+## Variables d'environnement (fichier .env à créer à la racine du dossier)
 ```
 DOMAIN (protocole + domaine. ex : https://digibuzzer.app / seulement utilisée en production)
 PORT (port du serveur local / 3000 par défaut)
@@ -41,13 +30,49 @@ DB_PWD (mot de passe de la base de données Redis)
 DB_PORT (port de la base de données Redis / 6379 par défaut)
 SESSION_KEY (clé de session Express Session)
 SESSION_DURATION (durée de la session de connexion des utilisateurs en millisecondes)
+COOKIE_SECURE (cookie de session en Secure + SameSite=None en production / 0 ou 1 / 1 par défaut / mettre à 0 uniquement pour tester en HTTP local avec Docker)
 AUTHORIZED_DOMAINS (domaines autorisés pour api serveur. ex : ladigitale.dev,example.com / par défaut *)
 VITE_LEGAL_TERMS_LINK (lien vers les mentions légales)
 UMAMI_SCRIPT_URL (lien vers le script fourni par Umami pour l'analyse de trafic)
 UMAMI_WEBSITE_ID (id de site sur le serveur Umami)
 ```
 
-## Projet Vue (Vue.js 3 et Vike) avec serveur Node.js (Express) et base de données Redis
+## Compilation et minification des fichiers pour la production
+```
+npm run build
+```
+
+## Avec PM2
+```
+pm2 start ecosystem.config.cjs --env production
+```
+
+## Avec Docker
+
+Le dépôt fournit un `Dockerfile` (build multi-étapes : compilation Vite/Vike puis image de production) ainsi que deux fichiers `docker-compose` : `docker-compose.yml` (Traefik + app + Redis) et `docker-compose.override.yml`, chargé automatiquement en complément pour adapter la configuration à un test en local.
+
+Dans les deux cas, un fichier `.env` doit être créé à la racine du dossier avec au minimum les variables `DB_PWD` et `SESSION_KEY` pour un test en local et `DOMAIN`, `DB_PWD`, `SESSION_KEY` et `ACME_EMAIL` (adresse e-mail utilisée pour la génération des certificats Let's Encrypt) pour un déploiement en production.
+
+### Test local
+
+```
+docker compose up --build
+```
+
+L'override désactive Traefik, expose directement l'application sur `http://localhost:3000` et force `COOKIE_SECURE=0` pour permettre de tester la connexion à un compte en HTTP local.
+
+### Production
+
+En production, Traefik gère les certificats HTTPS (Let's Encrypt) et dirige les requêtes vers l'application.
+
+Lancer le déploiement avec le profil Traefik activé :
+```
+./docker-production.sh
+```
+
+Les données Redis sont conservés dans un volume Docker nommé `redis-data`, qui persiste entre les redéploiements.
+
+Les variables `VITE_*` utilisées côté client sont injectées au moment de la construction de l'image : toute modification de ces variables dans `.env` nécessite de reconstruire l'image pour être prise en compte.
 
 ## Démo
 https://digibuzzer.app
