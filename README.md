@@ -22,7 +22,7 @@ npm run dev
 ```
 DOMAIN (protocole + domaine. ex : https://digibuzzer.app / seulement utilisée en production)
 PORT (port du serveur local / 3000 par défaut)
-REVERSE_PROXY (utilisation d'un reverse proxy / 0 ou 1 / 0 par défaut)
+REVERSE_PROXY (utilisation d'un reverse proxy qui permet de servir les fichiers à la place d'Express (Nginx par exemple) / 0 ou 1 / 0 par défaut)
 NODE_CLUSTER (utilisation de node.js en cluster / 0 ou 1 / 0 par défaut)
 EARLY_HINTS (utilisation par le serveur des early hints et du code de statut 103 / 0 ou 1 / 0 par défaut)
 DB_HOST (IP publique du serveur de base de données Redis)
