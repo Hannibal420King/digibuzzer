@@ -340,7 +340,7 @@ const demarrerServeur = async () => {
 			req.session.cookie.expires = new Date(Date.now() + dureeSession)
 			res.status(200).json({ salle: salle })
 		} catch (err) {
-			console.error(err.message)
+			console.error(err.stack)
 			res.status(500).send('erreur')
 		}
 	})
@@ -356,7 +356,7 @@ const demarrerServeur = async () => {
 			await db.HSET('salles:' + salle, 'titre', titre)
 			res.status(200).send('titre_modifie')
 		} catch (err) {
-			console.error(err.message)
+			console.error(err.stack)
 			res.status(500).send('erreur')
 		}
 	})
@@ -373,7 +373,7 @@ const demarrerServeur = async () => {
 			await db.HSET('salles:' + salle, 'statut', statut)
 			res.status(200).send('statut_modifie')
 		} catch (err) {
-			console.error(err.message)
+			console.error(err.stack)
 			res.status(500).send('erreur')
 		}
 	})
@@ -390,7 +390,7 @@ const demarrerServeur = async () => {
 			const donnees = parseJSON(donneesSalle.donnees, {})
 			res.status(200).json({ titre: titre, statut: statut, donnees: donnees })
 		} catch (err) {
-			console.error(err.message)
+			console.error(err.stack)
 			res.status(500).send('erreur')
 		}
 	})
@@ -573,7 +573,7 @@ const demarrerServeur = async () => {
 				)
 				io.to(salle).emit('connexion', { utilisateurs: utilisateursConnectes, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -608,7 +608,7 @@ const demarrerServeur = async () => {
 				await db.HSET('salles:' + donnees.salle, 'donnees', JSON.stringify(donneesServeur))
 				socket.to(donnees.salle).emit('salleouverte', donnees)
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -632,7 +632,7 @@ const demarrerServeur = async () => {
 				donneesReponse.utilisateurs = utilisateurs
 				await db.HSET('salles:' + salle, 'donnees', JSON.stringify(donneesReponse))
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -658,7 +658,7 @@ const demarrerServeur = async () => {
 					socket.to(salle).emit('utilisateurautorise', identifiant)
 				}
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -691,7 +691,7 @@ const demarrerServeur = async () => {
 				req.session.cookie.expires = new Date(Date.now() + dureeSession)
 				await sauvegarderSession(req)
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -733,7 +733,7 @@ const demarrerServeur = async () => {
 				req.session.cookie.expires = new Date(Date.now() + dureeSession)
 				await sauvegarderSession(req)
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -753,7 +753,7 @@ const demarrerServeur = async () => {
 				req.session.cookie.expires = new Date(Date.now() + dureeSession)
 				await sauvegarderSession(req)
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -788,7 +788,7 @@ const demarrerServeur = async () => {
 					await sauvegarderSession(req)
 				}
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -810,7 +810,7 @@ const demarrerServeur = async () => {
 					await sauvegarderSession(req)
 				}
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -830,7 +830,7 @@ const demarrerServeur = async () => {
 				req.session.cookie.expires = new Date(Date.now() + dureeSession)
 				await sauvegarderSession(req)
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -857,7 +857,7 @@ const demarrerServeur = async () => {
 					await sauvegarderSession(req)
 				}
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
@@ -885,7 +885,7 @@ const demarrerServeur = async () => {
 				req.session.cookie.expires = new Date(Date.now() + dureeSession)
 				await sauvegarderSession(req)
 			} catch (err) {
-				console.error(err.message)
+				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
