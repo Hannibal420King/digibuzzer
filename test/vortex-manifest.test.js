@@ -24,6 +24,8 @@ test('manifest requests only the baseline scopes and emitted GAME_SESSION events
 	assert.ok(manifest.events.every((event) => event.valueType === 'COUNTER' && event.aggregation === 'SUM'))
 
 	const adapter = await read('renderer/vortex.js')
+	assert.match(adapter, /left: '12px'/, 'Vortex panel must not cover the host launch control')
+	assert.doesNotMatch(adapter, /right: '12px'/, 'Vortex panel must stay clear of bottom-right game controls')
 	const pages = `${await read('pages/index/+Page.vue')}\n${await read('pages/p/+Page.vue')}`
 	const declared = new Set([...adapter.matchAll(/'((?:digibuzzer\.)[^']+)'/g)].map((match) => match[1]))
 	const emitted = new Set([...pages.matchAll(/trackObserved\('([^']+)'/g)].map((match) => match[1]))

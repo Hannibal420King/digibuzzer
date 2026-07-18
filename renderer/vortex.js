@@ -22,7 +22,7 @@ const panel = () => {
 		<a href="/legal/source" target="_blank" rel="noopener">Source &amp; license</a>`
 	Object.assign(element.style, {
 		position: 'fixed',
-		right: '12px',
+		left: '12px',
 		bottom: '12px',
 		zIndex: '2147483647',
 		display: 'flex',
