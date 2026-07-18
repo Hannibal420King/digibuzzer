@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 #### Étape 1 : installation des dépendances + build (Vike/Vite) ####
-FROM node:24.4.1-bookworm-slim@sha256:36ae19f59c91f3303c7a648f07493fe14c4bd91320ac8d898416327bacf1bbfa AS build
+FROM node:24.18.0-bookworm-slim@sha256:6f7b03f7c2c8e2e784dcf9295400527b9b1270fd37b7e9a7285cf83b6951452d AS build
 WORKDIR /app
 
 RUN apt-get update \
@@ -20,7 +20,7 @@ ENV VITE_LEGAL_TERMS_LINK=${VITE_LEGAL_TERMS_LINK}
 RUN npm test && npm run build && npm prune --omit=dev
 
 #### Étape 2 : construction de l'image ####
-FROM node:24.4.1-bookworm-slim@sha256:36ae19f59c91f3303c7a648f07493fe14c4bd91320ac8d898416327bacf1bbfa AS runtime
+FROM node:24.18.0-bookworm-slim@sha256:6f7b03f7c2c8e2e784dcf9295400527b9b1270fd37b7e9a7285cf83b6951452d AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
