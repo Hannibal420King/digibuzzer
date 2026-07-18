@@ -14,6 +14,9 @@ Persistent volumes:
 - `avatars` -> `/app/avatars` in `web`
 - `redis-data` -> `/data` in `redis`
 
+Both service root filesystems are read-only. Vortex supplies a bounded `/tmp`
+tmpfs and the Redis data directory is the only writable persistent mount.
+
 Redis runs with AOF enabled and `appendfsync everysec` so room, score, and HTTP
 session data survive service replacement. Uploaded avatars survive separately.
 

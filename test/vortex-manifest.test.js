@@ -57,7 +57,7 @@ test('deployment is an exact isolated web plus Redis stack', () => {
 	assert.equal(redis.image.source, 'OCI')
 	assert.match(redis.image.reference, /^docker\.io\/library\/redis@sha256:[a-f0-9]{64}$/)
 	assert.equal(Object.hasOwn(redis, 'vortexEnvironment'), false)
-	assert.equal(redis.readOnlyRootfs, false)
+	assert.equal(redis.readOnlyRootfs, true)
 	assert.deepEqual(redis.environment, {})
 	assert.deepEqual(redis.command, ['redis-server', '--appendonly', 'yes', '--appendfsync', 'everysec'])
 	assert.deepEqual(redis.mounts, [{ volume: 'redis-data', target: '/data', readOnly: false }])
