@@ -6,7 +6,3 @@ dist
 .env
 .env.*
 docker-compose.yml
-Dockerfile
-.dockerignore
-README.md
-LICENSE

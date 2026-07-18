@@ -3,7 +3,7 @@ import axios from 'axios'
 const onBeforeRender = async (pageContext) => {
 	let pageProps, erreur
 	const salle = pageContext.routeParams.salle
-	const reponse = await axios.post(pageContext.hote + '/api/recuperer-donnees-salle', {
+	const reponse = await axios.post((pageContext.serverOrigin || pageContext.hote) + '/api/recuperer-donnees-salle', {
 		salle: salle
 	}, {
 		headers: { 'Content-Type': 'application/json' }

@@ -262,6 +262,13 @@ export default {
 		document.getElementsByTagName('html')[0].setAttribute('lang', this.langue)
 		if (this.statut === '' || this.nom === '' || this.avatar === '') {
 			this.afficherModaleInformations()
+			window.digibuzzerVortex?.ready.then((runtime) => {
+				const identityName = runtime.identity?.displayName || runtime.identity?.handle || ''
+				const safeName = identityName.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 80)
+				if (runtime.enabled && this.nom === '' && this.nomProvisoire === '' && safeName !== '') {
+					this.nomProvisoire = safeName
+				}
+			})
 		}
 
 		if (this.donnees.statutQuestion === 'question') {
@@ -448,6 +455,7 @@ export default {
 			if (this.reponse === true && this.premiereReponse === '' && this.reponses[this.indexQuestion].includes(this.identifiant) === false) {
 				this.chargement = true
 				const date = new Date().getTime()
+				void window.digibuzzerVortex?.trackObserved('digibuzzer.buzzer.pressed')
 				this.$socket.emit('reponse', { salle: this.salle, identifiant: this.identifiant, date: date })
 			}
 		},
@@ -700,6 +708,11 @@ export default {
 					this.premiereReponse = ''
 				}
 				if (donnees.identifiant === this.identifiant) {
+					if (donnees.type === 'bonne-reponse') {
+						void window.digibuzzerVortex?.trackObserved('digibuzzer.answer.accepted')
+					} else if (donnees.type === 'mauvaise-reponse') {
+						void window.digibuzzerVortex?.trackObserved('digibuzzer.answer.rejected')
+					}
 					this.icone = 'thumb_up_alt'
 					this.audio.src = '/fx/correct.mp3'
 					if (donnees.type === 'mauvaise-reponse') {

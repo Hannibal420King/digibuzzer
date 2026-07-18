@@ -21,6 +21,7 @@ import rateLimit from 'express-rate-limit'
 import { RedisStore as RateLimitRedisStore } from 'rate-limit-redis'
 import { randomBytes } from 'crypto'
 import { renderPage, createDevMiddleware } from 'vike/server'
+import { vortexPublicConfig } from './vortex-runtime.js'
 
 const production = process.env.NODE_ENV === 'production'
 
@@ -40,45 +41,48 @@ const demarrerServeur = async () => {
 	const app = express()
 	app.use(compression())
 	const httpServer = createServer(app)
+	const port = process.env.PORT || 3000
+	const localServerOrigin = `http://127.0.0.1:${port}`
 
-	let hote = 'http://localhost:3000'
-	if (production) {
-		hote = process.env.DOMAIN
-	} else if (process.env.PORT) {
-		hote = 'http://localhost:' + process.env.PORT
+	let configuredPublicOrigin = ''
+	if (process.env.DOMAIN) {
+		try {
+			configuredPublicOrigin = new URL(process.env.DOMAIN).origin
+		} catch {
+			console.warn('La variable DOMAIN est invalide ; l\'origine de la requête sera utilisée.')
+		}
 	}
-	const hoteWs = hote.replace(/^https:\/\//, 'wss://').replace(/^http:\/\//, 'ws://')
+	const requestOrigin = (req) => configuredPublicOrigin || `${req.protocol}://${req.get('host')}`
 	const langues = ['fr', 'en', 'it', 'de', 'es']
 	let db
 	const db_port = parseInt(process.env.DB_PORT) || 6379
-	if (production) {
-		db = await createClient({
-			url: 'redis://default:' + process.env.DB_PWD  + '@' + process.env.DB_HOST + ':' + db_port
-		}).on('error', (err) => {
-			console.error('Erreur Redis : ' + err)
-		}).connect()
-	} else {
-		db = await createClient({
-			url: 'redis://localhost:' + db_port
-		}).on('error', (err) => {
-			console.error('Erreur Redis : ' + err)
-		}).connect()
+	let redisUrl = process.env.REDIS_URL?.trim()
+	if (!redisUrl && production) {
+		const redisHost = process.env.DB_HOST || 'redis'
+		const redisAuth = process.env.DB_PWD ? `default:${encodeURIComponent(process.env.DB_PWD)}@` : ''
+		redisUrl = `redis://${redisAuth}${redisHost}:${db_port}`
+	} else if (!redisUrl) {
+		redisUrl = `redis://localhost:${db_port}`
 	}
-	const cookieSecurise = parseInt(process.env.COOKIE_SECURE) !== 0
+	db = await createClient({ url: redisUrl }).on('error', (err) => {
+		console.error('Erreur Redis : ' + err)
+	}).connect()
+	const cookieSecureExplicit = process.env.COOKIE_SECURE === undefined ? null : parseInt(process.env.COOKIE_SECURE) !== 0
 	let storeOptions, cookie, dureeSession, domainesAutorises
 	if (production) {
 		storeOptions = {
-			host: process.env.DB_HOST,
-			port: db_port,
-			pass: process.env.DB_PWD,
 			client: db,
 			prefix: 'sessions:'
 		}
-		cookie = cookieSecurise ? { sameSite: 'None', secure: true } : { sameSite: 'Lax', secure: false }
+		if (cookieSecureExplicit === true) {
+			cookie = { sameSite: 'None', secure: true }
+		} else if (cookieSecureExplicit === false) {
+			cookie = { sameSite: 'Lax', secure: false }
+		} else {
+			cookie = { sameSite: 'Lax', secure: 'auto' }
+		}
 	} else {
 		storeOptions = {
-			host: 'localhost',
-			port: db_port,
 			client: db,
 			prefix: 'sessions:'
 		}
@@ -108,8 +112,10 @@ const demarrerServeur = async () => {
 
 	if (production && process.env.AUTHORIZED_DOMAINS) {
 		domainesAutorises = process.env.AUTHORIZED_DOMAINS.split(',')
+	} else if (configuredPublicOrigin) {
+		domainesAutorises = configuredPublicOrigin
 	} else {
-		domainesAutorises = hote
+		domainesAutorises = false
 	}
 
 	let earlyHints103 = false
@@ -168,16 +174,21 @@ const demarrerServeur = async () => {
 	if (!production) {
 		scriptSrc.push("'unsafe-inline'")
 	}
+	const vortexConfig = vortexPublicConfig()
+	if (vortexConfig.enabled) {
+		scriptSrc.push(vortexConfig.vortexOrigin)
+	}
 	let hoteVite = 'ws://localhost:24678'
 	if (production) {
 		hoteVite = ''
 	}
-	app.set('trust proxy', true)
+	app.set('trust proxy', 1)
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
 				"default-src": ["'self'", "https:"],
-				"connect-src": ["'self'", hoteWs, hoteVite, ...(domaineUmami ? [domaineUmami] : [])],
+				"upgrade-insecure-requests": null,
+				"connect-src": ["'self'", ...(hoteVite ? [hoteVite] : []), ...(vortexConfig.enabled ? [vortexConfig.vortexOrigin] : []), ...(domaineUmami ? [domaineUmami] : [])],
 				"script-src": scriptSrc,
 				"media-src": ["'self'", "data:"],
 				"frame-ancestors": ["'self'", 'https://ladigitale.dev', 'https://digipad.app', 'https://digiwall.app']
@@ -185,6 +196,33 @@ const demarrerServeur = async () => {
 		})
 	)
 	app.use(express.json({ limit: '10mb' }))
+	app.get(['/health', '/healthz'], async (_req, res) => {
+		try {
+			await db.ping()
+			res.setHeader('Cache-Control', 'no-store')
+			res.status(200).json({ status: 'ok', redis: 'ready' })
+		} catch {
+			res.setHeader('Cache-Control', 'no-store')
+			res.status(503).json({ status: 'unavailable', redis: 'unavailable' })
+		}
+	})
+	app.get('/api/vortex/config', (_req, res) => {
+		res.setHeader('Cache-Control', 'no-store')
+		res.status(200).json(vortexConfig)
+	})
+	app.get('/legal/license', (_req, res) => {
+		res.type('text/plain').sendFile(path.join(root, 'LICENSE'))
+	})
+	app.get('/legal/source', (_req, res) => {
+		res.type('html').send(`<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digibuzzer source and licenses</title><style>body{max-width:52rem;margin:3rem auto;padding:0 1.25rem;background:#10142a;color:#f5f7ff;font:17px/1.6 system-ui,sans-serif}a{color:#6ee7ff}code{background:#252b49;padding:.15rem .35rem;border-radius:.25rem}h1,h2{line-height:1.2}</style></head>
+<body><h1>Digibuzzer source and licenses</h1>
+<p>This Vortex-compatible build is a modified version of Digibuzzer. The complete corresponding source for this deployed version is available from the <a href="https://github.com/Hannibal420King/digibuzzer/tree/vortex-v2">public <code>vortex-v2</code> branch</a>. The original project is maintained by La Digitale at <a href="https://codeberg.org/ladigitale/digibuzzer">Codeberg</a>.</p>
+<p>Digibuzzer is free software under the <a href="/legal/license">GNU Affero General Public License, version 3</a>, without warranty. Network users may obtain and modify its corresponding source under that license.</p>
+<h2>Font exceptions retained</h2><ul><li>Roboto Slab and Material Icons: Apache License 2.0.</li><li>Mona Sans Expanded: SIL Open Font License 1.1.</li></ul>
+<p>Detailed file attribution and license links are included in <a href="https://github.com/Hannibal420King/digibuzzer/blob/vortex-v2/vortex/SOURCE_AND_ATTRIBUTION.md"><code>vortex/SOURCE_AND_ATTRIBUTION.md</code></a>.</p></body></html>`)
+	})
 	app.use(sessionMiddleware)
 	app.use(cors({ origin: domainesAutorises }))
 	app.use('/api/', limiteApi)
@@ -208,7 +246,8 @@ const demarrerServeur = async () => {
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
 			params: req.query,
-			hote: hote,
+			hote: requestOrigin(req),
+			serverOrigin: localServerOrigin,
 			langues: langues,
 			langue: langue
 		}
@@ -237,7 +276,8 @@ const demarrerServeur = async () => {
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
 			params: req.query,
-			hote: hote,
+			hote: requestOrigin(req),
+			serverOrigin: localServerOrigin,
 			langues: langues,
 			identifiant: req.session.identifiant,
 			nom: req.session.nom,
@@ -281,7 +321,8 @@ const demarrerServeur = async () => {
 		const pageContextInit = {
 			urlOriginal: req.originalUrl,
 			params: req.query,
-			hote: hote,
+			hote: requestOrigin(req),
+			serverOrigin: localServerOrigin,
 			langues: langues,
 			identifiant: req.session.identifiant,
 			nom: req.session.nom,
@@ -482,13 +523,12 @@ const demarrerServeur = async () => {
 		res.redirect('/')
 	})
 
-	const port = process.env.PORT || 3000
 	httpServer.listen(port)
 
 	const io = new Server(httpServer, {
 		wsEngine: eiows.Server,
 		cors: {
-			origin: hoteWs
+			origin: domainesAutorises
 		},
 		pingInterval: 120000,
     	pingTimeout: 100000,

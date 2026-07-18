@@ -150,7 +150,11 @@ export default {
 				this.chargementModale = true
 				axios.post(this.hote + '/api/creer-salle', {
 					titre: this.titre
-				}).then((reponse) => {
+				}).then(async (reponse) => {
+					await Promise.race([
+						window.digibuzzerVortex?.trackObserved('digibuzzer.room.created') || Promise.resolve(),
+						new Promise((resolve) => window.setTimeout(resolve, 300))
+					])
 					window.location.href = '/c/' + reponse.data.salle
 				}).catch(() => {
 					this.chargementModale = false

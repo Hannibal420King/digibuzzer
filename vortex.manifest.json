@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "1.0",
+  "revision": 1,
+  "requiredScopes": [
+    "identity.basic",
+    "play.write",
+    "events.write",
+    "gamification.read",
+    "rewards.read"
+  ],
+  "optionalScopes": [],
+  "events": [
+    {
+      "key": "digibuzzer.room.created",
+      "version": 1,
+      "displayName": "Room created",
+      "description": "The current player successfully created a Digibuzzer room.",
+      "valueType": "COUNTER",
+      "aggregation": "SUM",
+      "source": "GAME_SESSION",
+      "attributes": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "key": "digibuzzer.buzzer.pressed",
+      "version": 1,
+      "displayName": "Buzzer pressed",
+      "description": "The current player pressed the buzzer while an answer was eligible.",
+      "valueType": "COUNTER",
+      "aggregation": "SUM",
+      "source": "GAME_SESSION",
+      "attributes": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "key": "digibuzzer.answer.accepted",
+      "version": 1,
+      "displayName": "Answer accepted",
+      "description": "The current player observed the host accept their answer.",
+      "valueType": "COUNTER",
+      "aggregation": "SUM",
+      "source": "GAME_SESSION",
+      "attributes": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "key": "digibuzzer.answer.rejected",
+      "version": 1,
+      "displayName": "Answer rejected",
+      "description": "The current player observed the host reject their answer.",
+      "valueType": "COUNTER",
+      "aggregation": "SUM",
+      "source": "GAME_SESSION",
+      "attributes": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  ],
+  "notificationTemplates": [],
+  "presenceStates": [],
+  "invitePaths": [],
+  "deployment": {
+    "schemaVersion": "1.0",
+    "gateway": {
+      "service": "web",
+      "port": "http"
+    },
+    "volumes": [
+      {
+        "name": "avatars",
+        "kind": "PERSISTENT"
+      },
+      {
+        "name": "redis-data",
+        "kind": "PERSISTENT"
+      }
+    ],
+    "services": [
+      {
+        "name": "web",
+        "image": {
+          "source": "APP"
+        },
+        "environment": {
+          "PORT": "3000",
+          "REDIS_URL": "redis://redis:6379",
+          "REVERSE_PROXY": "0",
+          "NODE_CLUSTER": "0"
+        },
+        "vortexEnvironment": true,
+        "ports": [
+          {
+            "name": "http",
+            "containerPort": 3000,
+            "protocol": "TCP",
+            "exposure": "INTERNAL"
+          }
+        ],
+        "healthCheck": {
+          "protocol": "HTTP",
+          "port": "http",
+          "path": "/healthz",
+          "initialDelaySeconds": 10,
+          "intervalSeconds": 5,
+          "timeoutSeconds": 3,
+          "retries": 18
+        },
+        "resources": {
+          "cpuCores": 1,
+          "memoryMb": 1024,
+          "pidsLimit": 256
+        },
+        "mounts": [
+          {
+            "volume": "avatars",
+            "target": "/app/avatars",
+            "readOnly": false
+          }
+        ],
+        "dependsOn": [
+          "redis"
+        ],
+        "readOnlyRootfs": true,
+        "stopGraceSeconds": 20
+      },
+      {
+        "name": "redis",
+        "image": {
+          "source": "OCI",
+          "reference": "docker.io/library/redis@sha256:a9cc41d6d01da2aa26c219e4f99ecbeead955a7b656c1c499cce8922311b2514"
+        },
+        "command": [
+          "redis-server",
+          "--appendonly",
+          "yes",
+          "--appendfsync",
+          "everysec"
+        ],
+        "environment": {},
+        "ports": [
+          {
+            "name": "redis",
+            "containerPort": 6379,
+            "protocol": "TCP",
+            "exposure": "INTERNAL"
+          }
+        ],
+        "healthCheck": {
+          "protocol": "TCP",
+          "port": "redis",
+          "initialDelaySeconds": 3,
+          "intervalSeconds": 5,
+          "timeoutSeconds": 3,
+          "retries": 18
+        },
+        "resources": {
+          "cpuCores": 0.5,
+          "memoryMb": 512,
+          "pidsLimit": 128
+        },
+        "mounts": [
+          {
+            "volume": "redis-data",
+            "target": "/data",
+            "readOnly": false
+          }
+        ],
+        "dependsOn": [],
+        "readOnlyRootfs": false,
+        "stopGraceSeconds": 30
+      }
+    ]
+  }
+}

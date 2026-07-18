@@ -32,7 +32,7 @@ const createPageApp = (pageContext) => {
 	const app = createApp(PageWithLayout)
 	app.use(i18n)
 
-	app.config.globalProperties.$socket = io(pageProps.hote, {
+	app.config.globalProperties.$socket = io({
 		autoConnect: true,
 		closeOnBeforeunload: false
 	})

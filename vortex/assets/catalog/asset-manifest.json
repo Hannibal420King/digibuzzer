@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0",
+  "game": {
+    "slug": "digibuzzer",
+    "name": "Digibuzzer"
+  },
+  "status": "complete-verified",
+  "assets": [
+    {
+      "kind": "ICON",
+      "filename": "icon.png",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 1899568,
+      "altText": "A magenta game-show buzzer glows with a cyan ring on a dark pedestal.",
+      "sha256": "d463ce3567ce39cd1d243a2025a9bd1d43be9219bfcaf326dda65005b7831352",
+      "generationPrompt": "Create one original premium square game icon for the open-source browser party game Digibuzzer. Square 1:1 composition: one chunky illuminated game-show buzzer centered on a dark indigo pedestal, glowing cyan rim light and magenta button light, playful tactile shape, subtle confetti-like light particles, polished high-end 3D illustration, instantly readable at small size, generous safe padding for circular and rounded-square crops. Absolutely no words, letters, numbers, titles, logos, watermarks, borders, UI screenshots, brands, trademarks, or copied artwork. Produce a clean raster image suitable for final normalization to 1024x1024 PNG and a premium dark catalog.",
+      "provenance": {
+        "type": "GENERATED_ORIGINAL",
+        "upstreamReference": null
+      },
+      "license": {
+        "identifier": "LicenseRef-Vortex-Generated-Original",
+        "copyrightHolder": "Hannibal420King",
+        "notes": "Original catalog artwork generated for this fork; no upstream artwork was used."
+      }
+    },
+    {
+      "kind": "CARD",
+      "filename": "card.webp",
+      "width": 1536,
+      "height": 864,
+      "byteSize": 91532,
+      "altText": "An illuminated magenta buzzer waits at the center of a cyan-lit game-show stage.",
+      "sha256": "1ddacd9fb164c9ff4e024ce985e914113af4c4bc8536ceb9ad9934ab69b8e7ee",
+      "generationPrompt": "Create one original cinematic 16:9 promotional card artwork for the open-source browser party game Digibuzzer, intended for final 1536x864 WebP. A playful illuminated game-show buzzer centered on a sleek dark stage desk, electric cyan and magenta accents, soft violet spotlights, energetic party atmosphere, a few abstract confetti shapes, premium polished 3D game art, strong centered focal subject and safe crop margins. Absolutely no words, letters, numbers, title, logos, Vortex branding, watermarks, borders, UI screenshots, trademarks, or copied artwork.",
+      "provenance": {
+        "type": "GENERATED_ORIGINAL",
+        "upstreamReference": null
+      },
+      "license": {
+        "identifier": "LicenseRef-Vortex-Generated-Original",
+        "copyrightHolder": "Hannibal420King",
+        "notes": "Original catalog artwork generated for this fork; no upstream artwork was used."
+      }
+    },
+    {
+      "kind": "HERO",
+      "filename": "hero.webp",
+      "width": 2048,
+      "height": 896,
+      "byteSize": 71814,
+      "altText": "A neon game-show buzzer fills the right side of a dark party-stage banner.",
+      "sha256": "fdc635930010fe4ebdce9c560f3f78879538cca8c16fc42552b56611492166f6",
+      "generationPrompt": "Create one original ultra-wide hero banner for the open-source browser party game Digibuzzer, composed for final 2048x896 (16:7) WebP. Preserve the LEFT half as dark, low-detail navy-to-black negative space for title and controls. On the RIGHT third, show a playful illuminated game-show buzzer on a sleek pedestal, cyan rim light, vivid magenta button glow, violet stage beams and a few abstract confetti shapes, premium polished 3D party-game energy with crisp safe cropping. Absolutely no words, letters, numbers, title, logos, Vortex branding, watermarks, borders, UI screenshots, trademarks, or copied artwork.",
+      "provenance": {
+        "type": "GENERATED_ORIGINAL",
+        "upstreamReference": null
+      },
+      "license": {
+        "identifier": "LicenseRef-Vortex-Generated-Original",
+        "copyrightHolder": "Hannibal420King",
+        "notes": "Original catalog artwork generated for this fork; no upstream artwork was used."
+      }
+    },
+    {
+      "kind": "SCREENSHOT",
+      "filename": "screenshots/01.webp",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 35198,
+      "altText": "A Digibuzzer host configures the Vortex Championship room with player Nova connected.",
+      "sha256": "8e4e25f923cb8252dc97b04c5b98173ecd604186e32c8071b459362e82a80fd0",
+      "generationPrompt": null,
+      "provenance": {
+        "type": "REAL_GAMEPLAY_CAPTURE",
+        "upstreamReference": "http://127.0.0.1:18103/c/d47a8c885d1ae916",
+        "capture": "Playwright Chromium viewport capture at 1920x1080 from the hardened local Vortex fork runtime.",
+        "scenario": "A real host and participant session showing room settings, join information, and the connected-player roster."
+      },
+      "license": {
+        "identifier": "AGPL-3.0-only AND LicenseRef-Digibuzzer-Bundled-Fonts",
+        "copyrightHolder": "La Digitale and Digibuzzer contributors",
+        "notes": "Truthful game capture under the upstream repository and bundled-font notices; no upstream artwork was extracted for promotional use."
+      }
+    },
+    {
+      "kind": "SCREENSHOT",
+      "filename": "screenshots/02.webp",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 16754,
+      "altText": "A connected Digibuzzer participant sees the large live buzzer and current score.",
+      "sha256": "e9b3de51e1105404d0d99a4271a8f38c0372dab1e32f10e8628750eb832ac224",
+      "generationPrompt": null,
+      "provenance": {
+        "type": "REAL_GAMEPLAY_CAPTURE",
+        "upstreamReference": "http://127.0.0.1:18103/p/d47a8c885d1ae916",
+        "capture": "Playwright Chromium viewport capture at 1920x1080 from the hardened local Vortex fork runtime.",
+        "scenario": "The real Nova participant client connected to the active Vortex Championship room before buzzing."
+      },
+      "license": {
+        "identifier": "AGPL-3.0-only AND LicenseRef-Digibuzzer-Bundled-Fonts",
+        "copyrightHolder": "La Digitale and Digibuzzer contributors",
+        "notes": "Truthful game capture under the upstream repository and bundled-font notices; no upstream artwork was extracted for promotional use."
+      }
+    },
+    {
+      "kind": "SCREENSHOT",
+      "filename": "screenshots/03.webp",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 29724,
+      "altText": "The Digibuzzer host judges Nova's live buzz as a good or bad answer worth 1000 points.",
+      "sha256": "a5d229eed39d8f065a67852af151cd36a43da024bc88677e737ab4464fd26f5e",
+      "generationPrompt": null,
+      "provenance": {
+        "type": "REAL_GAMEPLAY_CAPTURE",
+        "upstreamReference": "http://127.0.0.1:18103/c/d47a8c885d1ae916",
+        "capture": "Playwright Chromium viewport capture at 1920x1080 from the hardened local Vortex fork runtime.",
+        "scenario": "A server-confirmed live buzzer press opened the host scoring decision for the connected participant."
+      },
+      "license": {
+        "identifier": "AGPL-3.0-only AND LicenseRef-Digibuzzer-Bundled-Fonts",
+        "copyrightHolder": "La Digitale and Digibuzzer contributors",
+        "notes": "Truthful game capture under the upstream repository and bundled-font notices; no upstream artwork was extracted for promotional use."
+      }
+    }
+  ]
+}
