@@ -37,8 +37,8 @@ test('deployment is an exact isolated web plus Redis stack', () => {
 	assert.equal(deployment.schemaVersion, '1.0')
 	assert.deepEqual(deployment.gateway, { service: 'web', port: 'http' })
 	assert.deepEqual(deployment.volumes, [
-		{ name: 'avatars', kind: 'PERSISTENT' },
-		{ name: 'redis-data', kind: 'PERSISTENT' }
+		{ name: 'avatars', kind: 'PERSISTENT', quotaBytes: '1073741824', ownerUid: 1000, ownerGid: 1000 },
+		{ name: 'redis-data', kind: 'PERSISTENT', quotaBytes: '1073741824', ownerUid: 999, ownerGid: 999 }
 	])
 
 	const web = deployment.services.find((service) => service.name === 'web')

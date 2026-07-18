@@ -83,11 +83,17 @@
     "volumes": [
       {
         "name": "avatars",
-        "kind": "PERSISTENT"
+        "kind": "PERSISTENT",
+        "quotaBytes": "1073741824",
+        "ownerUid": 1000,
+        "ownerGid": 1000
       },
       {
         "name": "redis-data",
-        "kind": "PERSISTENT"
+        "kind": "PERSISTENT",
+        "quotaBytes": "1073741824",
+        "ownerUid": 999,
+        "ownerGid": 999
       }
     ],
     "services": [
