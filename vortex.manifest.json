@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "revision": 4,
+  "revision": 5,
   "requiredScopes": [
     "identity.basic",
     "play.write",
@@ -127,9 +127,9 @@
           "retries": 18
         },
         "resources": {
-          "cpuCores": 1,
-          "memoryMb": 1024,
-          "pidsLimit": 256
+          "cpuCores": 0.5,
+          "memoryMb": 384,
+          "pidsLimit": 128
         },
         "mounts": [
           {
@@ -175,9 +175,9 @@
           "retries": 18
         },
         "resources": {
-          "cpuCores": 0.5,
-          "memoryMb": 512,
-          "pidsLimit": 128
+          "cpuCores": 0.1,
+          "memoryMb": 128,
+          "pidsLimit": 64
         },
         "mounts": [
           {
