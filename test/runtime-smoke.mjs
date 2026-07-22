@@ -15,7 +15,7 @@ const request = async (path, options = {}) => {
 		method: options.method || (options.json === undefined ? 'GET' : 'POST'),
 		headers,
 		body: options.json === undefined ? options.body : JSON.stringify(options.json),
-		redirect: options.redirect || 'follow'
+		redirect: options.redirect || 'follow',
 	})
 	const bytes = Buffer.from(await response.arrayBuffer())
 	if (!response.ok) throw new Error(`${response.status} ${path}: ${bytes.toString('utf8')}`)
@@ -23,7 +23,7 @@ const request = async (path, options = {}) => {
 		response,
 		bytes,
 		text: bytes.toString('utf8'),
-		cookie: response.headers.get('set-cookie')?.split(';', 1)[0] || options.cookie || ''
+		cookie: response.headers.get('set-cookie')?.split(';', 1)[0] || options.cookie || '',
 	}
 }
 
@@ -33,46 +33,122 @@ const pageContext = (html) => {
 	return JSON.parse(match[1]).pageProps
 }
 
-const connect = (cookie) => new Promise((resolve, reject) => {
-	const socket = io(baseUrl, {
-		transports: ['websocket'],
-		extraHeaders: { Cookie: cookie },
-		forceNew: true,
-		reconnection: false,
-		timeout: 5000
+const connect = (cookie) =>
+	new Promise((resolve, reject) => {
+		const socket = io(baseUrl, {
+			transports: ['websocket'],
+			extraHeaders: { Cookie: cookie },
+			forceNew: true,
+			reconnection: false,
+			timeout: 5000,
+		})
+		const timer = setTimeout(() => {
+			socket.close()
+			reject(new Error('Socket.IO connection timed out'))
+		}, 7000)
+		socket.once('connect', () => {
+			clearTimeout(timer)
+			resolve(socket)
+		})
+		socket.once('connect_error', (error) => {
+			clearTimeout(timer)
+			reject(error)
+		})
 	})
-	const timer = setTimeout(() => {
-		socket.close()
-		reject(new Error('Socket.IO connection timed out'))
-	}, 7000)
-	socket.once('connect', () => {
-		clearTimeout(timer)
-		resolve(socket)
-	})
-	socket.once('connect_error', (error) => {
-		clearTimeout(timer)
-		reject(error)
-	})
-})
 
-const waitFor = (socket, event, predicate = () => true) => new Promise((resolve, reject) => {
-	const timer = setTimeout(() => {
-		socket.off(event, listener)
-		reject(new Error(`Timed out waiting for Socket.IO event ${event}`))
-	}, 7000)
-	const listener = (payload) => {
-		if (!predicate(payload)) return
-		clearTimeout(timer)
-		socket.off(event, listener)
-		resolve(payload)
+const connectWithTransportEvidence = (cookie, transports) =>
+	new Promise((resolve, reject) => {
+		const socket = io(baseUrl, {
+			autoConnect: false,
+			transports,
+			extraHeaders: { Cookie: cookie },
+			forceNew: true,
+			reconnection: false,
+			timeout: 5000,
+		})
+		let initialTransport = ''
+		const timer = setTimeout(() => {
+			socket.close()
+			reject(new Error(`Socket.IO ${transports.join(' -> ')} connection timed out`))
+		}, 7000)
+		socket.io.once('open', () => {
+			initialTransport = socket.io.engine.transport.name
+		})
+		socket.once('connect', () => {
+			clearTimeout(timer)
+			resolve({ socket, initialTransport })
+		})
+		socket.once('connect_error', (error) => {
+			clearTimeout(timer)
+			reject(error)
+		})
+		socket.connect()
+	})
+
+const waitForWebSocketUpgrade = (socket) =>
+	new Promise((resolve, reject) => {
+		const engine = socket.io.engine
+		if (engine.transport.name === 'websocket') return resolve('websocket')
+		const timer = setTimeout(() => {
+			engine.off('upgrade', upgraded)
+			engine.off('upgradeError', failed)
+			reject(new Error(`Socket.IO stayed on ${engine.transport.name}; WebSocket upgrade did not complete`))
+		}, 7000)
+		const upgraded = (transport) => {
+			clearTimeout(timer)
+			engine.off('upgradeError', failed)
+			resolve(transport.name)
+		}
+		const failed = (error) => {
+			clearTimeout(timer)
+			engine.off('upgrade', upgraded)
+			reject(error)
+		}
+		engine.once('upgrade', upgraded)
+		engine.once('upgradeError', failed)
+	})
+
+const verifyTransportPolicy = async (cookie) => {
+	const fallback = await connectWithTransportEvidence(cookie, ['polling', 'websocket'])
+	try {
+		assert.equal(fallback.initialTransport, 'polling')
+		assert.equal(await waitForWebSocketUpgrade(fallback.socket), 'websocket')
+	} finally {
+		fallback.socket.close()
 	}
-	socket.on(event, listener)
-})
+
+	const pollingOnly = await connectWithTransportEvidence(cookie, ['polling'])
+	try {
+		assert.equal(pollingOnly.initialTransport, 'polling')
+		assert.equal(pollingOnly.socket.io.engine.transport.name, 'polling')
+	} finally {
+		pollingOnly.socket.close()
+	}
+}
+
+const waitFor = (socket, event, predicate = () => true) =>
+	new Promise((resolve, reject) => {
+		const timer = setTimeout(() => {
+			socket.off(event, listener)
+			reject(new Error(`Timed out waiting for Socket.IO event ${event}`))
+		}, 7000)
+		const listener = (payload) => {
+			if (!predicate(payload)) return
+			clearTimeout(timer)
+			socket.off(event, listener)
+			resolve(payload)
+		}
+		socket.on(event, listener)
+	})
 
 const healthAndLegal = async () => {
 	const health = JSON.parse((await request('/healthz')).text)
 	assert.deepEqual(health, { status: 'ok', redis: 'ready' })
 	assert.deepEqual(JSON.parse((await request('/api/vortex/config')).text), { enabled: false })
+	const home = await request('/')
+	const contentSecurityPolicy = home.response.headers.get('content-security-policy') || ''
+	assert.match(contentSecurityPolicy, /script-src[^;]*https:\/\/static\.cloudflareinsights\.com/)
+	assert.match(contentSecurityPolicy, /connect-src[^;]*https:\/\/cloudflareinsights\.com/)
 	assert.match((await request('/legal/source')).text, /Hannibal420King\/digibuzzer\/tree\/vortex-v2/)
 	assert.match((await request('/legal/license')).text, /GNU AFFERO GENERAL PUBLIC LICENSE/)
 }
@@ -95,6 +171,7 @@ const seed = async ({ printState = true } = {}) => {
 	const participant = pageContext(participantPage.text)
 	assert.equal(participant.erreur, undefined)
 	assert.equal(participant.salle, room)
+	await verifyTransportPolicy(hostCookie)
 
 	const avatarSource = await readFile(new URL('../avatars/avatar1.png', import.meta.url))
 	const form = new FormData()
@@ -102,13 +179,13 @@ const seed = async ({ printState = true } = {}) => {
 	const avatarUpload = await request('/api/televerser-avatar', {
 		method: 'POST',
 		cookie: participantCookie,
-		body: form
+		body: form,
 	})
 	const avatar = avatarUpload.text
 	assert.match(avatar, /^avatar_[a-z0-9]+\.png$/)
 	await request('/api/modifier-informations', {
 		cookie: participantCookie,
-		json: { nom: 'Vortex Smoke Player', avatar }
+		json: { nom: 'Vortex Smoke Player', avatar },
 	})
 	const persistedAvatar = await request(`/avatars/${avatar}`)
 	const avatarSha256 = createHash('sha256').update(persistedAvatar.bytes).digest('hex')
@@ -123,7 +200,7 @@ const seed = async ({ printState = true } = {}) => {
 		hostSocket.emit('salleouverte', {
 			salle: room,
 			titre: 'Vortex persistence smoke',
-			options: { reponses: 'orales', buzzer: 'immediate', points: 1000, pointsRetranchesActives: false, pointsRetranches: 500, scoreNegatif: false }
+			options: { reponses: 'orales', buzzer: 'immediate', points: 1000, pointsRetranchesActives: false, pointsRetranches: 500, scoreNegatif: false },
 		})
 		await opened
 

@@ -1,0 +1,13 @@
+http:
+  routers:
+    digibuzzer-smoke:
+      entryPoints:
+        - web
+      rule: PathPrefix(`/`)
+      service: digibuzzer-smoke
+
+  services:
+    digibuzzer-smoke:
+      loadBalancer:
+        servers:
+          - url: http://app:3000

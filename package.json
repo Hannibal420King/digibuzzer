@@ -1,78 +1,77 @@
 {
-  "name": "digibuzzer",
-  "version": "0.8.0",
-  "homepage": "https://digibuzzer.app",
-  "repository": {
-    "type": "git",
-    "url": "https://codeberg.org/ladigitale/digibuzzer.git"
-  },
-  "author": {
-    "name": "Emmanuel ZIMMERT",
-    "email": "ez@ladigitale.dev",
-    "url": "https://ladigitale.dev"
-  },
-  "license": "GNU AGPLv3",
-  "scripts": {
-    "dev": "npm run server",
-    "prod": "npm run build && npm run server:prod",
-    "build": "vike build",
-    "test": "node --test \"test/*.test.js\"",
-    "server": "nodemon --watch server ./server/app.js",
-    "server:prod": "cross-env NODE_ENV=production node ./server/app.js"
-  },
-  "type": "module",
-  "dependencies": {
-    "@socket.io/cluster-adapter": "^0.3.0",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/compiler-sfc": "^3.5.24",
-    "@vue/server-renderer": "^3.5.24",
-    "axios": "^1.13.2",
-    "clipboard": "^2.0.11",
-    "compression": "^1.8.1",
-    "connect-redis": "^9.0.0",
-    "cors": "^2.8.5",
-    "cross-env": "^10.1.0",
-    "dayjs": "^1.11.19",
-    "destyle.css": "^2.0.0",
-    "dompurify": "^3.4.8",
-    "dotenv": "^17.2.3",
-    "eiows": "^9.2.0",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.5.2",
-    "express-session": "^1.18.2",
-    "file-saver": "^2.0.5",
-    "fs-extra": "^11.3.2",
-    "helmet": "^8.1.0",
-    "multer": "^2.0.2",
-    "node-cron": "^4.2.1",
-    "rate-limit-redis": "^5.0.0",
-    "redis": "^5.9.0",
-    "sharp": "^0.34.5",
-    "sirv": "^3.0.2",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "vike": "^0.4.245",
-    "vite": "^8.1.0",
-    "vue": "^3.5.24",
-    "vue-i18n": "^10.0.8"
-  },
-  "devDependencies": {
-    "@rushstack/eslint-patch": "^1.16.1",
-    "@vue/eslint-config-prettier": "^10.2.0",
-    "eslint": "^10.0.2",
-    "eslint-plugin-vue": "^10.8.0",
-    "nodemon": "^3.1.14",
-    "prettier": "^3.8.1"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.1.0",
-    "utf-8-validate": "^6.0.6"
-  },
-  "allowScripts": {
-    "bufferutil@4.1.0": true,
-    "esbuild@0.28.1": true,
-    "sharp@0.34.5": true,
-    "utf-8-validate@6.0.6": true,
-    "eiows@9.2.0": true
-  }
+	"name": "digibuzzer",
+	"version": "0.8.0",
+	"homepage": "https://digibuzzer.app",
+	"repository": {
+		"type": "git",
+		"url": "https://codeberg.org/ladigitale/digibuzzer.git"
+	},
+	"author": {
+		"name": "Emmanuel ZIMMERT",
+		"email": "ez@ladigitale.dev",
+		"url": "https://ladigitale.dev"
+	},
+	"license": "GNU AGPLv3",
+	"scripts": {
+		"dev": "npm run server",
+		"prod": "npm run build && npm run server:prod",
+		"build": "vike build",
+		"test": "node --test \"test/*.test.js\"",
+		"test:proxy-transport": "node test/proxy-transport-smoke.mjs",
+		"server": "nodemon --watch server ./server/app.js",
+		"server:prod": "cross-env NODE_ENV=production node ./server/app.js"
+	},
+	"type": "module",
+	"dependencies": {
+		"@socket.io/cluster-adapter": "^0.3.0",
+		"@vitejs/plugin-vue": "^6.0.1",
+		"@vue/compiler-sfc": "^3.5.24",
+		"@vue/server-renderer": "^3.5.24",
+		"axios": "^1.13.2",
+		"clipboard": "^2.0.11",
+		"compression": "^1.8.1",
+		"connect-redis": "^9.0.0",
+		"cors": "^2.8.5",
+		"cross-env": "^10.1.0",
+		"dayjs": "^1.11.19",
+		"destyle.css": "^2.0.0",
+		"dompurify": "^3.4.8",
+		"dotenv": "^17.2.3",
+		"express": "^5.1.0",
+		"express-rate-limit": "^8.5.2",
+		"express-session": "^1.18.2",
+		"file-saver": "^2.0.5",
+		"fs-extra": "^11.3.2",
+		"helmet": "^8.1.0",
+		"multer": "^2.0.2",
+		"node-cron": "^4.2.1",
+		"rate-limit-redis": "^5.0.0",
+		"redis": "^5.9.0",
+		"sharp": "^0.34.5",
+		"sirv": "^3.0.2",
+		"socket.io": "^4.8.1",
+		"socket.io-client": "^4.8.1",
+		"vike": "^0.4.245",
+		"vite": "^8.1.0",
+		"vue": "^3.5.24",
+		"vue-i18n": "^10.0.8"
+	},
+	"devDependencies": {
+		"@rushstack/eslint-patch": "^1.16.1",
+		"@vue/eslint-config-prettier": "^10.2.0",
+		"eslint": "^10.0.2",
+		"eslint-plugin-vue": "^10.8.0",
+		"nodemon": "^3.1.14",
+		"prettier": "^3.8.1"
+	},
+	"optionalDependencies": {
+		"bufferutil": "^4.1.0",
+		"utf-8-validate": "^6.0.6"
+	},
+	"allowScripts": {
+		"bufferutil@4.1.0": true,
+		"esbuild@0.28.1": true,
+		"sharp@0.34.5": true,
+		"utf-8-validate@6.0.6": true
+	}
 }

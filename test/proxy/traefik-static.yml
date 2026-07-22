@@ -1,0 +1,17 @@
+entryPoints:
+  web:
+    address: ':8080'
+
+providers:
+  file:
+    filename: /etc/traefik/config/dynamic.yml
+
+api:
+  dashboard: false
+
+log:
+  level: INFO
+  format: json
+
+accessLog:
+  format: json

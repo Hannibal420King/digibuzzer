@@ -5,7 +5,6 @@ import express from 'express'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { createAdapter } from '@socket.io/cluster-adapter'
-import eiows from 'eiows'
 import compression from 'compression'
 import cors from 'cors'
 import { createClient } from 'redis'
@@ -22,11 +21,12 @@ import { RedisStore as RateLimitRedisStore } from 'rate-limit-redis'
 import { randomBytes } from 'crypto'
 import { renderPage, createDevMiddleware } from 'vike/server'
 import { vortexPublicConfig } from './vortex-runtime.js'
+import { CLOUDFLARE_ANALYTICS_CONNECT_ORIGIN, CLOUDFLARE_ANALYTICS_SCRIPT_ORIGIN, createSocketServerOptions } from './realtime-policy.js'
 
 const production = process.env.NODE_ENV === 'production'
 
 if (!process.env.SESSION_KEY || process.env.SESSION_KEY.trim() === '') {
-	console.error('ERREUR : la variable d\'environnement SESSION_KEY est manquante ou vide. Le serveur ne peut pas démarrer.')
+	console.error("ERREUR : la variable d'environnement SESSION_KEY est manquante ou vide. Le serveur ne peut pas démarrer.")
 	process.exit(1)
 }
 
@@ -49,7 +49,7 @@ const demarrerServeur = async () => {
 		try {
 			configuredPublicOrigin = new URL(process.env.DOMAIN).origin
 		} catch {
-			console.warn('La variable DOMAIN est invalide ; l\'origine de la requête sera utilisée.')
+			console.warn("La variable DOMAIN est invalide ; l'origine de la requête sera utilisée.")
 		}
 	}
 	const requestOrigin = (req) => configuredPublicOrigin || `${req.protocol}://${req.get('host')}`
@@ -64,15 +64,17 @@ const demarrerServeur = async () => {
 	} else if (!redisUrl) {
 		redisUrl = `redis://localhost:${db_port}`
 	}
-	db = await createClient({ url: redisUrl }).on('error', (err) => {
-		console.error('Erreur Redis : ' + err)
-	}).connect()
+	db = await createClient({ url: redisUrl })
+		.on('error', (err) => {
+			console.error('Erreur Redis : ' + err)
+		})
+		.connect()
 	const cookieSecureExplicit = process.env.COOKIE_SECURE === undefined ? null : parseInt(process.env.COOKIE_SECURE) !== 0
 	let storeOptions, cookie, dureeSession, domainesAutorises
 	if (production) {
 		storeOptions = {
 			client: db,
-			prefix: 'sessions:'
+			prefix: 'sessions:',
 		}
 		if (cookieSecureExplicit === true) {
 			cookie = { sameSite: 'None', secure: true }
@@ -84,14 +86,14 @@ const demarrerServeur = async () => {
 	} else {
 		storeOptions = {
 			client: db,
-			prefix: 'sessions:'
+			prefix: 'sessions:',
 		}
 		cookie = {
-			secure: false
+			secure: false,
 		}
 	}
 	if (production && !process.env.SESSION_KEY) {
-		throw new Error('SESSION_KEY manquante dans les variables d\'environnement. Arrêt du serveur.')
+		throw new Error("SESSION_KEY manquante dans les variables d'environnement. Arrêt du serveur.")
 	}
 	const redisStore = new RedisStore(storeOptions)
 	const sessionOptions = {
@@ -101,7 +103,7 @@ const demarrerServeur = async () => {
 		resave: false,
 		rolling: true,
 		saveUninitialized: false,
-		cookie: cookie
+		cookie: cookie,
 	}
 	if (process.env.SESSION_DURATION) {
 		dureeSession = parseInt(process.env.SESSION_DURATION)
@@ -156,10 +158,10 @@ const demarrerServeur = async () => {
 		legacyHeaders: false,
 		store: new RateLimitRedisStore({
 			sendCommand: (...args) => db.sendCommand(args),
-			prefix: 'rl-api:'
+			prefix: 'rl-api:',
 		}),
 		skipSuccessfulRequests: true,
-		validate: { trustProxy: false }
+		validate: { trustProxy: false },
 	})
 
 	let scriptSrc
@@ -173,6 +175,8 @@ const demarrerServeur = async () => {
 	}
 	if (!production) {
 		scriptSrc.push("'unsafe-inline'")
+	} else {
+		scriptSrc.push(CLOUDFLARE_ANALYTICS_SCRIPT_ORIGIN)
 	}
 	const vortexConfig = vortexPublicConfig()
 	if (vortexConfig.enabled) {
@@ -183,17 +187,21 @@ const demarrerServeur = async () => {
 		hoteVite = ''
 	}
 	app.set('trust proxy', 1)
+	const connectSrc = ["'self'", ...(hoteVite ? [hoteVite] : []), ...(vortexConfig.enabled ? [vortexConfig.vortexOrigin] : []), ...(domaineUmami ? [domaineUmami] : [])]
+	if (production) {
+		connectSrc.push(CLOUDFLARE_ANALYTICS_CONNECT_ORIGIN)
+	}
 	app.use(
 		helmet.contentSecurityPolicy({
 			directives: {
-				"default-src": ["'self'", "https:"],
-				"upgrade-insecure-requests": null,
-				"connect-src": ["'self'", ...(hoteVite ? [hoteVite] : []), ...(vortexConfig.enabled ? [vortexConfig.vortexOrigin] : []), ...(domaineUmami ? [domaineUmami] : [])],
-				"script-src": scriptSrc,
-				"media-src": ["'self'", "data:"],
-				"frame-ancestors": ["'self'", 'https://ladigitale.dev', 'https://digipad.app', 'https://digiwall.app']
-			}
-		})
+				'default-src': ["'self'", 'https:'],
+				'upgrade-insecure-requests': null,
+				'connect-src': connectSrc,
+				'script-src': scriptSrc,
+				'media-src': ["'self'", 'data:'],
+				'frame-ancestors': ["'self'", 'https://ladigitale.dev', 'https://digipad.app', 'https://digiwall.app'],
+			},
+		}),
 	)
 	app.use(express.json({ limit: '10mb' }))
 	app.get(['/health', '/healthz'], async (_req, res) => {
@@ -237,7 +245,7 @@ const demarrerServeur = async () => {
 		const sirv = (await import('sirv')).default
 		app.use(sirv(`${root}/dist/client`))
 	}
-	
+
 	app.get('/', async (req, res, next) => {
 		let langue = 'fr'
 		if (req.session.hasOwnProperty('langue') && req.session.langue !== '') {
@@ -249,7 +257,7 @@ const demarrerServeur = async () => {
 			hote: requestOrigin(req),
 			serverOrigin: localServerOrigin,
 			langues: langues,
-			langue: langue
+			langue: langue,
 		}
 		const pageContext = await renderPage(pageContextInit)
 		if (pageContext.errorWhileRendering) {
@@ -284,7 +292,7 @@ const demarrerServeur = async () => {
 			avatar: req.session.avatar,
 			langue: langue,
 			role: req.session.role,
-			salles: req.session.salles
+			salles: req.session.salles,
 		}
 		const pageContext = await renderPage(pageContextInit)
 		if (pageContext.errorWhileRendering) {
@@ -328,7 +336,7 @@ const demarrerServeur = async () => {
 			nom: req.session.nom,
 			avatar: req.session.avatar,
 			langue: req.session.langue,
-			role: req.session.role
+			role: req.session.role,
 		}
 		const pageContext = await renderPage(pageContextInit)
 		if (pageContext.errorWhileRendering) {
@@ -435,7 +443,7 @@ const demarrerServeur = async () => {
 			res.status(500).send('erreur')
 		}
 	})
-	
+
 	app.post('/api/modifier-informations', (req, res) => {
 		const nom = req.body.nom
 		const avatar = req.body.avatar
@@ -489,7 +497,7 @@ const demarrerServeur = async () => {
 						.rotate()
 						.jpeg({
 							quality: 90,
-							progressive: true
+							progressive: true,
 						})
 						.resize(300, 320)
 						.toBuffer()
@@ -502,10 +510,7 @@ const demarrerServeur = async () => {
 				}
 			} else if (extension === '.png') {
 				try {
-					const bufferOptimise = await sharp(chemin, { failOnError: false })
-						.withMetadata()
-						.resize(300, 320)
-						.toBuffer()
+					const bufferOptimise = await sharp(chemin, { failOnError: false }).withMetadata().resize(300, 320).toBuffer()
 					if (!bufferOptimise) return res.status(500).send('erreur')
 					await fs.writeFile(chemin, bufferOptimise)
 					res.status(200).send(fichier.filename)
@@ -525,38 +530,34 @@ const demarrerServeur = async () => {
 
 	httpServer.listen(port)
 
-	const io = new Server(httpServer, {
-		wsEngine: eiows.Server,
-		cors: {
-			origin: domainesAutorises
-		},
-		pingInterval: 120000,
-    	pingTimeout: 100000,
-    	maxHttpBufferSize: 1e7,
-		cookie: false,
-		perMessageDeflate: false
-	})
+	const io = new Server(httpServer, createSocketServerOptions(domainesAutorises))
 	if (cluster === true) {
 		io.adapter(createAdapter())
 	}
-	const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
+	const wrap = (middleware) => (socket, next) => middleware(socket.request, {}, next)
 	io.use(wrap(sessionMiddleware))
 	// Rate limit pour les sockets : 100 actions par seconde par worker
 	const compteurSocket = new Map()
 	io.use((socket, next) => {
 		const identifiant = socket.request.session?.identifiant || socket.handshake.address
 		if (!compteurSocket.has(identifiant)) {
-			compteurSocket.set(identifiant, { n: 0, intervalle: setInterval(() => {
-				compteurSocket.get(identifiant).n = 0
-			}, 1000) })
+			compteurSocket.set(identifiant, {
+				n: 0,
+				intervalle: setInterval(() => {
+					compteurSocket.get(identifiant).n = 0
+				}, 1000),
+			})
 		}
 		socket.use((paquet, suivant) => {
 			let etat = compteurSocket.get(identifiant)
 			if (!etat) {
-				etat = { n: 0, intervalle: setInterval(() => {
-					const e = compteurSocket.get(identifiant)
-					if (e) e.n = 0
-				}, 1000) }
+				etat = {
+					n: 0,
+					intervalle: setInterval(() => {
+						const e = compteurSocket.get(identifiant)
+						if (e) e.n = 0
+					}, 1000),
+				}
 				compteurSocket.set(identifiant, etat)
 			}
 			etat.n++
@@ -567,7 +568,7 @@ const demarrerServeur = async () => {
 		})
 		socket.on('disconnect', () => {
 			const io_sockets = [...io.sockets.sockets.values()]
-			const autreSockets = io_sockets.filter((s)  => {
+			const autreSockets = io_sockets.filter((s) => {
 				return s.id !== socket.id && (s.request.session?.identifiant || s.handshake.address) === identifiant
 			})
 			if (autreSockets.length === 0) {
@@ -580,7 +581,7 @@ const demarrerServeur = async () => {
 		})
 		next()
 	})
-	
+
 	io.on('connection', (socket) => {
 		const req = socket.request
 		socket.use((__, next) => {
@@ -606,18 +607,14 @@ const demarrerServeur = async () => {
 				for (let i = 0; i < clients.length; i++) {
 					utilisateurs.push({ identifiant: clients[i].data.identifiant, nom: clients[i].data.nom, avatar: clients[i].data.avatar })
 				}
-				const utilisateursConnectes = utilisateurs.filter((valeur, index, self) =>
-					index === self.findIndex((t) => (
-						t.identifiant === valeur.identifiant && t.nom === valeur.nom && t.avatar === valeur.avatar
-					))
-				)
+				const utilisateursConnectes = utilisateurs.filter((valeur, index, self) => index === self.findIndex((t) => t.identifiant === valeur.identifiant && t.nom === valeur.nom && t.avatar === valeur.avatar))
 				io.to(salle).emit('connexion', { utilisateurs: utilisateursConnectes, utilisateur: { identifiant: identifiant, nom: nom, avatar: avatar } })
 			} catch (err) {
 				console.error(err.stack)
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('deconnexion', () => {
 			const salle = socket.data.salle
 			if (!salle) return
@@ -633,7 +630,7 @@ const demarrerServeur = async () => {
 				})
 			}
 		})
-	
+
 		socket.on('salleouverte', async (donnees) => {
 			if (!verifierAdmin(req, donnees.salle)) return socket.emit('erreur')
 			if (!donnees.hasOwnProperty('options')) return socket.to(donnees.salle).emit('salleouverte', donnees)
@@ -652,12 +649,12 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('sallefermee', (salle) => {
 			if (!verifierAdmin(req, salle)) return
 			socket.to(salle).emit('sallefermee')
 		})
-	
+
 		socket.on('utilisateurs', async (donnees) => {
 			const salle = donnees.salle
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
@@ -702,7 +699,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('informations', async (donnees) => {
 			try {
 				const salle = donnees.salle
@@ -735,7 +732,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('question', async ({ salle, indexQuestion }) => {
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
 			try {
@@ -753,18 +750,18 @@ const demarrerServeur = async () => {
 				if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites') {
 					donnees.textes.push([])
 				}
-				if (donnees.reponses.length < (indexQuestion + 1)) {
-					for (let i = 0; i < ((indexQuestion + 1) - donnees.reponses.length); i++) {
+				if (donnees.reponses.length < indexQuestion + 1) {
+					for (let i = 0; i < indexQuestion + 1 - donnees.reponses.length; i++) {
 						donnees.reponses.push([])
 					}
 				}
-				if (donnees.resultats.length < (indexQuestion + 1)) {
-					for (let i = 0; i < ((indexQuestion + 1) - donnees.resultats.length); i++) {
+				if (donnees.resultats.length < indexQuestion + 1) {
+					for (let i = 0; i < indexQuestion + 1 - donnees.resultats.length; i++) {
 						donnees.resultats.push([])
 					}
 				}
-				if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites' && donnees.textes.length < (indexQuestion + 1)) {
-					for (let i = 0; i < ((indexQuestion + 1) - donnees.textes.length); i++) {
+				if (donnees.hasOwnProperty('options') && donnees.options.reponses === 'ecrites' && donnees.textes.length < indexQuestion + 1) {
+					for (let i = 0; i < indexQuestion + 1 - donnees.textes.length; i++) {
 						donnees.textes.push([])
 					}
 				}
@@ -777,7 +774,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('reponses', async (salle) => {
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
 			try {
@@ -797,7 +794,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('reponse', (donnees) => {
 			if (donnees.identifiant !== req.session?.identifiant) return
 			if (!donnees.salle || donnees.salle !== socket.data.salle) return
@@ -809,7 +806,7 @@ const demarrerServeur = async () => {
 			if (!donnees.salle || donnees.salle !== socket.data.salle) return
 			io.to(donnees.salle).emit('texte', donnees)
 		})
-	
+
 		socket.on('premierereponse', async ({ salle, identifiant, indexQuestion }) => {
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
 			try {
@@ -854,7 +851,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('reponseannulee', async ({ salle, identifiant }) => {
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
 			try {
@@ -874,7 +871,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('reponsecomptabilisee', async ({ salle, identifiant, type, points, indexQuestion }) => {
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
 			try {
@@ -901,7 +898,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('score', async ({ salle, identifiant, bonus }) => {
 			if (!verifierAdmin(req, salle)) return socket.emit('erreur')
 			try {
@@ -929,7 +926,7 @@ const demarrerServeur = async () => {
 				socket.emit('erreur')
 			}
 		})
-	
+
 		socket.on('modifierlangue', async (langue) => {
 			req.session.langue = langue
 			await sauvegarderSession(req)
@@ -970,8 +967,8 @@ const demarrerServeur = async () => {
 				const extension = info.ext.toLowerCase()
 				const nom = 'avatar_' + Math.random().toString(36).substring(2) + extension
 				callback(null, nom)
-			}
-		})
+			},
+		}),
 	}).single('fichier')
 }
 
